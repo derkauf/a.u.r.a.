@@ -1,6 +1,7 @@
 <!--
-  Telemetry line under the gear: frame rate, frame time and anchor status.
-  Hidden unless Settings › HUD & Visual › Telemetry is on. The text is set
+  Telemetry line, pinned to the view near the top edge and drawn on top of
+  the windows (AuraTelemetryHudSystem): frame rate, frame time and anchor
+  status. Hidden unless Settings › HUD & Visual › Telemetry is on. The text is set
   by AuraAppearanceSystem (src/ui/appearance-system.ts) twice per second.
 -->
 <style>

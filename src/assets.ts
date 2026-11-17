@@ -25,8 +25,11 @@ export default defineAssets({
   'panel-lamp': uikitml('panel-lamp.uikitml', 'Panel — Living room lamp'),
   'panel-ac': uikitml('panel-ac.uikitml', 'Panel — Living room AC'),
   'panel-lock': uikitml('panel-lock.uikitml', 'Panel — Front door lock'),
+  'panel-tv': uikitml('panel-tv.uikitml', 'Panel — Living room TV (tag 10)'),
   'camera-placeholder': uikitml('camera-placeholder.uikitml', 'Door camera (simulated)'),
   settings: uikitml('settings.uikitml', 'Settings'),
   'settings-gear': uikitml('settings-gear.uikitml', 'Settings gear button'),
   telemetry: uikitml('telemetry.uikitml', 'Telemetry line'),
+  'scan-button': uikitml('scan-button.uikitml', 'Scan button (Phase 3)'),
+  'tag-scanner': uikitml('tag-scanner.uikitml', 'Tag scanner (passthrough camera)'),
 });

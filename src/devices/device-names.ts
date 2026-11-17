@@ -14,6 +14,7 @@ const NAME_KEYS: Record<DeviceId, readonly MessageKey[]> = {
   'lamp-sala-01': ['device.lamp.title', 'name.lamp.1', 'name.lamp.2', 'name.lamp.3'],
   'ac-sala-01': ['device.ac.title', 'name.ac.1', 'name.ac.2', 'name.ac.3'],
   'lock-porta-01': ['device.lock.title', 'name.lock.1', 'name.lock.2', 'name.lock.3'],
+  'tv-sala-01': ['device.tv.title', 'name.tv.1', 'name.tv.2', 'name.tv.3'],
 };
 
 /** The device's current display name, in the current locale. */

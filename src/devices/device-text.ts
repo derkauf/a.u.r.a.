@@ -14,6 +14,8 @@ export function deviceStatusText(entry: DeviceEntry): string {
       return entry.state.power ? t('status.ac.on', entry.state.setpoint_c ?? 22) : t('status.ac.off');
     case 'lock-porta-01':
       return entry.state.locked ? t('status.lock.locked') : t('status.lock.unlocked');
+    case 'tv-sala-01':
+      return entry.state.power ? t('status.tv.on', entry.state.volume ?? 30) : t('status.tv.off');
   }
 }
 

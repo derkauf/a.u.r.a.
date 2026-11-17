@@ -38,6 +38,10 @@ const STATIC_TEXT: Record<string, readonly TextBinding[]> = {
     ['txt-bar-title', { device: 'lock-porta-01' }],
     ['control-cam-label', { key: 'action.viewCamera' }],
   ],
+  'panel-tv': [
+    ['txt-title', { device: 'tv-sala-01' }],
+    ['txt-bar-title', { device: 'tv-sala-01' }],
+  ],
   'sticker-lamp': [['sticker-scan-label', { device: 'lamp-sala-01' }]],
   'sticker-ac': [['sticker-scan-label', { device: 'ac-sala-01' }]],
   'sticker-lock': [['sticker-scan-label', { device: 'lock-porta-01' }]],
@@ -46,6 +50,8 @@ const STATIC_TEXT: Record<string, readonly TextBinding[]> = {
     ['txt-camera-text', { key: 'camera.text' }],
     ['txt-camera-sub', { key: 'camera.sub' }],
   ],
+  'tag-scanner': [['txt-scanner-title', { key: 'scanner.title' }]],
+  'scan-button': [],
   // Font only; their text is owned by other systems.
   settings: [],
   telemetry: [],

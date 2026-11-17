@@ -413,3 +413,48 @@ Fora do repositório (git-ignorado): `.iwsdk/https-lan/key.pem` e `cert.pem`.
   - ainda descreve a interface da Phase 1;
   - manda aceitar o aviso de certificado em vez de usar os endereços da Vercel;
   - a seção "7. O que eu não consegui verificar" diz que o round-trip não rodou, e ele já passou.
+
+---
+
+# Parte 5: Phase 3 começa (identidade visual e scanner de tags)
+
+Sessão em andamento; o `/devlog` completa esta parte.
+
+## 1. Observações do dev-journey
+
+**Câmera da porta ≠ scanner de tags (correção do usuário, 17/11).** No primeiro teste de câmera, o teste foi ligado por engano ao "View camera" da fechadura. Esse botão é a **câmera da porta**, um recurso do dispositivo smart lock (continua simulada em `camera-placeholder.uikitml`). A câmera da Phase 3 é outra coisa: o **scanner no passthrough**, que lê os AprilTags do ambiente e puxa as âncoras de verdade do espaço. **Cada AprilTag tem o seu endereço** (o id do tag resolve para o dispositivo em `src/markers/apriltag-handshake.ts`: 1 = lâmpada, 2 = ar-condicionado, 3 = fechadura) e invoca a habilidade de âncora daquele dispositivo **a partir do lugar onde foi escaneado**. Correção aplicada: a câmera da porta foi restaurada; o teste virou o **botão de scan** ao lado da engrenagem, que abre a janela "Tag scanner" (`scan-button.uikitml`, `tag-scanner.uikitml`, `src/camera/tag-scanner-system.ts`).
+
+**O passthrough já está ligado; o que falta é o acesso aos pixels (17/11).** O usuário lembrou que o passthrough fica ligado em toda a experiência desde o início do projeto (sessão `immersive-ar`). Ele é desenhado pelo sistema do Quest: a página vê o ambiente, mas **não recebe os pixels**. Para detectar um AprilTag, a página precisa pedir as imagens da câmera à parte (Passthrough Camera API, via `getUserMedia`; no IWSDK, `features.camera` + `CameraSource`). É isso que o scanner testa. Ele não liga nem desliga o passthrough visível.
+
+**A origem do princípio: AR por marcador (usuário, 17/11).** Referência do próprio usuário: o post "Augmented Reality" (derkauf.wordpress.com, 12/03/2010), que mostra AR por marcador da época (ARToolKit, demo em Flash da Boffswana): imprime-se um símbolo, a webcam o reconhece e o conteúdo virtual ("Proto") aparece em cima dele; vídeo citado no post: "James Cameron's Avatar Toys Augmented Reality Demo" (YouTube `7JWk_JIE3Ow`, não assistido aqui). O A.U.R.A. transporta o mesmo princípio: **quando o scanner lê o tag na parede, o cartão digital daquele dispositivo aparece por cima, ancorado na mesma posição.** A diferença de 2010 para cá: lá o conteúdo dependia do marcador continuar visível na câmera; aqui o tag é lido uma vez e vira uma **âncora espacial persistente** (XRAnchor), então o cartão fica no lugar mesmo quando o tag sai de vista e volta na próxima sessão. O tag carrega só o id (o "endereço"); o que o dispositivo faz vive no app.
+
+**Como calcular a posição (plano técnico, ainda não implementado).** Duas opções: (a) pose completa do tag pela imagem (PnP), que exige o tamanho impresso do tag e os parâmetros da câmera; (b) usar o centro do tag na imagem só como direção: um raio da câmera até o centro do tag, cruzado com a malha/planos do ambiente (hit-test e environment raycast, já ligados), dá o ponto na parede; a orientação vem da normal da parede. A (b) é a primeira tentativa, por ser mais robusta e não depender da medida do tag.
+
+**Primeiro teste no Quest: janela preta (17/11).** O botão de scan abriu a janela, mas o conteúdo ficou preto. Causa provável: no Quest Browser a câmera do avatar ("Virtual cameras") e as câmeras do passthrough ("Headset cameras") são permissões separadas; sem "Headset cameras", a lista de câmeras só tem a do avatar, que não vê a sala, e o IWSDK pegava a primeira da lista. Correção: o scanner escolhe uma câmera que não seja a virtual e, se não houver, avisa para ligar Configurações › Privacidade e segurança › Navegador › Headset cameras. Fonte: relatos da comunidade (Quest Browser 40.1, acesso por `getUserMedia`; o `camera-access` do WebXR não é suportado), sem doc oficial da Meta encontrada.
+
+**Como o scanner deve funcionar: igual à câmera do celular (usuário, 17/11).** Sem janela e sem botão: com a sessão AR aberta, o scanner fica lendo o tempo todo; basta um tag entrar no campo de visão para o sistema identificar e ler. Se o tag estiver cadastrado no banco (a tabela de tags do app: id → dispositivo), carrega a feature e as ações daquele dispositivo, com o cartão ancorado sobre o tag. Tag desconhecido é ignorado. A janela "Tag scanner" fica só como diagnóstico enquanto o acesso à câmera não estiver confirmado.
+
+**Referência de experiência: vídeo `aura-snap-specs-ac-ar-demo-2026-10-11.mp4` (usuário, 17/11).** Demo de 7 s em óculos Snap Spectacles (em `docs/ux/user-interface-refs/`): o ar-condicionado real ganha um contorno de vidro ciano preso nele, um botão de power com degradê ao lado, uma barra "Set 24°C / Room 23°C" logo abaixo e, ligado, um fluxo de ar ciano animado saindo do aparelho; o pinch muda a temperatura (24 → 22). **No A.U.R.A. quem faz esse papel é o AprilTag:** o tag lido carrega os submenus e as ações daquele dispositivo, ancorados no lugar do tag. **Sem API com os aparelhos reais**: é um protótipo, o cronograma não comporta integração com smart devices; o objetivo é entregar a experiência, de forma profissional e inspiradora, com estados simulados (o registro de dispositivos que já existe).
+
+**Câmera confirmada no Quest (17/11).** Com "Headset cameras" liberado, o scanner mostrou "Camera live", 1280x960, e 3 câmeras ("camera 0, facing front", "camera 2, facing back", "camera 1, facing back"). A imagem na janela ficou preta (exibição da textura de vídeo no UIKit, a investigar), mas o fluxo de vídeo chega à página.
+
+**Numeração dos tags (17/11).** O detector (js-aruco2, MIT) leu os 12 tags do PDF impresso com distância 0, mas a biblioteca numera a família tag36h11 diferente do gerador usado (RealityScan): o impresso 001 é o índice 476 dela. Solução: dicionário próprio só com os 12 códigos impressos, na ordem impressa (`src/markers/apriltag-detector.ts`); os rótulos do PDF estão em hexadecimal (00a = 10, 00b = 11, 00c = 12).
+
+**Primeira leitura real no Quest (17/11).** Com o tag 36h11:00a na mesa, a janela do scanner mostrou "Tag 10 (not registered) | squares 4 | brightness 62": a câmera do passthrough leu o tag impresso. Na parede a leitura falhou antes porque um tag estava cortado pelo monitor e o outro pequeno e borrado. A pedido do usuário, o 00a virou um dispositivo de teste: **TV da sala (tag 10)**, com liga/desliga e volume. A partir daqui, ler um tag cadastrado vincula o dispositivo e abre a janela dele (o "submenu"), sem API com o aparelho real.
+
+**Janela na frente do tag físico (17/11).** Teste do usuário: a janela da TV abriu, mas embaixo, na posição fixa do HUD; o esperado era perto do tag físico, de preferência na frente dele. Implementado (`src/markers/tag-placement.ts`): a posição do tag vem da imagem (centro do tag → direção, por modelo de câmera pinhole com foco estimado em 0,68 × largura; tamanho impresso 111,8 mm medido no PDF ÷ tamanho na imagem → distância), girada pela pose da cabeça no momento da leitura; a janela fica 12 cm à frente do tag, de pé e virada para o usuário, e sai do HUD (fica no mundo). Cada nova leitura refina a posição. Aproximações a calibrar no Quest: câmera tratada como se estivesse na cabeça, foco estimado.
+
+**Ancoragem no tag confirmada no Quest (17/11).** A janela da TV ficou exatamente na frente do tag físico e permanece fixa no ponto quando a cabeça se move. Com o scanner aberto, a posição acompanha o tag em tempo real; fechado o scanner, ela congela no lugar (comportamento aceito). Polimento pedido: (1) **tremido** no rastreamento: cada leitura (5/s) movia a janela de uma vez; agora a leitura define um alvo filtrado (zona morta de 1,5 cm para ruído, mistura de 35% por leitura) e a janela desliza até ele a cada quadro; (2) **telemetria** escondida atrás das janelas: agora fica presa à visão, centralizada a 24° acima da linha dos olhos (perto da borda de cima), sempre desenhada por cima (`src/ui/telemetry-hud-system.ts`).
+
+## 2. Decisões
+
+| Decisão | Alternativas | Por quê |
+|---|---|---|
+| Nova identidade visual (ciano = repouso, âmbar = ativo), tokens em `docs/ux/VISUAL_ID.md` | Manter o cinza do Horizon OS | Mesma identidade do post no Devpost e da landing page da Lola; cores amostradas dos concept boards |
+| Scanner de tags com botão próprio ao lado da engrenagem | Usar o "View camera" da fechadura | Câmera da porta é recurso do dispositivo; o scanner é do app (correção do usuário) |
+| Teste de acesso à câmera antes do detector | Escrever o detector direto | Ainda não se sabe se o Quest Browser libera as imagens da câmera dentro da sessão XR |
+
+## 3. Verificado
+
+- Emulador: botão de scan › janela "Tag scanner" abre › câmera tenta ligar › "Camera unavailable / NotReadableError" (o PC não tem câmera; caminho de erro ok).
+- **Pendente:** resultado no Quest (aura-dev).

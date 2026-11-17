@@ -22,9 +22,12 @@ const OPACITY_NODE_IDS = [
   'sticker-ac',
   'sticker-lock',
   'settings-gear',
+  'scan-button',
+  'tag-scanner',
   'panel-lamp',
   'panel-ac',
   'panel-lock',
+  'panel-tv',
   'camera-placeholder',
   'telemetry',
 ] as const;

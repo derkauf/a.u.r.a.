@@ -16,7 +16,7 @@
 import { createSystem, UIKitMLAsset } from '@iwsdk/core';
 
 /** Scene nodes that get the effect (see public/scenes/main.iwsdk.scene.json). */
-const HOVER_NODE_IDS = ['sticker-lamp', 'sticker-ac', 'sticker-lock', 'settings-gear'] as const;
+const HOVER_NODE_IDS = ['sticker-lamp', 'sticker-ac', 'sticker-lock', 'settings-gear', 'scan-button'] as const;
 const HOVER_SCALE = 1.2;
 /** Fraction of the remaining distance covered per second (frame-rate independent). */
 const EASE_PER_SECOND = 14;

@@ -35,6 +35,13 @@
 import { createSystem, Euler, Object3D, Quaternion, Vector3, XRAnchor, type Entity } from '@iwsdk/core';
 import { isViewFollowOn, subscribeViewFollow } from './view-follow.js';
 import { getSettings, subscribeSettings, type CardSize } from '../settings/settings-store.js';
+import { getPlacement, PANEL_NODE_BY_DEVICE, stepPlacements } from '../markers/tag-placement.js';
+import type { DeviceId } from '../markers/apriltag-handshake.js';
+
+/** Window node id → device, for windows that a tag read can place in the room. */
+const DEVICE_BY_PANEL_NODE = new Map<string, DeviceId>(
+  (Object.entries(PANEL_NODE_BY_DEVICE) as Array<[DeviceId, string]>).map(([device, node]) => [node, device]),
+);
 
 /** Scene nodes that form the HUD (see public/scenes/main.iwsdk.scene.json). */
 const HUD_NODE_IDS = [
@@ -42,12 +49,14 @@ const HUD_NODE_IDS = [
   'sticker-ac',
   'sticker-lock',
   'settings-gear',
+  'scan-button',
+  'tag-scanner',
   'settings',
   'panel-lamp',
   'panel-ac',
   'panel-lock',
+  'panel-tv',
   'camera-placeholder',
-  'telemetry',
 ] as const;
 
 /** Nodes that keep their size whatever the card size (they must stay readable). */
@@ -129,6 +138,18 @@ export class AuraHudFollowSystem extends createSystem() {
       if (this.nodes.size === HUD_NODE_IDS.length) this.apply(isViewFollowOn());
       return;
     }
+    // Windows placed by a tag read (Phase 3) stay in front of the physical
+    // tag, in the room, whether or not the HUD follows the view.
+    stepPlacements(delta);
+    for (const [nodeId, node] of this.nodes) {
+      const device = DEVICE_BY_PANEL_NODE.get(nodeId);
+      const placement = device ? getPlacement(device) : undefined;
+      if (!placement) continue;
+      if (node.object.parent !== this.world.scene) this.world.scene.add(node.object);
+      node.object.position.copy(placement.position);
+      node.object.quaternion.copy(placement.quaternion);
+      node.object.scale.copy(node.homeScale);
+    }
     if (!this.following) return;
     const rigObject = this.rig.object3D;
     const head = this.world.playerHeadEntity.object3D;
@@ -136,7 +157,9 @@ export class AuraHudFollowSystem extends createSystem() {
 
     // Keep every HUD object in the rig (the SDK may move bound windows
     // into its anchored group).
-    for (const node of this.nodes.values()) {
+    for (const [nodeId, node] of this.nodes) {
+      const device = DEVICE_BY_PANEL_NODE.get(nodeId);
+      if (device && getPlacement(device)) continue;
       if (node.object.parent !== rigObject) this.placeInRig(node, rigObject);
     }
 

@@ -56,6 +56,8 @@ export default defineConfig({
       '@pmndrs/uikit-horizon',
       '@pmndrs/uikit-lucide',
       '@drawcall/uikitml',
+      // CommonJS (uses top-level `this`); pre-bundled for the browser.
+      'js-aruco2',
     ],
     esbuildOptions: { target: 'esnext' },
   },

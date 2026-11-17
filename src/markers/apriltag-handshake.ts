@@ -33,8 +33,8 @@
 
 export const APRILTAG_FAMILY = 'tag36h11' as const;
 
-export type DeviceId = 'lamp-sala-01' | 'ac-sala-01' | 'lock-porta-01';
-export type DeviceType = 'light' | 'hvac' | 'lock';
+export type DeviceId = 'lamp-sala-01' | 'ac-sala-01' | 'lock-porta-01' | 'tv-sala-01';
+export type DeviceType = 'light' | 'hvac' | 'lock' | 'tv';
 
 /** Um tag AprilTag: família + id numérico. Só isso — o tag não carrega dados. */
 export interface AprilTag {
@@ -70,6 +70,8 @@ export const APRILTAG_IDS: Record<DeviceId, number> = {
   'lamp-sala-01': 1,
   'ac-sala-01': 2,
   'lock-porta-01': 3,
+  /** Phase 3: test device, printed tag 36h11:00a (= 10). Read by the camera only (no HUD icon). */
+  'tv-sala-01': 10,
 };
 
 /** Os 3 descritores de dispositivo da v1 (o antigo "payload" do handshake). */
@@ -103,6 +105,16 @@ export const DEVICE_DESCRIPTORS: Record<DeviceId, DeviceDescriptor> = {
       cam: { kind: 'action' },
     },
     bind: { interaction: 'on-device', control_target: 'sim://lock-porta-01' },
+  },
+  'tv-sala-01': {
+    device_id: 'tv-sala-01',
+    label: 'TV da sala',
+    type: 'tv',
+    controls: {
+      power: { kind: 'toggle' },
+      volume: { kind: 'range', min: 0, max: 100, step: 5 },
+    },
+    bind: { interaction: 'on-device', control_target: 'sim://tv-sala-01' },
   },
 };
 

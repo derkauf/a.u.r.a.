@@ -34,6 +34,7 @@ export interface DeviceState {
   setpoint_c?: number;
   brightness?: number;
   locked?: boolean;
+  volume?: number;
 }
 
 export interface DeviceEntry {
@@ -60,6 +61,7 @@ function defaultStateFor(descriptor: DeviceDescriptor): DeviceState {
   if ('setpoint_c' in descriptor.controls) state.setpoint_c = 22;
   if ('brightness' in descriptor.controls) state.brightness = 80;
   if ('locked' in descriptor.controls) state.locked = true;
+  if ('volume' in descriptor.controls) state.volume = 30;
   return state;
 }
 
@@ -203,6 +205,10 @@ export class DeviceRegistry {
     if (patch.brightness !== undefined && brightness?.kind === 'range') {
       next.brightness = clampToStep(patch.brightness, brightness.min, brightness.max, brightness.step);
     }
+    const volume = entry.controls['volume'];
+    if (patch.volume !== undefined && volume?.kind === 'range') {
+      next.volume = clampToStep(patch.volume, volume.min, volume.max, volume.step);
+    }
     entry.state = next;
     this.persist();
     this.notify(entry);
@@ -223,6 +229,10 @@ export class DeviceRegistry {
 
   setBrightness(deviceId: DeviceId, value: number): DeviceState {
     return this.update(deviceId, { brightness: value });
+  }
+
+  setVolume(deviceId: DeviceId, value: number): DeviceState {
+    return this.update(deviceId, { volume: value });
   }
 
   subscribe(listener: Listener): () => void {

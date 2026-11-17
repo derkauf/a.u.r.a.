@@ -27,16 +27,19 @@ import { subscribeLocale } from '../i18n/i18n.js';
 import { deviceStatusText, deviceToggleLabel } from '../devices/device-text.js';
 import { playConfirm } from './feedback-sound.js';
 import { onActivate } from './activation.js';
+import { subscribeTagScanned } from '../markers/scan-bus.js';
 
-const DEVICE_IDS: DeviceId[] = ['lamp-sala-01', 'ac-sala-01', 'lock-porta-01'];
+const DEVICE_IDS: DeviceId[] = ['lamp-sala-01', 'ac-sala-01', 'lock-porta-01', 'tv-sala-01'];
 
 /** Nós de cena (ver public/scenes/main.iwsdk.scene.json). */
 const PANEL_NODE_IDS: Record<DeviceId, string> = {
   'lamp-sala-01': 'panel-lamp',
   'ac-sala-01': 'panel-ac',
   'lock-porta-01': 'panel-lock',
+  'tv-sala-01': 'panel-tv',
 };
-const STICKER_NODE_IDS: Record<DeviceId, string> = {
+/** HUD tag icons (simulated scan). The TV has none: only the camera reads its tag. */
+const STICKER_NODE_IDS: Partial<Record<DeviceId, string>> = {
   'lamp-sala-01': 'sticker-lamp',
   'ac-sala-01': 'sticker-ac',
   'lock-porta-01': 'sticker-lock',
@@ -69,19 +72,34 @@ export class AuraPanelSystem extends createSystem() {
     this.cleanupFuncs.push(deviceRegistry.subscribe(() => this.refreshAll()));
     this.cleanupFuncs.push(subscribeAnchorStatus(() => this.refreshAnchorLines()));
     this.cleanupFuncs.push(subscribeLocale(() => this.refreshAll()));
+    // Phase 3: a registered tag read by the camera loads its device.
+    this.cleanupFuncs.push(subscribeTagScanned((deviceId) => this.onTagScanned(deviceId)));
+  }
+
+  private onTagScanned(deviceId: DeviceId): void {
+    if (!deviceRegistry.isBound(deviceId)) deviceRegistry.scanAndRegister(deviceId);
+    if (!this.openPanels.has(deviceId)) {
+      playConfirm();
+      this.showPanel(deviceId);
+    }
   }
 
   update(): void {
     // Liga os assets quando a cena carrega; depois de tudo ligado, não faz nada.
-    if (this.panels.size < DEVICE_IDS.length || this.stickers.size < DEVICE_IDS.length || !this.cameraPanel) {
+    if (
+      this.panels.size < DEVICE_IDS.length ||
+      this.stickers.size < Object.keys(STICKER_NODE_IDS).length ||
+      !this.cameraPanel
+    ) {
       this.tryBind();
     }
   }
 
   private tryBind(): void {
     for (const deviceId of DEVICE_IDS) {
-      if (!this.stickers.has(deviceId)) {
-        const sticker = this.world.getSceneObject<UIKitMLAsset>(STICKER_NODE_IDS[deviceId]);
+      const stickerNode = STICKER_NODE_IDS[deviceId];
+      if (stickerNode && !this.stickers.has(deviceId)) {
+        const sticker = this.world.getSceneObject<UIKitMLAsset>(stickerNode);
         if (sticker) {
           this.stickers.set(deviceId, sticker);
           this.wireSticker(deviceId, sticker);
@@ -172,6 +190,10 @@ export class AuraPanelSystem extends createSystem() {
       const control = entry.controls['brightness'];
       if (control?.kind !== 'range') return;
       deviceRegistry.setBrightness(deviceId, (entry.state.brightness ?? control.min) + dir * control.step);
+    } else if (deviceId === 'tv-sala-01') {
+      const control = entry.controls['volume'];
+      if (control?.kind !== 'range') return;
+      deviceRegistry.setVolume(deviceId, (entry.state.volume ?? control.min) + dir * control.step);
     }
   }
 
@@ -200,6 +222,7 @@ export class AuraPanelSystem extends createSystem() {
   private rangeText(entry: DeviceEntry): string {
     if (entry.deviceId === 'ac-sala-01') return `${entry.state.setpoint_c ?? 22}°C`;
     if (entry.deviceId === 'lamp-sala-01') return `${entry.state.brightness ?? 80}%`;
+    if (entry.deviceId === 'tv-sala-01') return `${entry.state.volume ?? 30}`;
     return '';
   }
 

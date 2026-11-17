@@ -1,0 +1,162 @@
+<!--
+  Janela do dispositivo tv-sala-01 (Phase 3, dispositivo de teste), no
+  mesmo estilo das outras: liga/desliga e volume (-/+). Aberta quando o
+  scanner lê o tag impresso 36h11:00a (= 10); não tem ícone no HUD.
+  Elementos com id ligados pelo AuraPanelSystem: device-status,
+  control-power (+ control-power-label), control-range-minus/-value/-plus,
+  anchor-status e window-close. txt-title e txt-bar-title são traduzidos
+  pelo AuraLocalizationSystem.
+-->
+<style>
+  .window-root {
+    flex-direction: column;
+    align-items: center;
+    width: 360px;
+    gap: 10px;
+  }
+
+  .window {
+    flex-direction: column;
+    align-self: stretch;
+    padding-top: 22px;
+    padding-bottom: 22px;
+    padding-left: 22px;
+    padding-right: 22px;
+    gap: 14px;
+    background-color: #1b2e3f;
+    border-width: 1px;
+    border-color: #4e7089;
+    border-radius: 28px;
+  }
+
+  .title {
+    color: #e9f2f9;
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .status {
+    color: #62e2ef;
+    font-size: 18px;
+  }
+
+  .pill-primary {
+    height: 52px;
+    background-color: #ffb850;
+    border-radius: 26px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pill-primary-label {
+    color: #14222e;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .pill-secondary {
+    height: 52px;
+    background-color: #2f4052;
+    border-radius: 26px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pill-secondary-label {
+    color: #e9f2f9;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .range-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .round-button {
+    width: 52px;
+    height: 52px;
+    background-color: #2f4052;
+    border-radius: 26px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .round-button-label {
+    color: #e9f2f9;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .range-value {
+    color: #e9f2f9;
+    font-size: 32px;
+    font-weight: 700;
+  }
+
+  .anchor {
+    color: #8fb3c4;
+    font-size: 13px;
+  }
+
+  .bar {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    height: 44px;
+    padding-left: 18px;
+    padding-right: 7px;
+    background-color: #1b2e3f;
+    border-width: 1px;
+    border-color: #4e7089;
+    border-radius: 22px;
+  }
+
+  .bar-title {
+    color: #e9f2f9;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .bar-close {
+    width: 30px;
+    height: 30px;
+    background-color: #2f4052;
+    border-radius: 15px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .bar-close-label {
+    color: #e9f2f9;
+    font-size: 18px;
+    font-weight: 700;
+  }
+</style>
+<div class="window-root">
+  <div class="window">
+    <div id="txt-title" class="title">Living room TV</div>
+    <div id="device-status" class="status">Off</div>
+    <Button id="control-power" class="pill-primary">
+      <ButtonLabel id="control-power-label" class="pill-primary-label">Turn on</ButtonLabel>
+    </Button>
+    <div class="range-row">
+      <Button id="control-range-minus" class="round-button">
+        <ButtonLabel class="round-button-label">-</ButtonLabel>
+      </Button>
+      <div id="control-range-value" class="range-value">30</div>
+      <Button id="control-range-plus" class="round-button">
+        <ButtonLabel class="round-button-label">+</ButtonLabel>
+      </Button>
+    </div>
+    <div id="anchor-status" class="anchor">Anchor: waiting for XR session…</div>
+  </div>
+  <div class="bar">
+    <div id="txt-bar-title" class="bar-title">Living room TV</div>
+    <div id="window-close" class="bar-close">
+      <div class="bar-close-label">×</div>
+    </div>
+  </div>
+</div>

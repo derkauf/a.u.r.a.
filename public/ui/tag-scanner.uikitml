@@ -1,0 +1,117 @@
+<!--
+  Tag scanner window (Phase 3). Opened by the scan button next to the gear,
+  closed by the X in its bar (scanner-close). While open, the passthrough
+  camera runs (AuraTagScannerSystem): txt-scanner-state and txt-scanner-sub
+  show the state and the cameras found, scanner-feed shows the live image.
+  Step 1 only tests camera access; reading the AprilTags (each tag id
+  resolves to its device and anchors it where it was scanned) comes next.
+  Not to be confused with the door camera (camera-placeholder.uikitml),
+  which is a feature of the smart lock.
+-->
+<style>
+  .window-root {
+    flex-direction: column;
+    align-items: center;
+    width: 400px;
+    gap: 10px;
+  }
+
+  .window {
+    flex-direction: column;
+    align-self: stretch;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    background-color: #1b2e3f;
+    border-width: 1px;
+    border-color: #4e7089;
+    border-radius: 28px;
+  }
+
+  .view {
+    flex-direction: column;
+    min-height: 200px;
+    background-color: #000000;
+    border-width: 1px;
+    border-color: #478091;
+    border-radius: 18px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .feed {
+    display: none;
+    width: 340px;
+    height: 255px;
+    border-radius: 12px;
+  }
+
+  .state {
+    color: #62e2ef;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .sub {
+    color: #8fb3c4;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .bar {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    height: 44px;
+    padding-left: 18px;
+    padding-right: 7px;
+    background-color: #1b2e3f;
+    border-width: 1px;
+    border-color: #4e7089;
+    border-radius: 22px;
+  }
+
+  .bar-title {
+    color: #e9f2f9;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .bar-close {
+    width: 30px;
+    height: 30px;
+    background-color: #2f4052;
+    border-radius: 15px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .bar-close-label {
+    color: #e9f2f9;
+    font-size: 18px;
+    font-weight: 700;
+  }
+</style>
+<div class="window-root">
+  <div class="window">
+    <div class="view">
+      <img id="scanner-feed" class="feed" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" />
+      <div id="txt-scanner-state" class="state">Camera off</div>
+      <div id="txt-scanner-sub" class="sub">Point at an AprilTag on the wall.</div>
+    </div>
+  </div>
+  <div class="bar">
+    <div id="txt-scanner-title" class="bar-title">Tag scanner</div>
+    <div id="scanner-close" class="bar-close">
+      <div class="bar-close-label">×</div>
+    </div>
+  </div>
+</div>

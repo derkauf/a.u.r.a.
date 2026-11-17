@@ -17,6 +17,9 @@ import {
   tagForDevice,
 } from '../src/markers/apriltag-handshake.js';
 import { clampToStep } from '../src/core/rules.js';
+import { AprilTagDetector, PRINTED_TAG_CODES } from '../src/markers/apriltag-detector.js';
+import { FOCAL_RATIO, TAG_SIZE_M, WINDOW_GAP_M, tagWorldPosition, windowPoseInFront } from '../src/markers/tag-placement.js';
+import { Quaternion, Vector3 } from 'three';
 import { DeviceRegistry } from '../src/devices/device-registry.js';
 import { pinchMode } from '../src/ui/activation.js';
 import { createProvider, LocalRulesProvider } from '../src/ai/providers/provider-interface.js';
@@ -43,12 +46,14 @@ describe('AprilTag — família, ids e resolução', () => {
     assert.equal(APRILTAG_FAMILY, 'tag36h11');
   });
 
-  it('ids 1, 2 e 3, um por dispositivo (o 0 não é usado)', () => {
+  it('ids 1, 2, 3 e 10 (TV de teste, tag impresso 00a), um por dispositivo (o 0 não é usado)', () => {
     assert.deepEqual(APRILTAG_IDS, {
       'lamp-sala-01': 1,
       'ac-sala-01': 2,
       'lock-porta-01': 3,
+      'tv-sala-01': 10,
     });
+    assert.equal(resolveTag({ family: 'tag36h11', id: 10 }), 'tv-sala-01');
   });
 
   it('resolveTag: tag conhecido → dispositivo; desconhecido → null', () => {
@@ -201,5 +206,79 @@ describe('Provedor de IA — v1 não chama IA', () => {
   it('jev e laya são stubs que falham explicitamente', async () => {
     await assert.rejects(() => createProvider('jev').decide('x'), /não configurado/);
     await assert.rejects(() => createProvider('laya').decide('x'), /não configurado/);
+  });
+});
+
+describe('AprilTag detector (printed tags)', () => {
+  /** Draws a tag36h11 code as an RGBA image: white quiet zone, black border, 6x6 bits (1 = white). */
+  function renderTag(code: number, cell = 12): { w: number; h: number; data: Uint8ClampedArray } {
+    const cells = 10;
+    const w = cells * cell + 40;
+    const h = w;
+    const data = new Uint8ClampedArray(w * h * 4).fill(255);
+    const bits = code.toString(2).padStart(36, '0');
+    for (let cy = 0; cy < 8; cy++) {
+      for (let cx = 0; cx < 8; cx++) {
+        const inner = cy > 0 && cy < 7 && cx > 0 && cx < 7;
+        const white = inner && bits[(cy - 1) * 6 + (cx - 1)] === '1';
+        if (white) continue;
+        for (let y = 0; y < cell; y++) {
+          for (let x = 0; x < cell; x++) {
+            const px = 20 + (cx + 1) * cell + x;
+            const py = 20 + (cy + 1) * cell + y;
+            const i = (py * w + px) * 4;
+            data[i] = data[i + 1] = data[i + 2] = 0;
+          }
+        }
+      }
+    }
+    return { w, h, data };
+  }
+
+  it('reads printed tags 1, 2 and 12 by their printed number', () => {
+    const detector = new AprilTagDetector();
+    for (const id of [1, 2, 12]) {
+      const img = renderTag(PRINTED_TAG_CODES[id - 1]!);
+      const found = detector.detect(img.w, img.h, img.data);
+      assert.equal(found.length, 1, `tag ${id} not found`);
+      assert.equal(found[0]!.id, id);
+      assert.equal(found[0]!.bitErrors, 0);
+    }
+  });
+
+  it('ignores a tag36h11 code that was not printed', () => {
+    const detector = new AprilTagDetector();
+    const img = renderTag(0xd5d628584); // family code not in the printed set
+    assert.equal(detector.detect(img.w, img.h, img.data).length, 0);
+  });
+});
+
+describe('Tag placement (window in front of the printed tag)', () => {
+  it('a centered tag of N pixels lands straight ahead at the matching distance', () => {
+    const w = 960;
+    const h = 720;
+    const focal = FOCAL_RATIO * w;
+    const side = (TAG_SIZE_M * focal) / 1.5; // pixels for a tag 1.5 m away
+    const c = { x: w / 2, y: h / 2 };
+    const corners = [
+      { x: c.x - side / 2, y: c.y - side / 2 },
+      { x: c.x + side / 2, y: c.y - side / 2 },
+      { x: c.x + side / 2, y: c.y + side / 2 },
+      { x: c.x - side / 2, y: c.y + side / 2 },
+    ];
+    const head = new Vector3(0, 1.6, 0);
+    const p = tagWorldPosition(corners, w, h, head, new Quaternion(), new Vector3());
+    assert.ok(Math.abs(p.x) < 1e-6 && Math.abs(p.y - 1.6) < 1e-6 && Math.abs(p.z + 1.5) < 1e-6, `got ${p.toArray()}`);
+  });
+
+  it('the window sits between the tag and the head, facing the head', () => {
+    const tag = new Vector3(0, 1.2, -1.5);
+    const head = new Vector3(0, 1.6, 0);
+    const pos = new Vector3();
+    const quat = new Quaternion();
+    windowPoseInFront(tag, head, pos, quat);
+    assert.ok(Math.abs(pos.z - (-1.5 + WINDOW_GAP_M)) < 1e-6);
+    const facing = new Vector3(0, 0, 1).applyQuaternion(quat);
+    assert.ok(facing.z > 0.999, 'panel +Z should point at the head');
   });
 });

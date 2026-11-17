@@ -25,6 +25,7 @@
     "@pmndrs/uikit": "^1.0.74",
     "@pmndrs/uikit-horizon": "^1.0.74",
     "@pmndrs/uikit-lucide": "^1.0.74",
+    "js-aruco2": "^2.0.0",
     "three": "npm:super-three@0.185.0"
   },
   "devDependencies": {

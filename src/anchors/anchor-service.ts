@@ -16,6 +16,7 @@
  * vinculado ainda sem XRAnchor (cena carregando). Depois de tudo
  * vinculado, o update() não faz nada.
  */
+import { clearPlacement } from '../markers/tag-placement.js';
 import { createSystem, eq, XRAnchor } from '@iwsdk/core';
 import { AuraDevice } from '../components/aura-components.js';
 import { deviceRegistry, type DeviceId } from '../devices/device-registry.js';
@@ -30,6 +31,7 @@ const PANEL_NODE_IDS: Record<DeviceId, string> = {
   'lamp-sala-01': 'panel-lamp',
   'ac-sala-01': 'panel-ac',
   'lock-porta-01': 'panel-lock',
+  'tv-sala-01': 'panel-tv',
 };
 
 export class AuraAnchorSystem extends createSystem({
@@ -100,6 +102,7 @@ export class AuraAnchorSystem extends createSystem({
   private releasePanel(deviceId: DeviceId): void {
     const entity = this.world.getSceneEntity(PANEL_NODE_IDS[deviceId]);
     if (entity?.hasComponent(XRAnchor)) entity.removeComponent(XRAnchor);
+    clearPlacement(deviceId); // forget the spot in front of its printed tag
     this.bound.delete(deviceId);
     appendAnchorTestLog(`panel-released: ${deviceId} (vínculo removido nas Configurações)`);
   }

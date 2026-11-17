@@ -51,3 +51,10 @@ pids/
 # Large reference videos stay local (only the one posted on Devpost is versioned).
 docs/aura-visual-id/*.mp4
 !docs/aura-visual-id/gemini_generated_video_f969b831.mp4
+
+# UI preview / screenshot evidence from verification runs
+artifacts/
+
+# Browser downloads still in progress, and videos in the Quest UI references (kept local)
+*.crdownload
+docs/ux/quest-reference/*.mp4

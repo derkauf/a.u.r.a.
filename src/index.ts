@@ -15,6 +15,8 @@ import { AuraHoverScaleSystem } from './ui/hover-scale-system.js';
 import { AuraHudFollowSystem } from './ui/hud-follow-system.js';
 import { AuraSettingsPanelSystem } from './ui/settings-panel-system.js';
 import { AuraAppearanceSystem } from './ui/appearance-system.js';
+import { AuraTagScannerSystem } from './camera/tag-scanner-system.js';
+import { AuraTelemetryHudSystem } from './ui/telemetry-hud-system.js';
 
 World.create(
   document.getElementById('scene-container') as HTMLDivElement,
@@ -28,4 +30,6 @@ World.create(
   world.registerSystem(AuraSettingsPanelSystem);
   world.registerSystem(AuraAppearanceSystem);
   world.registerSystem(AuraCursorSystem);
+  world.registerSystem(AuraTagScannerSystem);
+  world.registerSystem(AuraTelemetryHudSystem);
 });
