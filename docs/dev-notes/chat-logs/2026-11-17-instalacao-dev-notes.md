@@ -260,3 +260,156 @@ Fora do repositório (git-ignorado): `.iwsdk/https-lan/key.pem` e `cert.pem`.
 ## 6. Documentos derivados (só relato)
 
 - **`README.md` e o guia em PDF:** além dos pontos da Parte 2, a seção "7. O que eu não consegui baixar ou verificar" do guia (linha ~219 do gerador) diz que o round-trip não rodou. Agora ele passou no Quest e no PC.
+
+
+---
+---
+
+# Parte 4: Submissão, Phase 2 (HUD estilo Quest, Configurações, pinch confiável) e fases congeladas
+
+**Data:** 2026-11-17
+**Branch / versão:** `main`; commits `e2c56e2`, `dc82aa3`, `c22daaa`, `86ff8b4`; tags `phase-1` (`dc82aa3`) e `phase-2` (`86ff8b4`)
+**Objetivo:** preparar a submissão (prazo 18/11, 12:00 PT), publicar o app, refazer a interface no estilo do Horizon OS, tornar o pinch confiável e preservar cada fase do projeto.
+
+---
+
+## 1. Perguntas e contexto
+
+- **P1:** Trocar os IDs dos tags para começar em 1. *Contexto:* o gerador do RealityScan Desktop começa no 1.
+- **P2:** Próxima etapa e submissão. *Contexto:* `../CONTEXT.md` (fora do repo) fixa o prazo do Devpost em 18/11, 12:00 PT. O usuário decidiu que a comparação com `derkauf/a.u.r.a.` sai do plano e o trabalho segue neste repo.
+- **P3:** Publicar em `aura.sixvectors.app`. *Contexto:* domínio e DNS já na Vercel do usuário.
+- **P4:** Roteiro do vídeo e rascunho do Devpost em PDF. Depois, incluir:
+  - a visão (o tag representa o dispositivo IoT; o A.U.R.A. é a ponte por API);
+  - a seção "Vision";
+  - o enquadramento de MVP;
+  - a frase exata sobre a troca de stack.
+- **P5:** Interface no estilo do Quest (referências em `docs/ux/quest-reference/`):
+  - cards como ícones de app, com hover;
+  - estado inicial só com os ícones;
+  - janela com X;
+  - engrenagem, "Quit" e "Follow my view" (HUD).
+- **P6:** Configurações completas em 6 seções e i18n por arquivos com 5 idiomas (especificação do usuário). Núcleo primeiro, por causa do prazo.
+- **P7:** "O pinch e o snap não clicam direito." *Contexto:* testado no Quest pela Wi-Fi.
+- **P8:** Cabo USB e Quest Link. *Contexto:* o Quest ficou "unauthorized" no `adb`, e o Meta Horizon Link capturava o headset.
+- **P9:** Guardar cada fase do projeto e poder escolhê-la num menu do app. Termos "Phase" em inglês. Guardar o PDF dos marcadores para impressão.
+- **P10:** Status para a Lola (`docs/STATUS_PARA_LOLA.md`).
+
+---
+
+## 2. Decisões
+
+| Decisão | Alternativas consideradas | Por quê |
+| :--- | :--- | :--- |
+| **IDs 1, 2 e 3; o 0 não é usado** | Manter 0–2 | O gerador do RealityScan Desktop começa no 1. |
+| **Vercel, com domínio próprio** (`aura.sixvectors.app`) | GitHub Pages; túnel | O DNS já estava na Vercel; HTTPS válido, sem aviso no Quest. |
+| **Deploy de uma cópia sem `.git`** (`npm run deploy`) | Plano Pro; trocar o e-mail do git | No plano Hobby, a Vercel bloqueia o deploy quando o autor do commit (`diogo@sixvectors.com`, configuração global do git) não tem conta Vercel. |
+| **Ligação Vercel ↔ GitHub desligada** | Deploy automático a cada push | Evita deploys bloqueados e protege o app depois do prazo (a regra exige o app sem mudanças). |
+| **Ambiente `aura-dev.sixvectors.app`** (projeto separado) | Testar só pelo cabo ou pela LAN | Teste no Quest sem cabo e sem tocar no oficial. |
+| **Interface estilo Horizon OS:** ícone de app com o tag, nome embaixo, janela com barra e X, engrenagem | Cards com botão | Pedido do usuário, a partir dos screenshots do Quest. |
+| **HUD próprio** (`hud-follow-system.ts`), limites de 50° na horizontal e 40° na vertical | `Follower` do IWSDK (só gira no eixo vertical e tem um limite único) | Era preciso folga lateral para olhar os ícones 1 e 3, e seguir para cima e para baixo. |
+| **Configurações: núcleo primeiro** | Tudo de uma vez | Prazo. O resto (Deeper Mode, temas, áudio espacial, importar JSON) ficou para depois e virou a Phase 4. |
+| **Deeper Mode = tema holograma ciano** | Indefinido | Referências em `docs/ux/hud-reference/`. |
+| **Renomear por sugestões** | Teclado do sistema | Não há teclado dentro da sessão imersiva. |
+| **Pinch "Leve" por padrão, ativando no início do gesto** (`src/ui/activation.ts`) | Clique padrão | A biblioteca `@pmndrs/pointer-events` só emite `click` se apertar e soltar acontecerem em menos de 300 ms e no mesmo elemento. O pinch real dura mais e desloca o raio. |
+| **Cursor no ponto real do raio** (`event.point`), com snap ajustável | Snap no centro do painel inteiro | O cursor antigo mostrava um lugar diferente de onde o clique caía. |
+| **Fases congeladas:** tag `phase-N` → `https://aura-phaseN.sixvectors.app/` (`npm run deploy:phase`), com menu "Project phases" no app | Trocar de fase dentro de um app só | Cada fase é um código diferente; publicar a tag preserva a evolução sem misturar código. Trocar de página encerra a sessão XR (limite do WebXR). |
+| **Marcos:** Phase 1 = tags simulados; Phase 2 = HUD e Configurações; Phase 3 = leitura real pela câmera; Phase 4 = Deeper Mode, temas e áudio espacial; Phase 5 = dispositivos reais via Matter | — | Aprovados pelo usuário. |
+| **"Phase" em inglês na documentação e no app**; tag `fase-1` → `phase-1` | "Fase" | Pedido do usuário. |
+| **`.gitattributes` marcando binários** | — | O git trataria o PDF dos marcadores como texto e converteria as quebras de linha, corrompendo o arquivo. |
+
+### Notas de implementação
+
+- **Verificado no Quest (relatado pelo usuário):**
+  - o app abre pela LAN e pelo aura-dev;
+  - o HUD segue com o atraso esperado (ele pediu mais folga, já aplicada);
+  - o hover está bom;
+  - depois das correções, "cursor e pinch funcionando perfeitamente".
+- **Verificado no emulador (IWER, pelo CLI):**
+  - a engrenagem abre e fecha a janela, e as seções trocam;
+  - idioma (Deutsch, Español), tamanho L (escala 0.125), opacidade, telemetria, renomear e testar dispositivo;
+  - o HUD centraliza ao virar a cabeça 60° e fica na sala com o "Follow my view" desligado;
+  - o "Quit" encerra a sessão;
+  - o modo Média ativa ao soltar no painel;
+  - a seção Project phases mostra os estados certos.
+- **Verificado no PC:**
+  - typecheck limpo e 16 de 16 testes unitários (4 novos: remover vínculo, limpar tudo, exportar/importar, limites do pinch);
+  - build de produção ok;
+  - os 4 endereços respondem com o código certo.
+- **Descobertas:**
+  - O UIKitML descarta texto só de espaço, e o elemento fica sem nó de texto. Por isso os resumos das fases e as linhas de feedback das Configurações nunca apareciam (corrigido no `86ff8b4`).
+  - O servidor de dev caiu duas vezes: com um Ctrl+C às 05:40:35, no mesmo minuto de um `adb kill-server`, e depois às 05:54 sem causa registrada. Rodando como tarefa acompanhada (`npm run dev` em segundo plano), não caiu mais.
+- **Escrito, mas não verificado:**
+  - os limites do HUD depois do ajuste (50°/40°) e o alcance de ativação no headset;
+  - exportar JSON no Quest Browser;
+  - o link de produção no Quest;
+  - a seção Project phases no headset e o "Abrir" de uma fase dentro do XR.
+- **Dependências adicionadas:** nenhuma no app. Fora do repositório, num venv temporário: `fpdf2`, `pypdf`, `pypdfium2` e as fontes DejaVu, usados para gerar e verificar os PDFs.
+
+---
+
+## 3. Arquivos adicionados, alterados ou removidos
+
+```text
+[A] src/locales/{en,pt-BR,es,fr,de}.json               (um arquivo por idioma)
+[M] src/i18n/i18n.ts                                   (carrega os arquivos; fallback inglês)
+[A] src/settings/settings-store.ts, src/settings/room-config.ts
+[A] src/devices/device-names.ts, src/devices/device-text.ts
+[M] src/devices/device-registry.ts                     (unbind, unbindAll, exportar/importar)
+[M] src/anchors/anchor-service.ts                      (solta o painel ao remover o vínculo)
+[A] src/ui/settings-panel-system.ts, appearance-system.ts, activation.ts,
+    feedback-sound.ts, hover-scale-system.ts, hud-follow-system.ts, view-follow.ts
+[M] src/ui/localization-system.ts, src/ui/device-panel-system.ts
+[M] src/input/hand-ray-cursor.ts                       (ponto real do raio, snap ajustável)
+[A] src/phases/phases.ts                               (registro das fases)
+[M] src/assets.ts, src/index.ts, src/markers/apriltag-handshake.ts
+[M] public/ui/*.uikitml; [A] public/ui/settings-gear.uikitml, public/ui/telemetry.uikitml
+[A] public/audio/ui-select.mp3                         (cópia de us-single-seam.mp3)
+[M] public/scenes/main.iwsdk.scene.json
+[M] tests/unit.test.ts
+[M] tools/deploy-vercel.mjs (deploy, deploy:dev, deploy:phase)
+[M] tools/generate-apriltag-stickers.py, tools/generate-guia-pdf.py
+[A] tools/generate-submission-pdfs.py, docs/submission/aura-roteiro-video.pdf, docs/submission/aura-devpost-rascunho.pdf
+[A] docs/apriltag/markers_Apriltag36h11_12counts_2pp.pdf, docs/apriltag/README.md
+[A] docs/ux/quest-reference/, docs/ux/hud-reference/, docs/ux/sound-design/, docs/journey/phase-1-emulator.png
+[A] docs/STATUS_PARA_LOLA.md
+[M] README.md (hospedagem), docs/apriltag-markers.md, tests/anchor-roundtrip.md, a.u.r.a.-by-lola-guia-inicial.pdf
+[M] package.json, .gitignore, .vercelignore; [A] .gitattributes
+```
+
+**Commits:**
+- `e2c56e2`: IDs 1–3, PDFs da submissão, configuração da Vercel.
+- `dc82aa3`: botão com o nome do dispositivo, visão IoT.
+- `c22daaa`: HUD estilo Quest, Configurações, pinch confiável, i18n em 5 idiomas.
+- `86ff8b4`: fases congeladas e menu Project phases.
+
+**Fora do git:**
+- Projetos na Vercel: `aura-v1-lola` (produção, ainda na Phase 1), `aura-v1-lola-dev`, `aura-v1-lola-phase-1` e `aura-v1-lola-phase-2`.
+- A ligação da Vercel com o GitHub foi desligada.
+- O serviço `OVRService` (Meta Horizon Link) foi parado no PC, a pedido do usuário. Ele volta ao reiniciar o PC.
+
+---
+
+## 4. Relatos e tickets externos
+
+| Id | Assunto | Estado |
+|---|---|---|
+| E-mails da Vercel "Failed deployment" | Autor do commit sem conta Vercel (plano Hobby) | Resolvido: deploy por cópia sem `.git`, com a ligação ao GitHub desligada |
+
+---
+
+## 5. Próximos passos
+
+1. Decidir qual fase vai para a produção dos juízes (`npm run deploy`) antes de 18/11, 12:00 PT, e testar no Quest.
+2. Phase 3: leitura dos AprilTags pela câmera. Começar mudando `CURRENT_PHASE` para `phase-3` em `src/phases/phases.ts`.
+3. Atualizar "What it does" no Devpost para a versão publicada, gravar o vídeo e submeter.
+4. Atualizar `docs/STATUS_PARA_LOLA.md` com as fases congeladas.
+
+---
+
+## 6. Documentos derivados (só relato)
+
+- **`README.md`:** a hospedagem está correta, mas a parte de interface ainda descreve a Phase 1 ("Ler tag", stickers, Settings só com o idioma). Faltam a interface estilo Quest, as Configurações, as fases congeladas e os comandos `deploy:dev` e `deploy:phase`.
+- **`a.u.r.a.-by-lola-guia-inicial.pdf`** (gerado por `tools/generate-guia-pdf.py`):
+  - ainda descreve a interface da Phase 1;
+  - manda aceitar o aviso de certificado em vez de usar os endereços da Vercel;
+  - a seção "7. O que eu não consegui verificar" diz que o round-trip não rodou, e ele já passou.
