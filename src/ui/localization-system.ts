@@ -45,6 +45,7 @@ const STATIC_TEXT: Record<string, readonly TextBinding[]> = {
   'sticker-lamp': [['sticker-scan-label', { device: 'lamp-sala-01' }]],
   'sticker-ac': [['sticker-scan-label', { device: 'ac-sala-01' }]],
   'sticker-lock': [['sticker-scan-label', { device: 'lock-porta-01' }]],
+  'sticker-tv': [['sticker-scan-label', { device: 'tv-sala-01' }]],
   'camera-placeholder': [
     ['txt-camera-eyebrow', { key: 'camera.eyebrow' }],
     ['txt-camera-text', { key: 'camera.text' }],

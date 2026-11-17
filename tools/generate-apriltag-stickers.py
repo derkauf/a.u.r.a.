@@ -2,11 +2,11 @@
 """
 Gera os 3 stickers AprilTag (public/ui/sticker-*.uikitml).
 
-O desenho é uma representação SIMPLIFICADA no estilo AprilTag tag36h11:
-borda preta + grade 6x6 de bits. Os bits são pseudo-aleatórios derivados
-do id do tag — NÃO são codewords válidos da família tag36h11, e o sticker
-na tela NÃO é escaneável de verdade. Ele existe para a simulação: o
-pinch no botão "Ler tag" representa "a câmera leu o AprilTag".
+O desenho é o tag36h11 de verdade: borda preta + os 6x6 bits do código
+IMPRESSO (PRINTED_TAG_CODES, os mesmos de src/markers/apriltag-detector.ts,
+lidos do PDF em docs/apriltag/). Bit 1 = branco. Na Phase 3 o ícone vai
+para cima do tag físico quando a câmera o lê, então ele precisa ser igual
+ao papel.
 
 Os tags imprimíveis de verdade (para colar na parede) são gerados no
 RealityScan Desktop ou baixados dos PDFs oficiais do projeto AprilTag —
@@ -28,23 +28,26 @@ DEVICES = [
     ("lamp", "lamp-sala-01", 1, "Lâmpada da sala", "Living room lamp"),
     ("ac", "ac-sala-01", 2, "Ar-condicionado da sala", "Living room AC"),
     ("lock", "lock-porta-01", 3, "Fechadura da porta", "Front door lock"),
+    ("tv", "tv-sala-01", 10, "TV da sala", "Living room TV"),
+]
+
+# Códigos tag36h11 dos tags impressos 1..12 (índice 0 = impresso 001).
+PRINTED_TAG_CODES = [
+    0x110bba61, 0x111dd66e, 0x14d2df6a, 0x196b856c, 0x3b4712d5, 0x4b029eec,
+    0x4d25374b, 0x56a5d085, 0x5df03f91, 0x67299b45, 0x6e5aaa6b, 0x6f8a5d94,
 ]
 
 
+# Grade: fundo preto e só as células brancas desenhadas (cell-off). Desenhar
+# as pretas célula por célula deixava emendas claras entre elas, que
+# quebravam o contorno do tag. (UIKitML não aceita comentários no <style>.)
+
+
 def data_bits(tag_id: int) -> list[list[int]]:
-    """36 bits pseudo-aleatórios determinísticos a partir do id (xorshift32)."""
-    state = ((tag_id + 1) * 2654435761) & 0xFFFFFFFF
-    bits: list[list[int]] = []
-    for _row in range(6):
-        row: list[int] = []
-        for _col in range(6):
-            state ^= (state << 13) & 0xFFFFFFFF
-            state ^= state >> 17
-            state ^= (state << 5) & 0xFFFFFFFF
-            state &= 0xFFFFFFFF
-            row.append((state >> 31) & 1)
-        bits.append(row)
-    return bits
+    """Os 6x6 bits do tag impresso, linha a linha; 1 = célula PRETA aqui."""
+    code = format(PRINTED_TAG_CODES[tag_id - 1], "036b")
+    # No código tag36h11, bit 1 = branco; na grade, 1 = preto (cell-on).
+    return [[0 if code[r * 6 + c] == "1" else 1 for c in range(6)] for r in range(6)]
 
 
 def grid_rows(tag_id: int) -> list[list[int]]:
@@ -83,6 +86,7 @@ STYLES = """<style>
 
   .tag-grid {
     flex-direction: column;
+    background-color: #111111;
   }
 
   .tag-row {
@@ -92,7 +96,6 @@ STYLES = """<style>
   .cell-on {
     width: 8px;
     height: 8px;
-    background-color: #111111;
   }
 
   .cell-off {
@@ -124,10 +127,10 @@ def render_sticker(slug: str, device_id: str, tag_id: int, label: str, label_en:
     return f"""<!--
   Ícone do tag — {label} ({device_id}), AprilTag tag36h11 id {tag_id}.
   Visual de ícone de app do Horizon OS: o tag num quadrado branco, o nome
-  do dispositivo embaixo. A grade 6x6 é ilustrativa e NÃO é um codeword
-  válido. O ícone inteiro é o botão (id sticker-scan-button): o primeiro
-  pinch simula a leitura ("a câmera leu o tag") e abre o painel; os
-  seguintes abrem e fecham. O raio por cima aumenta o ícone (hover, em
+  do dispositivo embaixo. A grade é o código real do tag impresso: quando a
+  câmera lê o tag (Phase 3), este ícone vai para cima do tag físico. O
+  ícone inteiro é o botão (id sticker-scan-button): abre e fecha a janela
+  do dispositivo (antes da leitura, o primeiro pinch simula a leitura). O raio por cima aumenta o ícone (hover, em
   src/ui/hover-scale-system.ts). Gerado por tools/generate-apriltag-stickers.py.
   Os tags imprimíveis de verdade estão em docs/apriltag-markers.md.
 -->

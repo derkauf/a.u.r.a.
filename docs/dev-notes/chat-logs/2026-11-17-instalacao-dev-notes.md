@@ -416,9 +416,9 @@ Fora do repositório (git-ignorado): `.iwsdk/https-lan/key.pem` e `cert.pem`.
 
 ---
 
-# Parte 5: Phase 3 começa (identidade visual e scanner de tags)
+# Parte 5: Phase 3 (identidade visual, scanner de tags, dispositivos ancorados nos tags físicos)
 
-Sessão em andamento; o `/devlog` completa esta parte.
+Pedido do usuário: começar a Phase 3, antes alinhando a interface à nova identidade visual. Resultado: câmera do Quest lendo os AprilTags impressos e abrindo os dispositivos sobre os tags físicos.
 
 ## 1. Observações do dev-journey
 
@@ -446,15 +446,76 @@ Sessão em andamento; o `/devlog` completa esta parte.
 
 **Ancoragem no tag confirmada no Quest (17/11).** A janela da TV ficou exatamente na frente do tag físico e permanece fixa no ponto quando a cabeça se move. Com o scanner aberto, a posição acompanha o tag em tempo real; fechado o scanner, ela congela no lugar (comportamento aceito). Polimento pedido: (1) **tremido** no rastreamento: cada leitura (5/s) movia a janela de uma vez; agora a leitura define um alvo filtrado (zona morta de 1,5 cm para ruído, mistura de 35% por leitura) e a janela desliza até ele a cada quadro; (2) **telemetria** escondida atrás das janelas: agora fica presa à visão, centralizada a 24° acima da linha dos olhos (perto da borda de cima), sempre desenhada por cima (`src/ui/telemetry-hud-system.ts`).
 
+**Três dispositivos ancorados nos tags físicos (17/11).** Teste do usuário: lâmpada, ar-condicionado e TV, cada janela sobre o seu tag na parede. Commit `fa344f7`. Observações dele e respostas:
+- *Andando pelo quarto, as janelas continuavam viradas para onde ele estava sentado e sumiam fora desse ângulo.* Causa: os painéis UIKit têm um lado só; visto por trás, somem. Agora tudo que está preso a um tag gira a cada quadro para ficar de frente para o usuário (só no eixo vertical), onde quer que ele esteja.
+- *Telemetria alta demais:* desceu de 24° para 15° acima da linha dos olhos.
+- *Tag virtual sobre o tag físico*, para ter onde tocar em vez dos três ícones do HUD que deram início ao projeto: os ícones agora desenham o **código real** de cada tag impresso (o detector lê o ícone da TV como tag 10 e o da lâmpada como tag 1, 0 bits errados). Quando a câmera lê um tag, o ícone do dispositivo sai da linha do HUD e vai para cima do papel, no tamanho do tag (11,2 cm), 1 cm à frente da parede; tocar nele abre e fecha a janela, que agora flutua 24 cm acima do tag para não cobri-lo. A TV ganhou ícone, que só aparece depois da leitura.
+- Detalhe resolvido: desenhar as células pretas uma a uma deixava emendas claras que quebravam o contorno do tag; a grade agora tem fundo preto e só as células brancas são desenhadas. O `<style>` do UIKitML não aceita comentários.
+- Incidente: o commit `fa344f7` levou junto um download do Chrome pela metade (`Unconfirmed 350639.crdownload`, 91,5 MB) que estava em `docs/ux/quest-reference/`. Agora `*.crdownload` e os vídeos de `quest-reference` ficam fora do git. Limpar o histórico depende de decisão do usuário (reescreve o que já foi enviado).
+
 ## 2. Decisões
 
 | Decisão | Alternativas | Por quê |
 |---|---|---|
 | Nova identidade visual (ciano = repouso, âmbar = ativo), tokens em `docs/ux/VISUAL_ID.md` | Manter o cinza do Horizon OS | Mesma identidade do post no Devpost e da landing page da Lola; cores amostradas dos concept boards |
-| Scanner de tags com botão próprio ao lado da engrenagem | Usar o "View camera" da fechadura | Câmera da porta é recurso do dispositivo; o scanner é do app (correção do usuário) |
-| Teste de acesso à câmera antes do detector | Escrever o detector direto | Ainda não se sabe se o Quest Browser libera as imagens da câmera dentro da sessão XR |
+| Scanner de tags com botão próprio ao lado da engrenagem | Usar o "View camera" da fechadura | A câmera da porta é recurso do dispositivo; o scanner é do app (correção do usuário) |
+| Acesso à câmera por `getUserMedia` (IWSDK `CameraSource`), escolhendo uma câmera que não seja a virtual | Ler a imagem do passthrough exibido; `camera-access` do WebXR | O passthrough é composto pelo sistema e a página não recebe os pixels; o `camera-access` não é suportado no Quest Browser (relatos da comunidade) |
+| Detector js-aruco2 com dicionário só dos 12 tags impressos, na ordem impressa | Usar o `APRILTAG_36h11` da biblioteca | A biblioteca numera a família diferente do RealityScan (impresso 001 = índice 476); com o dicionário próprio, o id lido é o número impresso |
+| TV da sala = tag 10 (00a), só pela câmera | Um quarto ícone no HUD | Pedido do usuário; mostra o fluxo "tag lido → submenu" sem o atalho simulado |
+| Sem API com aparelhos reais; estados simulados | Integrar smart devices | Protótipo; o cronograma não comporta; o objetivo é a experiência (vídeo de referência dos óculos Snap Spectacles) |
+| Posição do tag pela imagem (direção pelo centro, distância pelo tamanho impresso de 111,8 mm) + pose da cabeça | Hit-test na malha do ambiente | Funciona sem depender da malha; o hit-test fica como melhoria para a profundidade |
+| Ícone do tag = código real do papel, colocado sobre o tag físico; janela 24 cm acima | Janela na frente do tag, sem tag virtual | Dá onde tocar no lugar dos três ícones do HUD; o detector confirma que o ícone é o mesmo código |
+| Tudo que está preso a tag fica de frente para o usuário (só no eixo vertical) e não sofre frustum culling | Orientação fixa do momento da leitura | Painéis UIKit têm um lado só; a esfera de culling ficava na posição antiga do HUD |
+| Correção de 4° para baixo na câmera | Manter a câmera como os olhos | Calibrado pela foto do Quest: tags virtuais ~10 cm acima do papel a ~1,5 m |
+| Limpar o histórico: amend de `fa344f7` → `3055c97` e force push (com lease) | Deixar os 91 MB no histórico | Autorizado pelo usuário; ninguém mais usa o repo e a Vercel está desligada dele |
 
-## 3. Verificado
+## 3. Arquivos adicionados, alterados ou removidos
 
-- Emulador: botão de scan › janela "Tag scanner" abre › câmera tenta ligar › "Camera unavailable / NotReadableError" (o PC não tem câmera; caminho de erro ok).
-- **Pendente:** resultado no Quest (aura-dev).
+- [A] `docs/ux/VISUAL_ID.md`: tokens da identidade visual.
+- [A] `src/camera/tag-scanner-system.ts`: scanner (câmera, prévia, detecção a 5 Hz, diagnóstico, posição do tag).
+- [A] `src/markers/apriltag-detector.ts`, `src/js-aruco2.d.ts`: detector com os 12 códigos impressos.
+- [A] `src/markers/tag-placement.ts`: posição do tag, suavização, poses de frente para o usuário, correção de 4°.
+- [A] `src/markers/scan-bus.ts`: "tag cadastrado lido" → abre o dispositivo.
+- [A] `src/ui/telemetry-hud-system.ts`: telemetria presa à visão, 15° acima, por cima de tudo.
+- [A] `public/ui/scan-button.uikitml`, `public/ui/tag-scanner.uikitml`, `public/ui/panel-tv.uikitml`, `public/ui/sticker-tv.uikitml`.
+- [M] `public/ui/*.uikitml`: nova paleta; ícones de tag com o código real e a grade sem emendas.
+- [M] `tools/generate-apriltag-stickers.py`: códigos impressos, TV, grade com fundo preto.
+- [M] `src/markers/apriltag-handshake.ts`, `src/devices/*`, `src/ui/device-panel-system.ts`, `src/anchors/anchor-service.ts`, `src/ui/localization-system.ts`, `src/assets.ts`, `src/index.ts`: dispositivo TV, scanner, abertura pelo tag.
+- [M] `src/ui/hud-follow-system.ts`: janelas e ícones presos aos tags, de frente para o usuário, sem culling; telemetria fora do HUD.
+- [M] `src/ui/settings-panel-system.ts`, `src/input/hand-ray-cursor.ts`: nova paleta.
+- [M] `iwsdk.config.json` (`features.camera`), `vite.config.ts` (`js-aruco2` pré-empacotado), `package.json` (`js-aruco2`).
+- [M] `src/locales/en.json`, `src/locales/pt-BR.json`: scanner, TV.
+- [M] `tests/unit.test.ts`: 20 testes (detector, tabela de tags com a TV, pose do tag).
+- [M] `docs/REFERENCES.md`, `docs/references.json` (55 arquivos), `.gitignore` (`artifacts/`, `*.crdownload`, vídeos de `quest-reference`).
+
+## 4. Commits
+
+- `863f215` Phase 3 start: new visual identity (cyan rests, amber acts).
+- `3055c97` Phase 3: camera tag scanner, AprilTag detection, windows anchored at printed tags (era `fa344f7`, refeito sem o download de 91 MB e enviado com force push).
+- O commit desta parte (tag virtual, de frente para o usuário, culling, 4°, telemetria) fecha o `/devlog`.
+
+## 5. Verificado
+
+- **No Quest (usuário):** câmera do headset 1280x960, 3 câmeras, com "Headset cameras" liberado; tag 00a lido como 10; lâmpada, ar-condicionado e TV com a janela sobre o seu tag; posição fixa ao mexer a cabeça; tags virtuais virando para o usuário ao andar.
+- **No PC:** typecheck sem erros; 20 de 20 testes; o detector lê os 12 tags do PDF (distância 0) e os ícones renderizados da TV (10) e da lâmpada (1); build ok; aura-dev serve cada versão.
+- **Ainda não verificado no Quest:** a correção de 4°, o fim do sumiço a ~1,2 m (culling) e o toque no tag virtual abrindo e fechando a janela.
+
+## 6. Relatos e tickets externos
+
+- Acesso à câmera no Quest Browser: relatos da comunidade (Quest Browser 40.1, `getUserMedia`, permissão "Headset cameras"); nenhum documento oficial da Meta encontrado. Fontes no fim da conversa: PRs #27 e #28 de `koshkakochka/gsforanything` e o explainer de Raw Camera Access do immersive-web.
+
+## 7. Próximos passos
+
+1. **Prazo (18/11, 12:00 PT):** decidir o que vai para a produção dos juízes e publicar com `npm run deploy`.
+2. Testar no Quest a correção de 4°, o culling e o toque no tag virtual.
+3. Profundidade pelo ambiente (hit-test na parede) para o tag virtual não "escorregar" quando visto de outro ângulo.
+4. Scanner contínuo, sem janela (como a câmera do celular).
+5. Salvar a posição dos tags na âncora persistente (hoje some ao recarregar).
+6. TV em Configurações › Dispositivos; textos dos outros 3 idiomas.
+7. Congelar a Phase 3 (tag `phase-3`, `npm run deploy:phase -- phase-3`).
+
+## 8. Documentos derivados (só relato)
+
+- `README.md` e o guia em PDF (`tools/generate-guia-pdf.py`) estão desatualizados: não falam do scanner, da TV, da leitura pela câmera nem da nova identidade visual.
+- `docs/STATUS_PARA_LOLA.md` precisa de uma versão nova: Phase 3 em andamento, câmera confirmada, tokens em `docs/ux/VISUAL_ID.md` para a landing page.
+- O rascunho do Devpost (`tools/generate-submission-pdfs.py`) pode citar a leitura real dos tags se a Phase 3 for para a produção.

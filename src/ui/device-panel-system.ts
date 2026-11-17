@@ -38,11 +38,12 @@ const PANEL_NODE_IDS: Record<DeviceId, string> = {
   'lock-porta-01': 'panel-lock',
   'tv-sala-01': 'panel-tv',
 };
-/** HUD tag icons (simulated scan). The TV has none: only the camera reads its tag. */
+/** Tag icons: in the HUD row until read, then the virtual tag over the paper. The TV's appears only once read. */
 const STICKER_NODE_IDS: Partial<Record<DeviceId, string>> = {
   'lamp-sala-01': 'sticker-lamp',
   'ac-sala-01': 'sticker-ac',
   'lock-porta-01': 'sticker-lock',
+  'tv-sala-01': 'sticker-tv',
 };
 const CAMERA_NODE_ID = 'camera-placeholder';
 

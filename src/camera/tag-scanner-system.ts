@@ -25,7 +25,7 @@ import { AprilTagDetector } from '../markers/apriltag-detector.js';
 import { APRILTAG_FAMILY, resolveTag } from '../markers/apriltag-handshake.js';
 import { deviceDisplayName } from '../devices/device-names.js';
 import { emitTagScanned } from '../markers/scan-bus.js';
-import { setPlacement, tagWorldPosition, windowPoseInFront } from '../markers/tag-placement.js';
+import { setPlacement, tagWorldPosition } from '../markers/tag-placement.js';
 import { onActivate } from '../ui/activation.js';
 import { playConfirm } from '../ui/feedback-sound.js';
 
@@ -60,8 +60,6 @@ export class AuraTagScannerSystem extends createSystem({
   private readonly headPos = new Vector3();
   private readonly headQuat = new Quaternion();
   private readonly tagPos = new Vector3();
-  private readonly windowPos = new Vector3();
-  private readonly windowQuat = new Quaternion();
 
   update(): void {
     if (!this.panel || !this.button) this.tryBind();
@@ -122,10 +120,10 @@ export class AuraTagScannerSystem extends createSystem({
     const found = tags.map((tag) => {
       const device = resolveTag({ family: APRILTAG_FAMILY, id: tag.id });
       if (device && head) {
-        // The device window goes in front of the physical tag (updated on every read).
+        // Where the physical tag is (refined on every read); the virtual tag
+        // and the window are attached to it by AuraHudFollowSystem.
         tagWorldPosition(tag.corners, w, h, this.headPos, this.headQuat, this.tagPos);
-        windowPoseInFront(this.tagPos, this.headPos, this.windowPos, this.windowQuat);
-        setPlacement(device, this.windowPos, this.windowQuat);
+        setPlacement(device, this.tagPos);
       }
       if (!this.seenIds.has(tag.id)) {
         this.seenIds.add(tag.id);

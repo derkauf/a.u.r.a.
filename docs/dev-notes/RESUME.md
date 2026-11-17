@@ -1,4 +1,4 @@
-# Retomar: A.U.R.A. v1 paralela (escrito em 2026-11-17)
+# Retomar: A.U.R.A. v1 paralela (escrito em 2026-11-17, fim da Parte 5)
 
 Comece por aqui quando voltar. O `/devlog` (ou `/encerrar`) reescreve este arquivo no fim de cada sessão.
 
@@ -6,36 +6,42 @@ Este arquivo lista só **ações**. O **estado** (o que está pronto, travado ou
 
 ## 0. Primeira checagem
 
-- **Prazo:** confira quanto falta para a submissão (data em PROGRESS › Próximos 1). Tudo que for para os juízes precisa estar publicado antes dele.
-- **Esperando:** veja PROGRESS › Esperando e pergunte ao usuário se os tags já foram impressos e se o cabo foi autorizado.
-- **Decisão pendente:** pergunte qual fase vai para a produção dos juízes (PROGRESS › Próximos 1).
-- **Referências novas:** `npm run refs:check` lista o que o usuário depositou nas pastas de referência (`docs/REFERENCES.md`). Conte a ele o que entrou e registre com `npm run refs:check -- --update`.
-- **Git:** `git status` deve estar limpo; `git tag -l "phase-*"` deve listar as fases congeladas.
-- **Servidor de dev:** rode `npm run dev` como tarefa em segundo plano (acompanhada), não solto. Depois de mexer no `adb`, confira `npx @iwsdk/cli dev status`.
+- **Prazo:** confira quanto falta para a submissão (PROGRESS › Próximos 1). O que for para os juízes precisa estar publicado antes.
+- **Decisão pendente:** pergunte qual fase vai para a produção dos juízes (Phase 2 ou a Phase 3 atual).
+- **Teste pendente no Quest:** pergunte o resultado da última versão no aura-dev (ver seção 3).
+- **Referências novas:** `npm run refs:check`; conte ao usuário o que entrou e registre com `npm run refs:check -- --update`.
+- **Git:** `git status` limpo; `git tag -l "phase-*"` lista phase-1 e phase-2.
+- **Servidor de dev:** `npm run dev` como tarefa em segundo plano (acompanhada). Assets novos só aparecem no editor depois de `npx @iwsdk/cli dev restart`.
 
 ## 1. Ações pendentes, em ordem
 
 | # | Ação | Antes | O que faz |
 |---|---|---|---|
-| 1 | `npm run deploy` (produção) | Decisão do usuário sobre a fase; se não for o código atual, fazer `git checkout` da tag numa cópia ou mudar o script | Publica em https://aura.sixvectors.app/ a versão dos juízes |
-| 2 | Phase 3 em `src/` (câmera + detector + âncora no tag) | `CURRENT_PHASE = 'phase-3'` em `src/phases/phases.ts`; skill `iwsdk-dev`; ler `docs/apriltag/README.md` | Leitura real dos AprilTags impressos pela câmera do Quest |
-| 3 | Congelar a Phase 3 | Phase 3 validada no Quest | `git tag -a phase-3`, push da tag, `npm run deploy:phase -- phase-3`; ajustar `url` e `frozenOn` da Phase 3 em `src/phases/phases.ts` |
-| 4 | Rascunho do Devpost (`tools/generate-submission-pdfs.py`) | Saber qual fase está em produção | Atualizar o "What it does" para a versão publicada; gerar o PDF de novo |
-| 5 | `docs/STATUS_PARA_LOLA.md` | — | Nova versão no topo do histórico, com as fases congeladas |
-| 6 | `README.md` e `tools/generate-guia-pdf.py` | — | Atualizar a parte de interface e os comandos (ver a seção 6 da Parte 4 do log) |
+| 1 | `npm run deploy` (produção) | Decisão do usuário sobre a fase; se não for o código atual, publicar a partir da tag | Publica em https://aura.sixvectors.app/ a versão dos juízes |
+| 2 | Ajustes da Phase 3 conforme o teste no Quest | Resultado da seção 3 | Calibrar `CAMERA_PITCH_DOWN_DEG`, `FOCAL_RATIO`, `WINDOW_RAISE_M`, `VIRTUAL_TAG_TILE_OFFSET_UNITS` em `src/markers/tag-placement.ts` |
+| 3 | Profundidade do tag pelo ambiente | Skill `iwsdk-dev`; ver `features.environmentRaycast` / hit-test | O tag virtual deixa de "escorregar" quando visto de outro ângulo |
+| 4 | Scanner contínuo, sem janela | Câmera confirmada (já está) | Lê tags desde a entrada no AR, como a câmera do celular; a janela vira diagnóstico |
+| 5 | Salvar a posição dos tags | `src/markers/tag-placement.ts` (hoje só na memória) e `src/anchors/anchor-service.ts` | Os tags virtuais voltam no lugar depois de recarregar |
+| 6 | TV em Configurações › Dispositivos; textos em es/fr/de | `src/ui/settings-panel-system.ts` (`DEVICES`), `public/ui/settings.uikitml`, `src/locales/*.json` | Completa o dispositivo de teste |
+| 7 | Congelar a Phase 3 | Phase 3 validada no Quest | `git tag -a phase-3`, push da tag, `npm run deploy:phase -- phase-3`; `url` e `frozenOn` em `src/phases/phases.ts` |
+| 8 | `docs/STATUS_PARA_LOLA.md`, README, guia em PDF, rascunho do Devpost | — | Ver Parte 5, seção 8, do log de 17/11 |
 
 ## 2. Como verificar
 
-- **Código:** `npm run typecheck` sem erros; `npm run test:unit` com 16 de 16; `npm run build` ok (o aviso de chunk acima de 500 kB é esperado).
-- **Console:** `npx @iwsdk/cli browser logs --input-json '{"count":400}'` sem erros e sem `Missing glyph`.
-- **Endereços:** `curl -s -o /dev/null -w '%{http_code}' <url>` com 200 em produção, aura-phase1, aura-phase2 e aura-dev.
-- **Mira no emulador:** os painéis com rotação de -6° ficam mais perto embaixo (z ≈ -0.585 na barra); com o tamanho L, o layout escala 1.25×. Use `ui inspect` (`relativeCenter`, relativo ao pai) para calcular a posição antes de clicar.
+- **Código:** `npm run typecheck`; `npm run test:unit` com 20 de 20; `npm run build`.
+- **Console:** `npx @iwsdk/cli browser logs --input-json '{"count":300}'` sem erros.
+- **Detector:** os testes leem os tags 1, 2 e 12. Para conferir um ícone de tag: `ui render-preview` do `sticker-*`, e passar o PNG pelo `AprilTagDetector` (precisa dar o id do ícone com 0 bits errados).
+- **Publicado:** `npm run deploy:dev` e `curl` com 200 em https://aura-dev.sixvectors.app/.
+- **UIKitML:** o `<style>` não aceita comentários nem `object-fit`; `<img>` exige `src`.
 
-## 3. O que testar no Quest
+## 3. O que testar no Quest (aura-dev)
 
-- **Phase 3:** com um tag na tela do outro monitor ou impresso, conferir se a câmera abre dentro da sessão XR e se o tag é reconhecido.
-- **Produção:** depois do deploy, abrir o link no Quest e fazer o round-trip (refresh e reabrir: "Âncora: ativa (restaurada)").
-- **Pendentes da Phase 2:** limites do HUD (50°/40°), alcance de ativação, exportar JSON, "Abrir" uma fase em Configurações › Project phases.
+- Permissão: Configurações › Privacidade e segurança › Navegador › **Headset cameras** ligado.
+- Scan (botão ao lado da engrenagem) → tag 00a → janela da TV acima do tag e o tag virtual sobre o papel.
+- O tag virtual coincide com o papel? (correção de 4° nova)
+- Andar mais de 1,2 m: os tags virtuais e as janelas continuam visíveis? (culling desligado)
+- Tocar no tag virtual abre e fecha a janela?
+- Telemetria a 15° acima, por cima das janelas.
 
 ## 4. Próximo marco
 
@@ -48,16 +54,15 @@ Este arquivo lista só **ações**. O **estado** (o que está pronto, travado ou
 ## 6. Outras pendências
 
 - Atalho do A.U.R.A. no quick menu do Quest.
-- O `OVRService` (Meta Horizon Link) foi parado no PC para liberar o cabo. Para religar: `Start-Service OVRService` como administrador, ou reiniciar o PC.
-- Phase 4 e Phase 5: ver PROGRESS › Agora › Project phases.
+- `OVRService` (Meta Horizon Link) parado no PC; religar com `Start-Service OVRService` como administrador ou reiniciando.
+- Vídeos de `docs/ux/quest-reference/` ficam fora do git (`.gitignore`).
 
 ## Arquivos de referência
 
 - Estado: [PROGRESS.md](PROGRESS.md)
-- Última sessão: [chat-logs/2026-11-17-instalacao-dev-notes.md](chat-logs/2026-11-17-instalacao-dev-notes.md) (Parte 4)
+- Última sessão: [chat-logs/2026-11-17-instalacao-dev-notes.md](chat-logs/2026-11-17-instalacao-dev-notes.md) (Parte 5)
+- Identidade visual: [`docs/ux/VISUAL_ID.md`](../ux/VISUAL_ID.md)
+- Scanner: [`src/camera/tag-scanner-system.ts`](../../src/camera/tag-scanner-system.ts); detector: [`src/markers/apriltag-detector.ts`](../../src/markers/apriltag-detector.ts); posição: [`src/markers/tag-placement.ts`](../../src/markers/tag-placement.ts)
+- Tabela de tags: [`src/markers/apriltag-handshake.ts`](../../src/markers/apriltag-handshake.ts); marcadores: [`docs/apriltag/`](../apriltag/)
 - Fases: [`src/phases/phases.ts`](../../src/phases/phases.ts); deploy: [`tools/deploy-vercel.mjs`](../../tools/deploy-vercel.mjs)
-- Marcadores: [`docs/apriltag/`](../apriltag/)
-- Submissão: [`docs/submission/`](../submission/)
 - Status para a Lola: [`docs/STATUS_PARA_LOLA.md`](../STATUS_PARA_LOLA.md)
-- Configurações: [`src/ui/settings-panel-system.ts`](../../src/ui/settings-panel-system.ts), [`src/settings/settings-store.ts`](../../src/settings/settings-store.ts)
-- Teste da âncora: `tests/anchor-roundtrip.md`

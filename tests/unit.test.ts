@@ -18,7 +18,7 @@ import {
 } from '../src/markers/apriltag-handshake.js';
 import { clampToStep } from '../src/core/rules.js';
 import { AprilTagDetector, PRINTED_TAG_CODES } from '../src/markers/apriltag-detector.js';
-import { FOCAL_RATIO, TAG_SIZE_M, WINDOW_GAP_M, tagWorldPosition, windowPoseInFront } from '../src/markers/tag-placement.js';
+import { CAMERA_PITCH_DOWN_DEG, FOCAL_RATIO, TAG_SIZE_M, WINDOW_GAP_M, tagWorldPosition, windowPoseInFront } from '../src/markers/tag-placement.js';
 import { Quaternion, Vector3 } from 'three';
 import { DeviceRegistry } from '../src/devices/device-registry.js';
 import { pinchMode } from '../src/ui/activation.js';
@@ -254,7 +254,7 @@ describe('AprilTag detector (printed tags)', () => {
 });
 
 describe('Tag placement (window in front of the printed tag)', () => {
-  it('a centered tag of N pixels lands straight ahead at the matching distance', () => {
+  it('a centered tag of N pixels lands ahead at the matching distance, CAMERA_PITCH_DOWN_DEG below the line of sight', () => {
     const w = 960;
     const h = 720;
     const focal = FOCAL_RATIO * w;
@@ -268,7 +268,10 @@ describe('Tag placement (window in front of the printed tag)', () => {
     ];
     const head = new Vector3(0, 1.6, 0);
     const p = tagWorldPosition(corners, w, h, head, new Quaternion(), new Vector3());
-    assert.ok(Math.abs(p.x) < 1e-6 && Math.abs(p.y - 1.6) < 1e-6 && Math.abs(p.z + 1.5) < 1e-6, `got ${p.toArray()}`);
+    const pitch = (CAMERA_PITCH_DOWN_DEG * Math.PI) / 180;
+    const expectedY = 1.6 - 1.5 * Math.sin(pitch);
+    const expectedZ = -1.5 * Math.cos(pitch);
+    assert.ok(Math.abs(p.x) < 1e-6 && Math.abs(p.y - expectedY) < 1e-6 && Math.abs(p.z - expectedZ) < 1e-6, `got ${p.toArray()}`);
   });
 
   it('the window sits between the tag and the head, facing the head', () => {

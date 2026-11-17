@@ -1,10 +1,10 @@
 <!--
   Ícone do tag — Lâmpada da sala (lamp-sala-01), AprilTag tag36h11 id 1.
   Visual de ícone de app do Horizon OS: o tag num quadrado branco, o nome
-  do dispositivo embaixo. A grade 6x6 é ilustrativa e NÃO é um codeword
-  válido. O ícone inteiro é o botão (id sticker-scan-button): o primeiro
-  pinch simula a leitura ("a câmera leu o tag") e abre o painel; os
-  seguintes abrem e fecham. O raio por cima aumenta o ícone (hover, em
+  do dispositivo embaixo. A grade é o código real do tag impresso: quando a
+  câmera lê o tag (Phase 3), este ícone vai para cima do tag físico. O
+  ícone inteiro é o botão (id sticker-scan-button): abre e fecha a janela
+  do dispositivo (antes da leitura, o primeiro pinch simula a leitura). O raio por cima aumenta o ícone (hover, em
   src/ui/hover-scale-system.ts). Gerado por tools/generate-apriltag-stickers.py.
   Os tags imprimíveis de verdade estão em docs/apriltag-markers.md.
 -->
@@ -30,6 +30,7 @@
 
   .tag-grid {
     flex-direction: column;
+    background-color: #111111;
   }
 
   .tag-row {
@@ -39,7 +40,6 @@
   .cell-on {
     width: 8px;
     height: 8px;
-    background-color: #111111;
   }
 
   .cell-off {
@@ -59,12 +59,12 @@
   <div class="icon-tile">
     <div class="tag-grid">
       <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div></div>
-      <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div></div>
-      <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-on"></div></div>
-      <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-on"></div></div>
+      <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div></div>
+      <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div></div>
+      <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div></div>
+      <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-on"></div></div>
       <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div></div>
-      <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div></div>
-      <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div></div>
+      <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div></div>
       <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div></div>
     </div>
   </div>

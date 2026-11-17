@@ -26,6 +26,7 @@ export default defineAssets({
   'panel-ac': uikitml('panel-ac.uikitml', 'Panel — Living room AC'),
   'panel-lock': uikitml('panel-lock.uikitml', 'Panel — Front door lock'),
   'panel-tv': uikitml('panel-tv.uikitml', 'Panel — Living room TV (tag 10)'),
+  'sticker-tv': uikitml('sticker-tv.uikitml', 'AprilTag — Living room TV (tag36h11 id 10)'),
   'camera-placeholder': uikitml('camera-placeholder.uikitml', 'Door camera (simulated)'),
   settings: uikitml('settings.uikitml', 'Settings'),
   'settings-gear': uikitml('settings-gear.uikitml', 'Settings gear button'),

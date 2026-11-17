@@ -21,6 +21,7 @@ const OPACITY_NODE_IDS = [
   'sticker-lamp',
   'sticker-ac',
   'sticker-lock',
+  'sticker-tv',
   'settings-gear',
   'scan-button',
   'tag-scanner',

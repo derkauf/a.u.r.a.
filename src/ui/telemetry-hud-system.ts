@@ -14,7 +14,7 @@ import { createSystem, type UIKitMLAsset } from '@iwsdk/core';
 const TELEMETRY_NODE_ID = 'telemetry';
 const TELEMETRY_DISTANCE_M = 0.6;
 /** Degrees above the line of sight (Quest 3 shows ~48° up; this stays inside). */
-const TELEMETRY_UP_DEG = 24;
+const TELEMETRY_UP_DEG = 15;
 const RENDER_ON_TOP = 1000;
 
 export class AuraTelemetryHudSystem extends createSystem() {

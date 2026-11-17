@@ -35,19 +35,53 @@
 import { createSystem, Euler, Object3D, Quaternion, Vector3, XRAnchor, type Entity } from '@iwsdk/core';
 import { isViewFollowOn, subscribeViewFollow } from './view-follow.js';
 import { getSettings, subscribeSettings, type CardSize } from '../settings/settings-store.js';
-import { getPlacement, PANEL_NODE_BY_DEVICE, stepPlacements } from '../markers/tag-placement.js';
+import {
+  facingPoseAtTag,
+  getPlacement,
+  PANEL_NODE_BY_DEVICE,
+  stepPlacements,
+  STICKER_NODE_BY_DEVICE,
+  VIRTUAL_TAG_GAP_M,
+  VIRTUAL_TAG_SCALE,
+  VIRTUAL_TAG_TILE_OFFSET_UNITS,
+  WINDOW_GAP_M,
+  WINDOW_RAISE_M,
+} from '../markers/tag-placement.js';
 import type { DeviceId } from '../markers/apriltag-handshake.js';
 
 /** Window node id → device, for windows that a tag read can place in the room. */
 const DEVICE_BY_PANEL_NODE = new Map<string, DeviceId>(
   (Object.entries(PANEL_NODE_BY_DEVICE) as Array<[DeviceId, string]>).map(([device, node]) => [node, device]),
 );
+/** Tag icon node id → device: a read tag's icon becomes the virtual tag over the paper. */
+const DEVICE_BY_STICKER_NODE = new Map<string, DeviceId>(
+  (Object.entries(STICKER_NODE_BY_DEVICE) as Array<[DeviceId, string]>).map(([device, node]) => [node, device]),
+);
+/** Icons that exist only as virtual tags (no slot in the HUD row): hidden until read. */
+const CAMERA_ONLY_STICKERS = new Set(['sticker-tv']);
+
+/**
+ * UIKit computes each mesh's bounding sphere where the panel was built (in
+ * the HUD, near the user). Moved onto a wall, that stale sphere made three.js
+ * cull the whole window once the user walked ~1.2 m away (the "bubble"
+ * seen on the Quest 17/11). Things placed at tags are never culled.
+ */
+function keepVisible(object: Object3D): void {
+  object.frustumCulled = false;
+}
+const CULL_REFRESH_FRAMES = 30;
+
+function placedDevice(nodeId: string): DeviceId | undefined {
+  const device = DEVICE_BY_PANEL_NODE.get(nodeId) ?? DEVICE_BY_STICKER_NODE.get(nodeId);
+  return device && getPlacement(device) ? device : undefined;
+}
 
 /** Scene nodes that form the HUD (see public/scenes/main.iwsdk.scene.json). */
 const HUD_NODE_IDS = [
   'sticker-lamp',
   'sticker-ac',
   'sticker-lock',
+  'sticker-tv',
   'settings-gear',
   'scan-button',
   'tag-scanner',
@@ -108,6 +142,7 @@ export class AuraHudFollowSystem extends createSystem() {
   private rig!: Entity;
   private following = false;
   private needsSnap = true;
+  private cullFrame = 0;
 
   // Follow state: where the HUD is now, and where it is heading.
   private yaw = 0;
@@ -141,14 +176,31 @@ export class AuraHudFollowSystem extends createSystem() {
     // Windows placed by a tag read (Phase 3) stay in front of the physical
     // tag, in the room, whether or not the HUD follows the view.
     stepPlacements(delta);
+    this.cullFrame = (this.cullFrame + 1) % CULL_REFRESH_FRAMES;
+    const viewer = this.world.playerHeadEntity.object3D;
+    if (viewer) viewer.getWorldPosition(this.headPos);
     for (const [nodeId, node] of this.nodes) {
-      const device = DEVICE_BY_PANEL_NODE.get(nodeId);
-      const placement = device ? getPlacement(device) : undefined;
-      if (!placement) continue;
-      if (node.object.parent !== this.world.scene) this.world.scene.add(node.object);
-      node.object.position.copy(placement.position);
-      node.object.quaternion.copy(placement.quaternion);
-      node.object.scale.copy(node.homeScale);
+      const device = placedDevice(nodeId);
+      if (CAMERA_ONLY_STICKERS.has(nodeId)) node.object.visible = device !== undefined;
+      if (!device || !viewer) continue;
+      const placement = getPlacement(device)!;
+      if (node.object.parent !== this.world.scene) {
+        this.world.scene.add(node.object);
+        node.object.traverse(keepVisible);
+      } else if (this.cullFrame === 0) {
+        // UIKit adds meshes later (text, glyphs): re-apply now and then.
+        node.object.traverse(keepVisible);
+      }
+      if (DEVICE_BY_STICKER_NODE.has(nodeId)) {
+        // Virtual tag: the icon laid over the paper tag, its grid the paper's size.
+        facingPoseAtTag(placement.position, this.headPos, VIRTUAL_TAG_GAP_M, 0, node.object.position, node.object.quaternion);
+        node.object.scale.setScalar(VIRTUAL_TAG_SCALE);
+        // Center the tile (not tile + label) on the tag.
+        node.object.position.y -= VIRTUAL_TAG_TILE_OFFSET_UNITS * 0.01 * VIRTUAL_TAG_SCALE;
+      } else {
+        facingPoseAtTag(placement.position, this.headPos, WINDOW_GAP_M, WINDOW_RAISE_M, node.object.position, node.object.quaternion);
+        node.object.scale.copy(node.homeScale);
+      }
     }
     if (!this.following) return;
     const rigObject = this.rig.object3D;
@@ -158,8 +210,7 @@ export class AuraHudFollowSystem extends createSystem() {
     // Keep every HUD object in the rig (the SDK may move bound windows
     // into its anchored group).
     for (const [nodeId, node] of this.nodes) {
-      const device = DEVICE_BY_PANEL_NODE.get(nodeId);
-      if (device && getPlacement(device)) continue;
+      if (placedDevice(nodeId)) continue;
       if (node.object.parent !== rigObject) this.placeInRig(node, rigObject);
     }
 
