@@ -7,3 +7,7 @@
 *.mp4 binary
 *.mp3 binary
 *.ttf binary
+*.jfif binary
+*.webp binary
+*.mov binary
+*.wav binary

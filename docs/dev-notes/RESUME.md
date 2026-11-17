@@ -9,6 +9,7 @@ Este arquivo lista só **ações**. O **estado** (o que está pronto, travado ou
 - **Prazo:** confira quanto falta para a submissão (data em PROGRESS › Próximos 1). Tudo que for para os juízes precisa estar publicado antes dele.
 - **Esperando:** veja PROGRESS › Esperando e pergunte ao usuário se os tags já foram impressos e se o cabo foi autorizado.
 - **Decisão pendente:** pergunte qual fase vai para a produção dos juízes (PROGRESS › Próximos 1).
+- **Referências novas:** `npm run refs:check` lista o que o usuário depositou nas pastas de referência (`docs/REFERENCES.md`). Conte a ele o que entrou e registre com `npm run refs:check -- --update`.
 - **Git:** `git status` deve estar limpo; `git tag -l "phase-*"` deve listar as fases congeladas.
 - **Servidor de dev:** rode `npm run dev` como tarefa em segundo plano (acompanhada), não solto. Depois de mexer no `adb`, confira `npx @iwsdk/cli dev status`.
 

@@ -47,3 +47,7 @@ pids/
 .vercel
 .vercel-dev
 .vercel-phases
+
+# Large reference videos stay local (only the one posted on Devpost is versioned).
+docs/aura-visual-id/*.mp4
+!docs/aura-visual-id/gemini_generated_video_f969b831.mp4

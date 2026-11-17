@@ -50,6 +50,7 @@ Da mais nova para a mais antiga, no máximo umas 10 linhas. As mais antigas vão
 
 | O quê | Onde |
 |---|---|
+| Referências do usuário (identidade visual, vídeo do Devpost, UI, HUD, Quest, som) | [`docs/REFERENCES.md`](../REFERENCES.md); novidades com `npm run refs:check` |
 | Logs de sessão (`/devlog`) | `chat-logs/` |
 | Handoff (`/resume`) | `RESUME.md` |
 | Template do log de sessão | `templates/DEVLOG_TEMPLATE.md` |

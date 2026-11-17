@@ -21,7 +21,15 @@ const lanHttps =
 
 export default defineConfig({
   plugins: [iwsdkDev()],
-  server: { host: '0.0.0.0', port: 8081, open: false, ...(lanHttps ? { https: lanHttps } : {}) },
+  server: {
+    host: '0.0.0.0',
+    port: 8081,
+    open: false,
+    ...(lanHttps ? { https: lanHttps } : {}),
+    // docs/ is not part of the app. Watching it crashed the dev server with
+    // EBUSY while large files were still being copied in (Windows lock).
+    watch: { ignored: ['**/docs/**'] },
+  },
   build: {
     outDir: 'dist',
     sourcemap: process.env.NODE_ENV !== 'production',
