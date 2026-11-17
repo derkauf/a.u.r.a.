@@ -17,8 +17,10 @@ do A.U.R.A., a tabela local em `src/markers/apriltag-handshake.ts`.
 - **Família: `tag36h11`** — 6×6 bits de dados, 587 códigos válidos, a
   família recomendada (a mesma da FIRST e do Spot). É o padrão; não trocar
   sem trocar também os tags impressos e a tabela no código.
-- **Ids:** `0` = lâmpada da sala (`lamp-sala-01`), `1` = ar-condicionado
-  (`ac-sala-01`), `2` = fechadura da porta (`lock-porta-01`).
+- **Ids:** `1` = lâmpada da sala (`lamp-sala-01`), `2` = ar-condicionado
+  (`ac-sala-01`), `3` = fechadura da porta (`lock-porta-01`).
+- **O id `0` não é usado:** o gerador do RealityScan Desktop começa a
+  numeração no 1 (o 0 fica reservado para reduzir falsos positivos).
 
 ## Os 3 descritores (o que cada tag resolve)
 
@@ -53,14 +55,14 @@ uma extensão v1 do schema: abre a câmera simulada, sem estado no dispositivo.
    educadores e receita anual abaixo de US$ 1 milhão.
 2. Abra um projeto → aba **Alignment** → ferramenta **Detect Markers** →
    gere os marcadores e exporte os **PDFs prontos para imprimir**.
-3. Imprima os tags `tag36h11` de **id 0, 1 e 2**, um por dispositivo, e
+3. Imprima os tags `tag36h11` de **id 1, 2 e 3**, um por dispositivo, e
    cole cada um no lugar do dispositivo (lâmpada, ar-condicionado, porta).
 4. Imprima em tamanho real, sem redimensionar com interpolação, numa
    superfície plana e rígida — distorção e dobra degradam a detecção.
 
 > Nota: o gerador do RealityScan também produz os marcadores circulares
 > próprios dele (para fotogrametria). Se o menu da sua versão não mostrar
-> AprilTag, use a Opção B — são os mesmos tags `tag36h11`, ids 0, 1 e 2.
+> AprilTag, use a Opção B — são os mesmos tags `tag36h11`, ids 1, 2 e 3.
 
 ### Opção B — PDFs oficiais do projeto AprilTag (verificado)
 

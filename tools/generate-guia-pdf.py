@@ -4,8 +4,10 @@ Gera o guia inicial em PDF: a.u.r.a.-by-lola-guia-inicial.pdf
 
 Conteúdo em português, simples e direto. Fonte DejaVu (cobre acentos).
 Uso: /tmp/pdf-venv/bin/python tools/generate-guia-pdf.py
+No Windows (sem DejaVu no sistema): DEJAVU_DIR=<pasta com os .ttf> python tools/generate-guia-pdf.py
 """
 
+import os
 from pathlib import Path
 
 from fpdf import FPDF
@@ -13,7 +15,7 @@ from fpdf import FPDF
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "a.u.r.a.-by-lola-guia-inicial.pdf"
 
-FONT_DIR = Path("/usr/share/fonts/truetype/dejavu")
+FONT_DIR = Path(os.environ.get("DEJAVU_DIR", "/usr/share/fonts/truetype/dejavu"))
 TEAL = (42, 157, 143)
 DARK = (16, 20, 24)
 GRAY = (90, 100, 114)
@@ -118,9 +120,9 @@ def build() -> None:
         "dispositivos simulados, sem chamada de IA."
     )
     pdf.h2("Os 3 dispositivos")
-    pdf.bullet("Lâmpada da sala (lamp-sala-01) — AprilTag tag36h11 id 0 — liga/desliga + brilho 0–100% (passo 5).")
-    pdf.bullet("Ar-condicionado da sala (ac-sala-01) — id 1 — liga/desliga + temperatura 16–30 °C (passo 1).")
-    pdf.bullet("Fechadura da porta (lock-porta-01) — id 2 — tranca/destranca + câmera simulada.")
+    pdf.bullet("Lâmpada da sala (lamp-sala-01) — AprilTag tag36h11 id 1 — liga/desliga + brilho 0–100% (passo 5).")
+    pdf.bullet("Ar-condicionado da sala (ac-sala-01) — id 2 — liga/desliga + temperatura 16–30 °C (passo 1).")
+    pdf.bullet("Fechadura da porta (lock-porta-01) — id 3 — tranca/destranca + câmera simulada.")
 
     pdf.h1("2. Antes de rodar — o que instalar")
     pdf.bullet("Node.js 20.19+ / 22.12+ / 24+ e npm — testado aqui com Node v24.22.1 e npm 10.9.4. Baixe em nodejs.org.")
@@ -170,27 +172,27 @@ def build() -> None:
         "Michigan. Diferente do QR code, o tag carrega só o id — o que ele "
         "significa vive no app."
     )
-    pdf.p("Família: tag36h11 (o padrão). Ids: 0 = lâmpada, 1 = ar-condicionado, 2 = fechadura.")
+    pdf.p("Família: tag36h11 (o padrão). Ids: 1 = lâmpada, 2 = ar-condicionado, 3 = fechadura. O id 0 não é usado: o gerador do RealityScan Desktop começa no 1.")
     pdf.h2("Os 3 payloads simulados (o que cada tag resolve no app)")
     pdf.code([
-        'lamp-sala-01 | tag36h11 id 0 | light',
+        'lamp-sala-01 | tag36h11 id 1 | light',
         '  controls: power (toggle), brightness 0-100 passo 5',
         '  bind: sim://lamp-sala-01',
-        'ac-sala-01 | tag36h11 id 1 | hvac',
+        'ac-sala-01 | tag36h11 id 2 | hvac',
         '  controls: power (toggle), setpoint_c 16-30 passo 1',
         '  bind: sim://ac-sala-01',
-        'lock-porta-01 | tag36h11 id 2 | lock',
+        'lock-porta-01 | tag36h11 id 3 | lock',
         '  controls: locked (toggle), cam (ação: abre a câmera simulada)',
         '  bind: sim://lock-porta-01',
     ])
     pdf.h2("Como gerar os tags imprimíveis no RealityScan Desktop")
     pdf.bullet("Baixe em realityscan.com/download (Epic Games Launcher, aba RealityScan). Gratuito para estudantes, educadores e receita anual abaixo de US$ 1 milhão.")
     pdf.bullet("Abra um projeto → aba Alignment → ferramenta Detect Markers → gere os marcadores e exporte os PDFs prontos para imprimir.")
-    pdf.bullet("Imprima os tags tag36h11 de id 0, 1 e 2, um por dispositivo, e cole cada um no lugar do dispositivo.")
+    pdf.bullet("Imprima os tags tag36h11 de id 1, 2 e 3, um por dispositivo, e cole cada um no lugar do dispositivo.")
     pdf.bullet("Imprima em tamanho real, sem redimensionar, numa superfície plana e rígida.")
     pdf.note(
         "Se o menu da sua versão do RealityScan não mostrar AprilTag, use os PDFs "
-        "oficiais do projeto AprilTag (família tag36h11, ids 0–20): "
+        "oficiais do projeto AprilTag (família tag36h11, ids 0–20; use os ids 1, 2 e 3): "
         "ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_intro/"
         "apriltag-intro.html — são os mesmos tags."
     )

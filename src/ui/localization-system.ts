@@ -12,6 +12,7 @@
  */
 import { createSystem, UIKitMLAsset } from '@iwsdk/core';
 import { getLocale, setLocale, subscribeLocale, t, type Locale, type MessageKey } from '../i18n/i18n.js';
+import { APRILTAG_IDS } from '../markers/apriltag-handshake.js';
 import { AURA_FONT_FAMILIES } from './aura-font.js';
 
 /** [element id, message key, optional {value}] per scene node. */
@@ -36,17 +37,17 @@ const STATIC_TEXT: Record<string, readonly TextBinding[]> = {
   ],
   'sticker-lamp': [
     ['txt-sticker-label', 'device.lamp.title'],
-    ['txt-sticker-sub', 'sticker.sub', 0],
+    ['txt-sticker-sub', 'sticker.sub', APRILTAG_IDS['lamp-sala-01']],
     ['sticker-scan-label', 'sticker.scan'],
   ],
   'sticker-ac': [
     ['txt-sticker-label', 'device.ac.title'],
-    ['txt-sticker-sub', 'sticker.sub', 1],
+    ['txt-sticker-sub', 'sticker.sub', APRILTAG_IDS['ac-sala-01']],
     ['sticker-scan-label', 'sticker.scan'],
   ],
   'sticker-lock': [
     ['txt-sticker-label', 'device.lock.title'],
-    ['txt-sticker-sub', 'sticker.sub', 2],
+    ['txt-sticker-sub', 'sticker.sub', APRILTAG_IDS['lock-porta-01']],
     ['sticker-scan-label', 'sticker.scan'],
   ],
   'camera-placeholder': [

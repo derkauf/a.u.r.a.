@@ -29,7 +29,7 @@ reaparecem no mesmo XYZ sem re-ler nenhum AprilTag.
 1. `npm run dev` e entre na sessão XR no emulador (perfil Quest 3).
 2. Aponte para o sticker da **lâmpada** e faça pinch em **"Ler tag"**.
    O painel da lâmpada aparece abaixo do sticker.
-3. Repita para o **ar-condicionado** (id 1) e a **fechadura** (id 2).
+3. Repita para o **ar-condicionado** (id 2) e a **fechadura** (id 3).
 4. Em cada painel, confira a linha da âncora: deve dizer **"Âncora: ativa"**.
 5. Saia da sessão XR e feche o app (ou só saia da sessão).
 

@@ -11,12 +11,13 @@
  *
  * Família v1: tag36h11 (o padrão de fato — 6x6 bits de dados, 587 códigos,
  * usado por FRC, Boston Dynamics Spot e pela maioria das ferramentas).
- * Ids v1: 0 = lâmpada, 1 = ar-condicionado, 2 = fechadura.
+ * Ids v1: 1 = lâmpada, 2 = ar-condicionado, 3 = fechadura. O id 0 não é
+ * usado: o gerador do RealityScan Desktop começa a numeração no 1.
  *
  * Os tags imprimíveis são gerados no RealityScan Desktop (gratuito, Epic
  * Games): abrir um projeto → aba Alignment → ferramenta Detect Markers →
  * gerar/exportar os PDFs prontos para imprimir. Alternativa verificada:
- * os PDFs oficiais do projeto AprilTag (família tag36h11, ids 0–20).
+ * os PDFs oficiais do projeto AprilTag (família tag36h11, ids 0–20; usar 1, 2 e 3).
  * Ver docs/apriltag-markers.md.
  *
  * LEITURA SIMULADA: em v1 não há detecção real por câmera (a pergunta
@@ -66,9 +67,9 @@ export interface DeviceDescriptor {
 
 /** Tabela tag → dispositivo (a "chave" que o app usa para resolver o tag lido). */
 export const APRILTAG_IDS: Record<DeviceId, number> = {
-  'lamp-sala-01': 0,
-  'ac-sala-01': 1,
-  'lock-porta-01': 2,
+  'lamp-sala-01': 1,
+  'ac-sala-01': 2,
+  'lock-porta-01': 3,
 };
 
 /** Os 3 descritores de dispositivo da v1 (o antigo "payload" do handshake). */

@@ -18,9 +18,9 @@ const uikitml = (fileName: string, name: string) => ({
 });
 
 export default defineAssets({
-  'sticker-lamp': uikitml('sticker-lamp.uikitml', 'AprilTag — Living room lamp (id 0)'),
-  'sticker-ac': uikitml('sticker-ac.uikitml', 'AprilTag — Living room AC (id 1)'),
-  'sticker-lock': uikitml('sticker-lock.uikitml', 'AprilTag — Front door lock (id 2)'),
+  'sticker-lamp': uikitml('sticker-lamp.uikitml', 'AprilTag — Living room lamp (id 1)'),
+  'sticker-ac': uikitml('sticker-ac.uikitml', 'AprilTag — Living room AC (id 2)'),
+  'sticker-lock': uikitml('sticker-lock.uikitml', 'AprilTag — Front door lock (id 3)'),
   'panel-lamp': uikitml('panel-lamp.uikitml', 'Panel — Living room lamp'),
   'panel-ac': uikitml('panel-ac.uikitml', 'Panel — Living room AC'),
   'panel-lock': uikitml('panel-lock.uikitml', 'Panel — Front door lock'),

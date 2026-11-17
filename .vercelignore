@@ -1,0 +1,11 @@
+# Not uploaded to Vercel: local-only state, secrets and build output
+# (Vercel installs dependencies and runs `vite build` itself).
+.iwsdk/
+node_modules/
+dist/
+.env
+.env.*
+.mcp.json
+.cursor/mcp.json
+.vscode/mcp.json
+.codex/config.toml

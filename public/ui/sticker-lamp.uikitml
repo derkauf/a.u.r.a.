@@ -1,6 +1,6 @@
 <!--
   Sticker AprilTag — Lâmpada da sala (lamp-sala-01).
-  Representação SIMPLIFICADA no estilo tag36h11 (id 0): a grade
+  Representação SIMPLIFICADA no estilo tag36h11 (id 1): a grade
   6x6 é ilustrativa e NÃO é um codeword válido — este sticker na tela
   não é escaneável de verdade. A leitura é simulada pelo botão abaixo
   (pinch = "a câmera leu o tag"). Gerado por
@@ -72,16 +72,16 @@
 <Panel class="sticker-root">
   <div class="tag-grid">
     <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div></div>
-    <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div></div>
-    <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div></div>
-    <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div></div>
-    <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div></div>
-    <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div></div>
-    <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div></div>
+    <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div></div>
+    <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-on"></div></div>
+    <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-on"></div></div>
+    <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div></div>
+    <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div></div>
+    <div class="tag-row"><div class="cell-on"></div><div class="cell-off"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div><div class="cell-off"></div><div class="cell-on"></div></div>
     <div class="tag-row"><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div><div class="cell-on"></div></div>
   </div>
   <div id="txt-sticker-label" class="sticker-label">Living room lamp</div>
-  <div id="txt-sticker-sub" class="sticker-sub">AprilTag tag36h11 • id 0</div>
+  <div id="txt-sticker-sub" class="sticker-sub">AprilTag tag36h11 • id 1</div>
   <Button id="sticker-scan-button" class="scan-button">
     <ButtonLabel id="sticker-scan-label" class="scan-label">Scan tag</ButtonLabel>
   </Button>

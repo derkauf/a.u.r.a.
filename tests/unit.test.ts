@@ -42,22 +42,23 @@ describe('AprilTag — família, ids e resolução', () => {
     assert.equal(APRILTAG_FAMILY, 'tag36h11');
   });
 
-  it('ids 0, 1 e 2, um por dispositivo', () => {
+  it('ids 1, 2 e 3, um por dispositivo (o 0 não é usado)', () => {
     assert.deepEqual(APRILTAG_IDS, {
-      'lamp-sala-01': 0,
-      'ac-sala-01': 1,
-      'lock-porta-01': 2,
+      'lamp-sala-01': 1,
+      'ac-sala-01': 2,
+      'lock-porta-01': 3,
     });
   });
 
   it('resolveTag: tag conhecido → dispositivo; desconhecido → null', () => {
-    assert.equal(resolveTag({ family: 'tag36h11', id: 1 }), 'ac-sala-01');
+    assert.equal(resolveTag({ family: 'tag36h11', id: 2 }), 'ac-sala-01');
+    assert.equal(resolveTag({ family: 'tag36h11', id: 0 }), null);
     assert.equal(resolveTag({ family: 'tag36h11', id: 99 }), null);
     assert.equal(resolveTag({ family: 'tag16h5', id: 1 }), null);
   });
 
   it('tagForDevice devolve família + id do dispositivo', () => {
-    assert.deepEqual(tagForDevice('lock-porta-01'), { family: 'tag36h11', id: 2 });
+    assert.deepEqual(tagForDevice('lock-porta-01'), { family: 'tag36h11', id: 3 });
   });
 
   it('simulateTagDetection resolve o descritor certo (3 dispositivos)', () => {

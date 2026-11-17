@@ -17,11 +17,12 @@ Uma segunda implementação da v1 do A.U.R.A. (Ambient User Responsive Automatio
 | **Fonte com acentos** | Feito e verificado no emulador: Inter com charset latino gerada em código ([`src/ui/aura-font.ts`](../../src/ui/aura-font.ts)); 0 avisos `Missing glyph`. |
 | **Interface em inglês + seletor pt-BR** | Feito e verificado no emulador: painel Settings acima dos stickers; troca nos dois sentidos com o raio do controle; a escolha persiste no reload. Só os textos da interface; comentários e docs seguem em português (decisão em aberto). |
 | **Acesso pelo Quest e celular na Wi-Fi** | Funciona, com certificado próprio para a LAN (`npm run cert:lan`). A sessão XR no Quest abre (o round-trip abaixo rodou nela). |
+| **Publicado em https://aura.sixvectors.app/** | Vercel, projeto `aura-v1-lola` (escopo `derkaufs-projects`); certificado Let's Encrypt válido; página e bundle respondem 200; sem o emulador IWER no build. **Não testado no Quest pelo link público ainda.** Redeploy: `npx vercel@latest deploy --prod --yes --scope derkaufs-projects`. |
 | **Round-trip da âncora: critério de pronto da v1** | **Passou no Quest e no PC (emulador)**, relatado pelo usuário em 17/11: depois de refresh e de fechar e reabrir o app, os painéis voltaram no mesmo lugar com "Âncora: ativa (restaurada)", e os valores alterados persistiram. |
 
 ## Próximos (em ordem)
 
-1. **Comparar com `derkauf/a.u.r.a.`** e anotar as diferenças (o próximo marco, agora que a v1 passou).
+1. **Preparar a submissão do Meta VR Start** (prazo: quarta, 18/nov/2026, 12:00 PT; ver `../CONTEXT.md`): link público para os juízes, vídeo demo de menos de 3 min e a página do Devpost. **Decidido em 17/nov:** a comparação com `derkauf/a.u.r.a.` saiu do plano por falta de tempo; o trabalho segue neste repositório, e o oficial fica como fonte de ideias.
 2. **Itens não verificados do build inicial:**
    - o `display: none` do painel com raycast;
    - o clique no sticker fora do botão "Scan tag".
@@ -58,6 +59,7 @@ Da mais nova para a mais antiga, no máximo umas 10 linhas. As mais antigas vão
 | Regras do IWSDK para agentes | [`AGENTS.md`](../../AGENTS.md), `.claude/rules/` |
 | Textos da interface (en / pt-BR) | [`src/i18n/i18n.ts`](../../src/i18n/i18n.ts) |
 | Certificado da LAN | `npm run cert:lan` → `.iwsdk/https-lan/` (git-ignorado) |
+| Submissão: roteiro do vídeo e rascunho do Devpost | `docs/submission/` (PDFs gerados por `tools/generate-submission-pdfs.py`) |
 | Teste da âncora | `tests/anchor-roundtrip.md` |
 | Especificação do painel | `docs/ux/device-panel-spec.md` |
 | AprilTags imprimíveis | `docs/apriltag-markers.md` |

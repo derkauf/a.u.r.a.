@@ -11,7 +11,8 @@ pinch no botão "Ler tag" representa "a câmera leu o AprilTag".
 Os tags imprimíveis de verdade (para colar na parede) são gerados no
 RealityScan Desktop ou baixados dos PDFs oficiais do projeto AprilTag —
 ver docs/apriltag-markers.md. Os ids usados aqui são os mesmos de lá
-(tag36h11: 0 = lâmpada, 1 = ar-condicionado, 2 = fechadura).
+(tag36h11: 1 = lâmpada, 2 = ar-condicionado, 3 = fechadura; o id 0 não é
+usado porque o gerador do RealityScan Desktop começa no 1).
 
 Uso: python3 tools/generate-apriltag-stickers.py
 """
@@ -21,10 +22,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 UI_DIR = ROOT / "public" / "ui"
 
+# (slug, device_id, tag_id, nome em pt-BR para o comentário, texto padrão em inglês).
+# O texto exibido é trocado em tempo de execução pelo AuraLocalizationSystem.
 DEVICES = [
-    ("lamp", "lamp-sala-01", 0, "Lâmpada da sala"),
-    ("ac", "ac-sala-01", 1, "Ar-condicionado da sala"),
-    ("lock", "lock-porta-01", 2, "Fechadura da porta"),
+    ("lamp", "lamp-sala-01", 1, "Lâmpada da sala", "Living room lamp"),
+    ("ac", "ac-sala-01", 2, "Ar-condicionado da sala", "Living room AC"),
+    ("lock", "lock-porta-01", 3, "Fechadura da porta", "Front door lock"),
 ]
 
 
@@ -120,7 +123,7 @@ STYLES = """<style>
 """
 
 
-def render_sticker(slug: str, device_id: str, tag_id: int, label: str) -> str:
+def render_sticker(slug: str, device_id: str, tag_id: int, label: str, label_en: str) -> str:
     rows = grid_rows(tag_id)
     grid = ["  <div class=\"tag-grid\">"]
     for row in rows:
@@ -141,19 +144,19 @@ def render_sticker(slug: str, device_id: str, tag_id: int, label: str) -> str:
 -->
 {STYLES}<Panel class="sticker-root">
 {grid_markup}
-  <div class="sticker-label">{label}</div>
-  <div class="sticker-sub">AprilTag tag36h11 • id {tag_id}</div>
+  <div id="txt-sticker-label" class="sticker-label">{label_en}</div>
+  <div id="txt-sticker-sub" class="sticker-sub">AprilTag tag36h11 • id {tag_id}</div>
   <Button id="sticker-scan-button" class="scan-button">
-    <ButtonLabel class="scan-label">Ler tag</ButtonLabel>
+    <ButtonLabel id="sticker-scan-label" class="scan-label">Scan tag</ButtonLabel>
   </Button>
 </Panel>
 """
 
 
 def main() -> None:
-    for slug, device_id, tag_id, label in DEVICES:
+    for slug, device_id, tag_id, label, label_en in DEVICES:
         path = UI_DIR / f"sticker-{slug}.uikitml"
-        path.write_text(render_sticker(slug, device_id, tag_id, label), encoding="utf-8")
+        path.write_text(render_sticker(slug, device_id, tag_id, label, label_en), encoding="utf-8", newline="\n")
         print(f"wrote {path}")
 
 

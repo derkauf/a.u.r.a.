@@ -22,9 +22,9 @@ três dispositivos simulados, sem chamada de IA.
 
 | Dispositivo | AprilTag (tag36h11) | Controles |
 |---|---|---|
-| Lâmpada da sala (`lamp-sala-01`) | id **0** | liga/desliga + brilho 0–100% (passo 5) |
-| Ar-condicionado da sala (`ac-sala-01`) | id **1** | liga/desliga + temperatura 16–30 °C (passo 1) |
-| Fechadura da porta (`lock-porta-01`) | id **2** | tranca/destranca + câmera (simulada) |
+| Lâmpada da sala (`lamp-sala-01`) | id **1** | liga/desliga + brilho 0–100% (passo 5) |
+| Ar-condicionado da sala (`ac-sala-01`) | id **2** | liga/desliga + temperatura 16–30 °C (passo 1) |
+| Fechadura da porta (`lock-porta-01`) | id **3** | tranca/destranca + câmera (simulada) |
 
 O fluxo do demo: aponte para o sticker do AprilTag na parede → pinch em
 **"Ler tag"** → o painel do dispositivo aparece ancorado ali. Na segunda
@@ -114,7 +114,7 @@ teste. Os eventos ficam registrados em `localStorage`
 
 ## Como funciona (resumo da arquitetura)
 
-- `src/markers/apriltag-handshake.ts` — os 3 tags (`tag36h11`, ids 0/1/2)
+- `src/markers/apriltag-handshake.ts` — os 3 tags (`tag36h11`, ids 1/2/3)
   e os descritores de dispositivo que cada tag resolve.
 - `src/devices/device-registry.ts` — fonte única de verdade do estado
   (liga/desliga, temperatura, brilho, tranca) + vínculos; persiste em
@@ -204,7 +204,7 @@ competição, não parte do loop do app.
 
 - Entrega: WebXR / IWSDK (TypeScript + Vite), não o caminho nativo
   (Meta Spatial SDK) do plano de setembro — decisão de 11/nov.
-- Marcador: AprilTag (`tag36h11`, ids 0/1/2) em vez de QR code — o tag
+- Marcador: AprilTag (`tag36h11`, ids 1/2/3) em vez de QR code — o tag
   carrega só o id; o descritor do dispositivo vive no app.
 - Hospedagem do link público (decisão do Diogo, 14/nov): **GitHub Pages
   como primário, Vercel como backup**. Na v1, o deploy ainda não foi
