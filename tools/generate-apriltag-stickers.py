@@ -75,6 +75,8 @@ STYLES = """<style>
     height: 96px;
     background-color: #ffffff;
     border-radius: 24px;
+    border-width: 3px;
+    border-color: #62e2ef;
     justify-content: center;
     align-items: center;
   }
@@ -100,7 +102,7 @@ STYLES = """<style>
   }
 
   .icon-label {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 15px;
     font-weight: 700;
     text-align: center;

@@ -8,14 +8,14 @@
     height: 30px;
     padding-left: 14px;
     padding-right: 14px;
-    background-color: #26282c;
+    background-color: #1b2e3f;
     border-radius: 15px;
     justify-content: center;
     align-items: center;
   }
 
   .telemetry-text {
-    color: #9fe0b5;
+    color: #62e2ef;
     font-size: 13px;
     font-weight: 700;
   }

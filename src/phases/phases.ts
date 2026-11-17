@@ -26,7 +26,7 @@ export interface ProjectPhase {
   summary: MessageKey;
 }
 
-export const CURRENT_PHASE: PhaseId = 'phase-2';
+export const CURRENT_PHASE: PhaseId = 'phase-3';
 
 export const PROJECT_PHASES: readonly ProjectPhase[] = [
   {

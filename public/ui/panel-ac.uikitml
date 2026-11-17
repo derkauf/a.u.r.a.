@@ -23,45 +23,47 @@
     padding-left: 22px;
     padding-right: 22px;
     gap: 14px;
-    background-color: #26282c;
+    background-color: #1b2e3f;
+    border-width: 1px;
+    border-color: #4e7089;
     border-radius: 28px;
   }
 
   .title {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 26px;
     font-weight: 700;
   }
 
   .status {
-    color: #9fe0b5;
+    color: #62e2ef;
     font-size: 18px;
   }
 
   .pill-primary {
     height: 52px;
-    background-color: #e9eaee;
+    background-color: #ffb850;
     border-radius: 26px;
     justify-content: center;
     align-items: center;
   }
 
   .pill-primary-label {
-    color: #111316;
+    color: #14222e;
     font-size: 18px;
     font-weight: 700;
   }
 
   .pill-secondary {
     height: 52px;
-    background-color: #3d4046;
+    background-color: #2f4052;
     border-radius: 26px;
     justify-content: center;
     align-items: center;
   }
 
   .pill-secondary-label {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 18px;
     font-weight: 700;
   }
@@ -75,26 +77,26 @@
   .round-button {
     width: 52px;
     height: 52px;
-    background-color: #3d4046;
+    background-color: #2f4052;
     border-radius: 26px;
     justify-content: center;
     align-items: center;
   }
 
   .round-button-label {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 24px;
     font-weight: 700;
   }
 
   .range-value {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 32px;
     font-weight: 700;
   }
 
   .anchor {
-    color: #9aa0aa;
+    color: #8fb3c4;
     font-size: 13px;
   }
 
@@ -105,12 +107,14 @@
     height: 44px;
     padding-left: 18px;
     padding-right: 7px;
-    background-color: #26282c;
+    background-color: #1b2e3f;
+    border-width: 1px;
+    border-color: #4e7089;
     border-radius: 22px;
   }
 
   .bar-title {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 15px;
     font-weight: 700;
   }
@@ -118,7 +122,7 @@
   .bar-close {
     width: 30px;
     height: 30px;
-    background-color: #3d4046;
+    background-color: #2f4052;
     border-radius: 15px;
     justify-content: center;
     align-items: center;
@@ -126,7 +130,7 @@
   }
 
   .bar-close-label {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 18px;
     font-weight: 700;
   }

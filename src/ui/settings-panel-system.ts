@@ -90,9 +90,9 @@ const LABELS: readonly (readonly [string, MessageKey])[] = [
   ['priv-export-label', 'priv.export'],
 ];
 
-const ACTIVE = { bg: '#e9eaee', fg: '#111316' };
-const INACTIVE = { bg: '#3d4046', fg: '#ffffff' };
-const NAV_IDLE = { bg: '#26282c', fg: '#ffffff' };
+const ACTIVE = { bg: '#ffb850', fg: '#14222e' }; // amber = active (docs/ux/VISUAL_ID.md)
+const INACTIVE = { bg: '#2f4052', fg: '#e9f2f9' };
+const NAV_IDLE = { bg: '#1b2e3f', fg: '#e9f2f9' };
 const CONFIRM_WINDOW_MS = 4000;
 const TEST_REVERT_MS = 2000;
 const PINCH_LABEL: Record<PinchMode, MessageKey> = {

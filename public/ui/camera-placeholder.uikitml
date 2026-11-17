@@ -20,7 +20,9 @@
     padding-bottom: 18px;
     padding-left: 18px;
     padding-right: 18px;
-    background-color: #26282c;
+    background-color: #1b2e3f;
+    border-width: 1px;
+    border-color: #4e7089;
     border-radius: 28px;
   }
 
@@ -39,14 +41,14 @@
   }
 
   .camera-text {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 22px;
     font-weight: 700;
     text-align: center;
   }
 
   .camera-sub {
-    color: #9aa0aa;
+    color: #8fb3c4;
     font-size: 15px;
     text-align: center;
   }
@@ -58,12 +60,14 @@
     height: 44px;
     padding-left: 18px;
     padding-right: 7px;
-    background-color: #26282c;
+    background-color: #1b2e3f;
+    border-width: 1px;
+    border-color: #4e7089;
     border-radius: 22px;
   }
 
   .bar-title {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 15px;
     font-weight: 700;
   }
@@ -71,7 +75,7 @@
   .bar-close {
     width: 30px;
     height: 30px;
-    background-color: #3d4046;
+    background-color: #2f4052;
     border-radius: 15px;
     justify-content: center;
     align-items: center;
@@ -79,7 +83,7 @@
   }
 
   .bar-close-label {
-    color: #ffffff;
+    color: #e9f2f9;
     font-size: 18px;
     font-weight: 700;
   }

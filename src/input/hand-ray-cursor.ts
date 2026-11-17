@@ -35,8 +35,8 @@ import {
 import { interactiveElements } from '../ui/activation.js';
 import { getSettings } from '../settings/settings-store.js';
 
-const CURSOR_REST_COLOR = 0xffffff;
-const CURSOR_SNAP_COLOR = 0xffc107; // amber
+const CURSOR_REST_COLOR = 0x62e2ef; // cyan = resting (docs/ux/VISUAL_ID.md)
+const CURSOR_SNAP_COLOR = 0xffb850; // amber = active
 const SURFACE_OFFSET_M = 0.006; // toward the user, avoids z-fighting
 /** Fraction of the remaining distance covered per second (smoothing). */
 const FOLLOW_PER_SECOND = 30;
