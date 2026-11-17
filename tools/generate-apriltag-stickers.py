@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""
+Gera os 3 stickers AprilTag (public/ui/sticker-*.uikitml).
+
+O desenho é uma representação SIMPLIFICADA no estilo AprilTag tag36h11:
+borda preta + grade 6x6 de bits. Os bits são pseudo-aleatórios derivados
+do id do tag — NÃO são codewords válidos da família tag36h11, e o sticker
+na tela NÃO é escaneável de verdade. Ele existe para a simulação: o
+pinch no botão "Ler tag" representa "a câmera leu o AprilTag".
+
+Os tags imprimíveis de verdade (para colar na parede) são gerados no
+RealityScan Desktop ou baixados dos PDFs oficiais do projeto AprilTag —
+ver docs/apriltag-markers.md. Os ids usados aqui são os mesmos de lá
+(tag36h11: 0 = lâmpada, 1 = ar-condicionado, 2 = fechadura).
+
+Uso: python3 tools/generate-apriltag-stickers.py
+"""
+
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+UI_DIR = ROOT / "public" / "ui"
+
+DEVICES = [
+    ("lamp", "lamp-sala-01", 0, "Lâmpada da sala"),
+    ("ac", "ac-sala-01", 1, "Ar-condicionado da sala"),
+    ("lock", "lock-porta-01", 2, "Fechadura da porta"),
+]
+
+
+def data_bits(tag_id: int) -> list[list[int]]:
+    """36 bits pseudo-aleatórios determinísticos a partir do id (xorshift32)."""
+    state = ((tag_id + 1) * 2654435761) & 0xFFFFFFFF
+    bits: list[list[int]] = []
+    for _row in range(6):
+        row: list[int] = []
+        for _col in range(6):
+            state ^= (state << 13) & 0xFFFFFFFF
+            state ^= state >> 17
+            state ^= (state << 5) & 0xFFFFFFFF
+            state &= 0xFFFFFFFF
+            row.append((state >> 31) & 1)
+        bits.append(row)
+    return bits
+
+
+def grid_rows(tag_id: int) -> list[list[int]]:
+    """Grade 8x8: anel preto + 6x6 de dados + anel preto (o branco é o painel)."""
+    data = data_bits(tag_id)
+    rows: list[list[int]] = []
+    rows.append([1] * 8)
+    for r in range(6):
+        rows.append([1] + data[r] + [1])
+    rows.append([1] * 8)
+    return rows
+
+
+STYLES = """<style>
+  .sticker-root {
+    flex-direction: column;
+    width: 260px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 12px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    align-items: center;
+  }
+
+  .tag-grid {
+    flex-direction: column;
+  }
+
+  .tag-row {
+    flex-direction: row;
+  }
+
+  .cell-on {
+    width: 16px;
+    height: 16px;
+    background-color: #111111;
+  }
+
+  .cell-off {
+    width: 16px;
+    height: 16px;
+    background-color: #ffffff;
+  }
+
+  .sticker-label {
+    color: #1c1d20;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .sticker-sub {
+    color: #5a6472;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .scan-button {
+    height: 56px;
+    background-color: #2a9d8f;
+    border-radius: 12px;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+  }
+
+  .scan-label {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 700;
+  }
+</style>
+"""
+
+
+def render_sticker(slug: str, device_id: str, tag_id: int, label: str) -> str:
+    rows = grid_rows(tag_id)
+    grid = ["  <div class=\"tag-grid\">"]
+    for row in rows:
+        cells = "".join(
+            f"<div class=\"{'cell-on' if cell else 'cell-off'}\"></div>" for cell in row
+        )
+        grid.append(f"    <div class=\"tag-row\">{cells}</div>")
+    grid.append("  </div>")
+    grid_markup = "\n".join(grid)
+    return f"""<!--
+  Sticker AprilTag — {label} ({device_id}).
+  Representação SIMPLIFICADA no estilo tag36h11 (id {tag_id}): a grade
+  6x6 é ilustrativa e NÃO é um codeword válido — este sticker na tela
+  não é escaneável de verdade. A leitura é simulada pelo botão abaixo
+  (pinch = "a câmera leu o tag"). Gerado por
+  tools/generate-apriltag-stickers.py. Os tags imprimíveis de verdade
+  estão em docs/apriltag-markers.md.
+-->
+{STYLES}<Panel class="sticker-root">
+{grid_markup}
+  <div class="sticker-label">{label}</div>
+  <div class="sticker-sub">AprilTag tag36h11 • id {tag_id}</div>
+  <Button id="sticker-scan-button" class="scan-button">
+    <ButtonLabel class="scan-label">Ler tag</ButtonLabel>
+  </Button>
+</Panel>
+"""
+
+
+def main() -> None:
+    for slug, device_id, tag_id, label in DEVICES:
+        path = UI_DIR / f"sticker-{slug}.uikitml"
+        path.write_text(render_sticker(slug, device_id, tag_id, label), encoding="utf-8")
+        print(f"wrote {path}")
+
+
+if __name__ == "__main__":
+    main()

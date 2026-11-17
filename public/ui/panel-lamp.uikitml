@@ -1,0 +1,112 @@
+<!--
+  Painel da lâmpada (lamp-sala-01).
+  Elementos com id são ligados pelo AuraPanelSystem: device-status,
+  control-power (+ control-power-label), control-range-minus,
+  control-range-value, control-range-plus, anchor-status.
+  Medidas em unidades UIKit (1 unidade = 1 cm em escala 1); o nó de cena
+  usa escala 0.1, então este painel de 460 tem 0,46 m de largura a 60 cm.
+-->
+<style>
+  .panel-root {
+    flex-direction: column;
+    width: 460px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    padding-left: 24px;
+    padding-right: 24px;
+    gap: 14px;
+    background-color: #101418;
+    border-radius: 24px;
+  }
+
+  .eyebrow {
+    color: #8a94a6;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+  }
+
+  .title {
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  .status {
+    color: #7cfc9a;
+    font-size: 24px;
+  }
+
+  .power-button {
+    height: 72px;
+    background-color: #2a9d8f;
+    border-radius: 16px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .power-label {
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .range-row {
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .range-button {
+    width: 72px;
+    height: 72px;
+    background-color: #2c3440;
+    border-radius: 16px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .range-button-label {
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 700;
+  }
+
+  .range-value {
+    color: #ffffff;
+    font-size: 40px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .anchor {
+    color: #8a94a6;
+    font-size: 16px;
+  }
+
+  .hint {
+    color: #5a6472;
+    font-size: 16px;
+  }
+</style>
+<Panel class="panel-root">
+  <div id="txt-eyebrow" class="eyebrow">A.U.R.A. — LIVING ROOM</div>
+  <div id="txt-title" class="title">Living room lamp</div>
+  <div id="device-status" class="status">Off</div>
+  <Button id="control-power" class="power-button">
+    <ButtonLabel id="control-power-label" class="power-label">Turn on</ButtonLabel>
+  </Button>
+  <div class="range-row">
+    <Button id="control-range-minus" class="range-button">
+      <ButtonLabel class="range-button-label">-</ButtonLabel>
+    </Button>
+    <div id="control-range-value" class="range-value">80%</div>
+    <Button id="control-range-plus" class="range-button">
+      <ButtonLabel class="range-button-label">+</ButtonLabel>
+    </Button>
+  </div>
+  <div id="anchor-status" class="anchor">Anchor: waiting for XR session…</div>
+  <div id="txt-hint" class="hint">Point with your hand and pinch to select.</div>
+</Panel>

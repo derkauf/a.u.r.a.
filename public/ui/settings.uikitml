@@ -1,0 +1,67 @@
+<!--
+  Settings panel.
+  Elements with an id are wired by AuraLocalizationSystem:
+  txt-settings-title, txt-settings-language, lang-en, lang-pt.
+  The active language button gets the accent background; the other one
+  stays neutral. They are plain divs (not Horizon <Button>) so the runtime
+  background color is not overridden by the kit's button states. Language names are shown in their own language.
+-->
+<style>
+  .settings-root {
+    flex-direction: column;
+    width: 420px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 12px;
+    background-color: #101418;
+    border-radius: 20px;
+  }
+
+  .settings-title {
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .settings-label {
+    color: #8a94a6;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+  }
+
+  .lang-row {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .lang-button {
+    flex-grow: 1;
+    height: 56px;
+    background-color: #2c3440;
+    border-radius: 12px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .lang-label {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+  }
+</style>
+<Panel class="settings-root">
+  <div id="txt-settings-title" class="settings-title">Settings</div>
+  <div id="txt-settings-language" class="settings-label">Language</div>
+  <div class="lang-row">
+    <div id="lang-en" class="lang-button">
+      <div class="lang-label">English</div>
+    </div>
+    <div id="lang-pt" class="lang-button">
+      <div class="lang-label">Português (BR)</div>
+    </div>
+  </div>
+</Panel>
