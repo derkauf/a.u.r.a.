@@ -11,6 +11,7 @@
     "cert:lan": "node tools/generate-lan-cert.mjs",
     "deploy": "node tools/deploy-vercel.mjs",
     "deploy:dev": "node tools/deploy-vercel.mjs --dev",
+    "deploy:phase": "node tools/deploy-vercel.mjs --phase",
     "reference:status": "iwsdk reference status",
     "reference:warmup": "iwsdk reference warmup",
     "typecheck": "tsc --noEmit",

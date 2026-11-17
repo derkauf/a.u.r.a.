@@ -2,8 +2,8 @@
 
 Exportação do estado do repositório `aura-v1-lola` para quem acompanha o projeto sem acesso ao código. Só fatos verificáveis no repositório; o que não pôde ser verificado está marcado como **não verificado**.
 
-**Versão deste status:** 2026-11-17 (primeira versão: linha de base)
-**Último commit:** `dc82aa3` (2026-11-17 03:06). **Atenção:** há 42 arquivos alterados ou novos ainda **sem commit** (24 alterados, 18 novos); eles estão descritos abaixo como "não commitado".
+**Versão deste status:** 2026-11-17, segunda versão
+**Último commit:** `c22daaa` (2026-11-17 08:01), já no GitHub. Não há mudanças de código sem commit.
 
 ---
 
@@ -12,18 +12,28 @@ Exportação do estado do repositório `aura-v1-lola` para quem acompanha o proj
 O A.U.R.A. (Ambient User Responsive Automation) é um app de automação residencial espacial, hands-first, para Meta Quest: cada dispositivo da casa é representado por um AprilTag (`tag36h11`) e, ao ser lido, ganha um painel de controle ancorado no ambiente com uma âncora espacial persistente. A v1 cobre um cômodo e três dispositivos **simulados**: lâmpada (id 1), ar-condicionado (id 2) e fechadura (id 3).
 
 - **Stack:** WebXR com Immersive Web SDK (IWSDK) `@iwsdk/core` 1.1.0, TypeScript, Vite, painéis em UIKitML (kit Horizon).
-- **Fase 1 publicada:** https://aura.sixvectors.app/ (Vercel, projeto `aura-v1-lola`), marcada no git como tag `fase-1` (commit `dc82aa3`).
+- **Phase 1 publicada:** https://aura.sixvectors.app/ (Vercel, projeto `aura-v1-lola`), marcada no git como tag `phase-1` (commit `dc82aa3`).
 - **Ambiente de teste:** https://aura-dev.sixvectors.app/ (projeto Vercel separado `aura-v1-lola-dev`), com a versão em desenvolvimento.
 
 ## 2. O que mudou desde o último status
 
-Primeira versão: esta seção registra o estado atual como linha de base. A partir do próximo status, aqui entram só as diferenças.
+Desde a primeira versão (linha de base, mesmo dia):
+
+- **Commit `c22daaa` com todo o trabalho pendente (71 arquivos).** O que estava como "não commitado" agora está no GitHub: interface estilo Horizon OS, HUD, Configurações em 6 seções, i18n em 5 idiomas, cursor e pinch novos, `deploy:dev`, testes. Motivo: o código mais novo só existia nesta máquina e no aura-dev.
+- **Cursor e pinch verificados no Quest.** Depois da correção (cursor no ponto real do raio, sem "piscar"; hover sem pulsar na borda; janela de Configurações sem redesenho quando fechada), o usuário relatou "funcionando perfeitamente". Arquivos: `src/input/hand-ray-cursor.ts`, `src/ui/hover-scale-system.ts`, `src/ui/settings-panel-system.ts`.
+- **Som de confirmação trocado** para `us-single-seam.mp3`, a pedido do usuário. Arquivos: `public/audio/ui-select.mp3`, `src/ui/feedback-sound.ts`.
+- **Rascunho do Devpost** (`tools/generate-submission-pdfs.py` → `docs/submission/aura-devpost-rascunho.pdf`), a pedido do usuário:
+  - nova seção "Vision" antes de "What it does";
+  - "What it does" abre explicando que é um MVP, não um build completo, e que os AprilTags simulam a conexão com os dispositivos;
+  - "What we learned" ganhou a frase sobre a troca de stack (Meta Spatial SDK / Unreal → WebXR/IWSDK na Vercel);
+  - "What's next" ganhou as versões para os óculos da Meta (gaze, predição e reconhecimento de padrões).
+- **README corrigido** na hospedagem: Vercel, Phase 1 em https://aura.sixvectors.app/ (tag `phase-1`), dev em https://aura-dev.sixvectors.app/, publicação manual. Arquivo: `README.md`.
 
 ## 3. O que está pronto
 
 Verificado no código (typecheck limpo e 16 de 16 testes unitários em 2026-11-17).
 
-**Commitado (Fase 1, tag `fase-1`):**
+**Commitado (Phase 1, tag `phase-1`):**
 - Leitura **simulada** do AprilTag → registro do dispositivo → painel ancorado: `src/markers/apriltag-handshake.ts`, `src/devices/device-registry.ts`, `src/anchors/anchor-service.ts`.
 - IDs dos tags 1, 2 e 3 (o 0 não é usado, porque o gerador do RealityScan Desktop começa no 1): `src/markers/apriltag-handshake.ts`, `tests/unit.test.ts`.
 - Fonte Inter com caracteres latinos completos (acentos), gerada em tempo de execução: `src/ui/aura-font.ts`, `public/fonts/`.
@@ -32,7 +42,7 @@ Verificado no código (typecheck limpo e 16 de 16 testes unitários em 2026-11-1
 - Deploy na Vercel a partir de uma cópia sem `.git` (`npm run deploy`): `tools/deploy-vercel.mjs`.
 - PDFs da submissão (roteiro do vídeo e rascunho do Devpost): `docs/submission/`, gerados por `tools/generate-submission-pdfs.py`.
 
-**Não commitado (publicado só no aura-dev):**
+**Commitado em `c22daaa` (publicado só no aura-dev; ainda não em produção):**
 - Interface no estilo Horizon OS: ícones de app para os tags, janelas com barra e X, engrenagem: `public/ui/*.uikitml`, `tools/generate-apriltag-stickers.py`.
 - Efeito de hover nos ícones (cresce 20%, com histerese): `src/ui/hover-scale-system.ts`.
 - HUD "Follow my view" (segue a cabeça com atraso; limites de 50° na horizontal e 40° na vertical): `src/ui/hud-follow-system.ts`, `src/ui/view-follow.ts`.
@@ -51,7 +61,6 @@ Verificado no código (typecheck limpo e 16 de 16 testes unitários em 2026-11-1
 ## 4. O que está em andamento
 
 - **Etapa 2 das Configurações (não iniciada):** Deeper Mode (tema holograma ciano), modo escuro, paleta para daltônicos, alto contraste, áudio espacial, intensidade do brilho, botão de importar JSON (a função existe em `src/settings/room-config.ts`, falta a interface) e fechar a janela com um pinch fora dela.
-- **Commit e push** das mudanças acima: pendente.
 
 ## 5. O que foi testado
 
@@ -81,22 +90,22 @@ Verificado no código (typecheck limpo e 16 de 16 testes unitários em 2026-11-1
 
 ## 7. Bloqueios e pendências
 
-- **Cabo USB:** o Quest aparece como "unauthorized" no `adb`. Sem o aceite da depuração USB dentro do headset, não há teste automatizado nem controle pelo cabo. `docs/dev-notes/PROGRESS.md` ainda diz "cabo quebrado" e está desatualizado.
+- **Cabo USB:** o cabo está conectado, mas o Quest aparece como "unauthorized" no `adb`. Sem o aceite da depuração USB dentro do headset, não há teste automatizado nem controle pelo cabo. Os testes seguem pela Wi-Fi (aura-dev), o que tem funcionado.
 - **Prazo da submissão:** quarta, 18/nov/2026, 12:00 PT (fonte: `../CONTEXT.md`, fora do repositório). Faltam o vídeo, o texto final do Devpost e o último deploy em produção.
 - **Regra da competição:** depois do prazo, o app publicado não pode mudar até o resultado.
-- **README desatualizado:** ainda diz "GitHub Pages como primário" e "deploy ainda não foi feito".
+- **README:** a hospedagem foi corrigida, mas as partes que descrevem a interface (por exemplo "Ler tag") ainda são da Phase 1.
 - **O guia em PDF** (`a.u.r.a.-by-lola-guia-inicial.pdf`) também está desatualizado em relação à interface nova.
-- **42 arquivos sem commit:** o código mais recente existe só nesta máquina e no deploy do aura-dev.
+- **A produção ainda está na Phase 1:** a versão nova só está no aura-dev. O texto "What it does" do Devpost ainda descreve a Phase 1 (por exemplo, "English and Brazilian Portuguese"); ele deve ser atualizado quando a versão nova for para produção.
 - **A âncora não vai no JSON exportado:** o OpenXR prende a âncora ao headset que a criou; em outro headset, os tags precisam ser lidos de novo.
 
 ## 8. Próximos passos
 
-1. Commit e push das mudanças pendentes.
-2. Decidir o que da etapa 2 entra antes do prazo.
-3. Publicar a versão final em https://aura.sixvectors.app/ e testar no Quest.
+1. Decidir o que da etapa 2 entra antes do prazo.
+2. Publicar a versão final em https://aura.sixvectors.app/ e testar no Quest.
+3. Atualizar "What it does" do Devpost para a versão publicada.
 4. Gravar o vídeo seguindo `docs/submission/aura-roteiro-video.pdf`.
 5. Finalizar o texto do Devpost (`docs/submission/aura-devpost-rascunho.pdf`) e submeter.
-6. Atualizar o README, o guia em PDF e `docs/dev-notes/`.
+6. Atualizar a parte de interface do README, o guia em PDF e `docs/dev-notes/`.
 
 ## 9. Arquivos principais
 
@@ -119,10 +128,11 @@ Verificado no código (typecheck limpo e 16 de 16 testes unitários em 2026-11-1
 | `docs/dev-notes/` | Notas de sessão: PROGRESS, RESUME, logs |
 | `docs/submission/` | Roteiro do vídeo e rascunho do Devpost (PDF) |
 | `docs/ux/` | Referências: Quest, HUD, som, especificação do painel |
-| `docs/journey/` | Registro da evolução (screenshot da Fase 1) |
+| `docs/journey/` | Registro da evolução (screenshot da Phase 1) |
 
 ---
 
 ## Histórico de versões deste status
 
-- **2026-11-17** — Primeira versão (linha de base). Fase 1 publicada e marcada; interface estilo Quest, HUD, Configurações em 6 seções e i18n em 5 idiomas no aura-dev, ainda sem commit.
+- **2026-11-17, segunda versão** — Commit `c22daaa` com todo o trabalho pendente; cursor e pinch verificados no Quest; som novo; rascunho do Devpost com Visão, enquadramento de MVP e troca de stack; README com a hospedagem correta.
+- **2026-11-17** — Primeira versão (linha de base). Phase 1 publicada e marcada; interface estilo Quest, HUD, Configurações em 6 seções e i18n em 5 idiomas no aura-dev, ainda sem commit.

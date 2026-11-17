@@ -206,8 +206,8 @@ competição, não parte do loop do app.
   (Meta Spatial SDK) do plano de setembro — decisão de 11/nov.
 - Marcador: AprilTag (`tag36h11`, ids 1/2/3) em vez de QR code — o tag
   carrega só o id; o descritor do dispositivo vive no app.
-- Hospedagem do link público: **Vercel** (projeto `aura-v1-lola`). A Fase 1
-  está no ar em https://aura.sixvectors.app/ (tag `fase-1`), com um
+- Hospedagem do link público: **Vercel** (projeto `aura-v1-lola`). A Phase 1
+  está no ar em https://aura.sixvectors.app/ (tag `phase-1`), com um
   ambiente de desenvolvimento separado em https://aura-dev.sixvectors.app/.
   A publicação é manual, com `npm run deploy` / `npm run deploy:dev`; um
   push no GitHub não publica nada.

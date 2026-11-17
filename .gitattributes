@@ -1,0 +1,9 @@
+# Binary assets: never convert line endings.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.mp4 binary
+*.mp3 binary
+*.ttf binary

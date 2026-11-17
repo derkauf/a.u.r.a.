@@ -10,3 +10,4 @@ dist/
 .vscode/mcp.json
 .codex/config.toml
 .vercel-dev/
+.vercel-phases/

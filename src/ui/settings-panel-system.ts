@@ -16,6 +16,8 @@
  * - Comfort & Access: language (from the locale files), interface height.
  * - Privacy & Data: local-first notice, export room (JSON), erase
  *   calibration data.
+ * - Project phases: every milestone frozen at its own address
+ *   (src/phases/phases.ts); Open ends the XR session and loads that build.
  *
  * Destructive actions ask for a second tap. Every visible string comes from
  * the i18n system; every setting persists on the device.
@@ -38,11 +40,12 @@ import { isViewFollowOn, setViewFollow, subscribeViewFollow } from './view-follo
 import { playConfirm } from './feedback-sound.js';
 import { onActivate, pinchMode, type PinchMode } from './activation.js';
 import { exportRoomConfig } from '../settings/room-config.js';
+import { PROJECT_PHASES, phaseState } from '../phases/phases.js';
 
 const SETTINGS_NODE_ID = 'settings';
 const GEAR_NODE_ID = 'settings-gear';
 
-const SECTIONS = ['devices', 'interaction', 'hud', 'audio', 'comfort', 'privacy'] as const;
+const SECTIONS = ['devices', 'interaction', 'hud', 'audio', 'comfort', 'privacy', 'phases'] as const;
 type SectionId = (typeof SECTIONS)[number];
 const SECTION_TITLES: Record<SectionId, MessageKey> = {
   devices: 'section.devices',
@@ -51,6 +54,7 @@ const SECTION_TITLES: Record<SectionId, MessageKey> = {
   audio: 'section.audio',
   comfort: 'section.comfort',
   privacy: 'section.privacy',
+  phases: 'section.phases',
 };
 
 const DEVICES: readonly { id: DeviceId; slug: string }[] = [
@@ -227,6 +231,16 @@ export class AuraSettingsPanelSystem extends createSystem() {
       this.privacyFeedback = t('priv.exported');
       this.render();
     });
+    // Project phases: open a frozen build (leaves the XR session).
+    for (const phase of PROJECT_PHASES) {
+      this.on(panel, `phase-${phase.number}-action`, () => {
+        if (!phase.url || phaseState(phase) === 'current') return;
+        this.setOpen(false);
+        this.world.exitXR();
+        window.location.assign(phase.url);
+      });
+    }
+
     this.on(panel, 'priv-erase', () => {
       if (!this.confirm('erase')) return;
       this.clearCalibration();
@@ -383,5 +397,18 @@ export class AuraSettingsPanelSystem extends createSystem() {
     const eraseArmed = this.pendingConfirm?.action === 'erase';
     this.text('priv-erase-label', t(eraseArmed ? 'priv.eraseConfirm' : 'priv.erase'));
     this.text('priv-feedback', this.privacyFeedback || ' ');
+
+    // Project phases
+    for (const phase of PROJECT_PHASES) {
+      const state = phaseState(phase);
+      const openable = Boolean(phase.url) && state !== 'current';
+      const label =
+        state === 'current' ? t('phase.here') : openable ? t('phase.open') : t(state === 'next' ? 'phase.next' : 'phase.planned');
+      const frozen = phase.frozenOn ? ` · ${t('phase.released', phase.frozenOn)}` : '';
+      this.text(`phase-${phase.number}-name`, t(phase.name));
+      this.text(`phase-${phase.number}-summary`, `${t(phase.summary)}${frozen}`);
+      this.text(`phase-${phase.number}-action-label`, label);
+      this.paint(`phase-${phase.number}-action`, `phase-${phase.number}-action-label`, state === 'current' ? ACTIVE : INACTIVE);
+    }
   }
 }

@@ -46,3 +46,4 @@ pids/
 
 .vercel
 .vercel-dev
+.vercel-phases

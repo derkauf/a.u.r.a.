@@ -2,6 +2,8 @@
   Settings window (Horizon OS window style): section menu on the left,
   the active section on the right, and below the window the bar with the
   title, Quit and the X. Opened and closed by the gear button.
+  The last section, Project phases, lists the frozen builds of each phase
+  (src/phases/phases.ts) and opens them.
   Wired by AuraSettingsPanelSystem (src/ui/settings-panel-system.ts); every
   visible string is replaced at runtime from src/locales/*.json, so the text
   here is only the English default for the editor preview.
@@ -19,7 +21,7 @@
   .window {
     flex-direction: row;
     align-self: stretch;
-    height: 420px;
+    height: 460px;
     padding-top: 18px;
     padding-bottom: 18px;
     padding-left: 18px;
@@ -32,11 +34,12 @@
   .nav {
     flex-direction: column;
     width: 180px;
+    flex-shrink: 0;
     gap: 6px;
   }
 
   .nav-item {
-    height: 50px;
+    height: 46px;
     padding-left: 14px;
     padding-right: 10px;
     background-color: #26282c;
@@ -53,12 +56,23 @@
 
   .content {
     flex-direction: column;
-    flex-grow: 1;
+    width: 426px;
+    flex-shrink: 0;
   }
 
   .section {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .section-tight {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .phase-row {
+    flex-direction: column;
+    gap: 2px;
   }
 
   .row {
@@ -266,6 +280,7 @@
       <div id="nav-audio" class="nav-item"><div id="nav-audio-label" class="nav-label">Audio and Feedback</div></div>
       <div id="nav-comfort" class="nav-item"><div id="nav-comfort-label" class="nav-label">Comfort and Access</div></div>
       <div id="nav-privacy" class="nav-item"><div id="nav-privacy-label" class="nav-label">Privacy and Data</div></div>
+      <div id="nav-phases" class="nav-item"><div id="nav-phases-label" class="nav-label">Project phases</div></div>
     </div>
 
     <div class="content">
@@ -307,7 +322,7 @@
           </div>
         </div>
         <div id="dev-clear" class="btn-wide"><div id="dev-clear-label" class="danger-label">Clear all anchors</div></div>
-        <div id="dev-feedback" class="feedback"> </div>
+        <div id="dev-feedback" class="feedback">.</div>
       </div>
 
       <div id="sec-interaction" class="section">
@@ -405,7 +420,44 @@
         <div id="priv-local" class="note">Local-first.</div>
         <div id="priv-export" class="btn-wide"><div id="priv-export-label" class="btn-wide-label">Export room (JSON)</div></div>
         <div id="priv-erase" class="btn-wide"><div id="priv-erase-label" class="danger-label">Erase calibration data</div></div>
-        <div id="priv-feedback" class="feedback"> </div>
+        <div id="priv-feedback" class="feedback">.</div>
+      </div>
+      <div id="sec-phases" class="section-tight">
+        <div class="phase-row">
+          <div class="row">
+            <div id="phase-1-name" class="dev-name">Phase 1</div>
+            <div id="phase-1-action" class="btn-sm"><div id="phase-1-action-label" class="btn-sm-label">Open</div></div>
+          </div>
+          <div id="phase-1-summary" class="note">.</div>
+        </div>
+        <div class="phase-row">
+          <div class="row">
+            <div id="phase-2-name" class="dev-name">Phase 2</div>
+            <div id="phase-2-action" class="btn-sm"><div id="phase-2-action-label" class="btn-sm-label">Open</div></div>
+          </div>
+          <div id="phase-2-summary" class="note">.</div>
+        </div>
+        <div class="phase-row">
+          <div class="row">
+            <div id="phase-3-name" class="dev-name">Phase 3</div>
+            <div id="phase-3-action" class="btn-sm"><div id="phase-3-action-label" class="btn-sm-label">Open</div></div>
+          </div>
+          <div id="phase-3-summary" class="note">.</div>
+        </div>
+        <div class="phase-row">
+          <div class="row">
+            <div id="phase-4-name" class="dev-name">Phase 4</div>
+            <div id="phase-4-action" class="btn-sm"><div id="phase-4-action-label" class="btn-sm-label">Open</div></div>
+          </div>
+          <div id="phase-4-summary" class="note">.</div>
+        </div>
+        <div class="phase-row">
+          <div class="row">
+            <div id="phase-5-name" class="dev-name">Phase 5</div>
+            <div id="phase-5-action" class="btn-sm"><div id="phase-5-action-label" class="btn-sm-label">Open</div></div>
+          </div>
+          <div id="phase-5-summary" class="note">.</div>
+        </div>
       </div>
     </div>
   </div>
