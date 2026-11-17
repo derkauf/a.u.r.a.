@@ -16,7 +16,7 @@ Uma segunda implementação da v1 do A.U.R.A. (Ambient User Responsive Automatio
 | **Endereços publicados (Vercel, escopo `derkaufs-projects`)** | Produção para os juízes, **ainda na Phase 1**: https://aura.sixvectors.app/ (`npm run deploy`). Phase 1 congelada: https://aura-phase1.sixvectors.app/. Phase 2 congelada: https://aura-phase2.sixvectors.app/. Dev: https://aura-dev.sixvectors.app/ (`npm run deploy:dev`, hoje igual à Phase 2). Sem ligação com o GitHub: um push não publica nada. Todo deploy sai de uma cópia sem `.git` (no plano Hobby, a Vercel recusa o autor do commit). |
 | **Project phases** | Cada fase é congelada numa tag do git e publicada sem mudanças com `npm run deploy:phase -- phase-N` (usa o código da tag, nunca o diretório de trabalho). O app lista as fases em Configurações › Project phases ([`src/phases/phases.ts`](../../src/phases/phases.ts)). **Phase 1** (tag `phase-1`, `dc82aa3`): tags simulados, janelas, âncora, EN/pt-BR. **Phase 2** (tag `phase-2`, `86ff8b4`): HUD estilo Quest com "Follow my view", Configurações em 7 seções, pinch confiável (verificado no Quest), 5 idiomas. **Phase 3** (próxima, não iniciada): leitura real dos AprilTags pela câmera. **Phase 4:** Deeper Mode, temas, áudio espacial, importar JSON. **Phase 5:** dispositivos reais via Matter. |
 | **Material da submissão** | [`docs/submission/`](../submission/): roteiro do vídeo e rascunho do Devpost (com Vision, MVP e a frase da troca de stack), gerados por `tools/generate-submission-pdfs.py`. O "What it does" ainda descreve a Phase 1. |
-| **Marcadores para imprimir** | [`docs/apriltag/`](../apriltag/): PDF `tag36h11` IDs 1–12, ~112 mm; o A.U.R.A. usa os IDs 1, 2 e 3. |
+| **Marcadores** | [`docs/apriltag/`](../apriltag/): PDF `tag36h11` IDs 1–12, ~112 mm; o A.U.R.A. usa os IDs 1, 2 e 3. **Impressos e colados no cômodo (paredes e porta), relatado pelo usuário em 17/11**; lado real ainda não medido. |
 
 ## Próximos (em ordem)
 
@@ -32,7 +32,6 @@ Uma segunda implementação da v1 do A.U.R.A. (Ambient User Responsive Automatio
 
 | Item | Esperando |
 |---|---|
-| Teste da Phase 3 com os tags impressos | O usuário imprimir os tags (FedEx Office, papel fosco de 200 g) ou abrir um tag no outro monitor |
 | Controle do Quest pelo CLI (`adb reverse`, skill `iwsdk-native-xr-test`); opcional, a Wi-Fi já funciona | O Quest aparece como "unauthorized": aceitar a depuração USB dentro do headset (Desenvolvedor › revogar autorizações, reconectar, "Sempre permitir"). O `OVRService` (Link) está parado no PC até reiniciá-lo |
 
 ## Mudanças recentes
