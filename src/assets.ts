@@ -3,8 +3,9 @@
  *
  * Evaluated twice, in two JS realms (runtime and editor): deterministic
  * and side-effect free — no World, DOM or timers here.
- * The 8 UIKitML panels of v1: 3 AprilTag stickers, 3 device panels,
- * the door-lock camera placeholder and the Settings panel.
+ * The 10 UIKitML assets of v1: 3 AprilTag icons, 3 device windows, the
+ * door-lock camera placeholder, the Settings window, its gear button and
+ * the telemetry line.
  */
 import { AssetType, defineAssets } from '@iwsdk/core';
 
@@ -26,4 +27,6 @@ export default defineAssets({
   'panel-lock': uikitml('panel-lock.uikitml', 'Panel — Front door lock'),
   'camera-placeholder': uikitml('camera-placeholder.uikitml', 'Door camera (simulated)'),
   settings: uikitml('settings.uikitml', 'Settings'),
+  'settings-gear': uikitml('settings-gear.uikitml', 'Settings gear button'),
+  telemetry: uikitml('telemetry.uikitml', 'Telemetry line'),
 });

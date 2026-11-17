@@ -137,6 +137,46 @@ export class DeviceRegistry {
     return this.bound.has(deviceId);
   }
 
+  /**
+   * Remove o vínculo (o tag precisa ser lido de novo). O estado do
+   * dispositivo é mantido. Notifica os ouvintes para os painéis fecharem.
+   */
+  unbind(deviceId: DeviceId): void {
+    if (!this.bound.delete(deviceId)) return;
+    this.persistBound();
+    const entry = this.devices.get(deviceId);
+    if (entry) this.notify(entry);
+  }
+
+  /** Remove todos os vínculos (recalibração da sala inteira). */
+  unbindAll(): void {
+    for (const deviceId of [...this.bound]) this.unbind(deviceId);
+  }
+
+  /** Retrato serializável dos vínculos e do estado (exportar a sala). */
+  exportSnapshot(): { bound: DeviceId[]; state: Partial<Record<DeviceId, DeviceState>> } {
+    const state: Partial<Record<DeviceId, DeviceState>> = {};
+    for (const [id, entry] of this.devices) state[id] = { ...entry.state };
+    return { bound: [...this.bound], state };
+  }
+
+  /** Aplica um retrato exportado: vínculos e estado (ids desconhecidos são ignorados). */
+  importSnapshot(snapshot: { bound?: unknown; state?: unknown }): void {
+    const state = (snapshot.state ?? {}) as Partial<Record<string, DeviceState>>;
+    for (const [id, saved] of Object.entries(state)) {
+      if (!(id in DEVICE_DESCRIPTORS) || !saved) continue;
+      const entry = this.registerFromDescriptor(DEVICE_DESCRIPTORS[id as DeviceId]);
+      this.update(entry.deviceId, saved);
+    }
+    const bound = Array.isArray(snapshot.bound) ? snapshot.bound : [];
+    for (const id of bound) {
+      if (typeof id === 'string' && id in DEVICE_DESCRIPTORS) {
+        this.registerFromDescriptor(DEVICE_DESCRIPTORS[id as DeviceId]);
+        this.bind(id as DeviceId);
+      }
+    }
+  }
+
   get(deviceId: DeviceId): DeviceEntry | undefined {
     return this.devices.get(deviceId);
   }

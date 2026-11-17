@@ -18,6 +18,7 @@ import {
 } from '../src/markers/apriltag-handshake.js';
 import { clampToStep } from '../src/core/rules.js';
 import { DeviceRegistry } from '../src/devices/device-registry.js';
+import { pinchMode } from '../src/ui/activation.js';
 import { createProvider, LocalRulesProvider } from '../src/ai/providers/provider-interface.js';
 
 function memoryStorage(): {
@@ -143,6 +144,50 @@ describe('DeviceRegistry — registro, vínculo e persistência', () => {
     registry.scanAndRegister('lamp-sala-01'); // segunda leitura
     assert.equal(registry.get('lamp-sala-01')?.state.power, true);
     assert.equal(registry.get('lamp-sala-01')?.state.brightness, 60);
+  });
+});
+
+describe('DeviceRegistry — recalibrar, limpar, exportar e importar', () => {
+  it('unbind remove só o vínculo; o estado continua e persiste', () => {
+    const storage = memoryStorage();
+    const registry = new DeviceRegistry(storage);
+    registry.scanAndRegister('ac-sala-01');
+    registry.setSetpoint('ac-sala-01', 25);
+    registry.unbind('ac-sala-01');
+    assert.equal(registry.isBound('ac-sala-01'), false);
+    assert.equal(registry.get('ac-sala-01')?.state.setpoint_c, 25);
+    assert.equal(new DeviceRegistry(storage).isBound('ac-sala-01'), false);
+  });
+
+  it('unbindAll remove todos os vínculos', () => {
+    const registry = new DeviceRegistry(memoryStorage());
+    registry.scanAndRegister('lamp-sala-01');
+    registry.scanAndRegister('lock-porta-01');
+    registry.unbindAll();
+    assert.equal(registry.boundDeviceIds.size, 0);
+  });
+
+  it('exportar e importar leva vínculos e estado para outro registro', () => {
+    const source = new DeviceRegistry(memoryStorage());
+    source.scanAndRegister('lamp-sala-01');
+    source.setBrightness('lamp-sala-01', 40);
+    const snapshot = JSON.parse(JSON.stringify(source.exportSnapshot())) as object;
+    const target = new DeviceRegistry(memoryStorage());
+    target.importSnapshot(snapshot);
+    assert.equal(target.isBound('lamp-sala-01'), true);
+    assert.equal(target.get('lamp-sala-01')?.state.brightness, 40);
+    target.importSnapshot({ bound: ['nao-existe'], state: { 'nao-existe': {} } });
+    assert.equal(target.boundDeviceIds.size, 1);
+  });
+});
+
+describe('Sensibilidade do pinch — quando o controle dispara', () => {
+  it('0–33 leve, 34–66 média, 67–100 firme', () => {
+    assert.equal(pinchMode(0), 'light');
+    assert.equal(pinchMode(25), 'light');
+    assert.equal(pinchMode(50), 'medium');
+    assert.equal(pinchMode(75), 'firm');
+    assert.equal(pinchMode(100), 'firm');
   });
 });
 

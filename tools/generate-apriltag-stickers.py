@@ -58,17 +58,24 @@ def grid_rows(tag_id: int) -> list[list[int]]:
     return rows
 
 
+# Visual de ícone de app do Horizon OS: um "squircle" branco com o tag dentro,
+# o nome do dispositivo embaixo, sem card de fundo (flutua sobre o passthrough).
+# Unidades: o nó de cena usa escala 0.1, então 1 unidade = 1 mm.
 STYLES = """<style>
-  .sticker-root {
+  .icon-root {
     flex-direction: column;
-    width: 260px;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
-    gap: 12px;
+    align-items: center;
+    width: 140px;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .icon-tile {
+    width: 96px;
+    height: 96px;
     background-color: #ffffff;
-    border-radius: 16px;
+    border-radius: 24px;
+    justify-content: center;
     align-items: center;
   }
 
@@ -81,39 +88,20 @@ STYLES = """<style>
   }
 
   .cell-on {
-    width: 16px;
-    height: 16px;
+    width: 8px;
+    height: 8px;
     background-color: #111111;
   }
 
   .cell-off {
-    width: 16px;
-    height: 16px;
+    width: 8px;
+    height: 8px;
     background-color: #ffffff;
   }
 
-  .sticker-sub {
-    color: #5a6472;
-    font-size: 16px;
-    text-align: center;
-  }
-
-  .scan-button {
-    min-height: 56px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 12px;
-    padding-right: 12px;
-    background-color: #2a9d8f;
-    border-radius: 12px;
-    justify-content: center;
-    align-items: center;
-    align-self: stretch;
-  }
-
-  .scan-label {
+  .icon-label {
     color: #ffffff;
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 700;
     text-align: center;
   }
@@ -123,31 +111,30 @@ STYLES = """<style>
 
 def render_sticker(slug: str, device_id: str, tag_id: int, label: str, label_en: str) -> str:
     rows = grid_rows(tag_id)
-    grid = ["  <div class=\"tag-grid\">"]
+    grid = ["    <div class=\"tag-grid\">"]
     for row in rows:
         cells = "".join(
             f"<div class=\"{'cell-on' if cell else 'cell-off'}\"></div>" for cell in row
         )
-        grid.append(f"    <div class=\"tag-row\">{cells}</div>")
-    grid.append("  </div>")
+        grid.append(f"      <div class=\"tag-row\">{cells}</div>")
+    grid.append("    </div>")
     grid_markup = "\n".join(grid)
     return f"""<!--
-  Sticker AprilTag — {label} ({device_id}).
-  Representação SIMPLIFICADA no estilo tag36h11 (id {tag_id}): a grade
-  6x6 é ilustrativa e NÃO é um codeword válido — este sticker na tela
-  não é escaneável de verdade. O botão mostra o nome do dispositivo: o
-  primeiro pinch simula a leitura ("a câmera leu o tag") e abre o painel;
-  os seguintes abrem e fecham o painel. Gerado por
-  tools/generate-apriltag-stickers.py. Os tags imprimíveis de verdade
-  estão em docs/apriltag-markers.md.
+  Ícone do tag — {label} ({device_id}), AprilTag tag36h11 id {tag_id}.
+  Visual de ícone de app do Horizon OS: o tag num quadrado branco, o nome
+  do dispositivo embaixo. A grade 6x6 é ilustrativa e NÃO é um codeword
+  válido. O ícone inteiro é o botão (id sticker-scan-button): o primeiro
+  pinch simula a leitura ("a câmera leu o tag") e abre o painel; os
+  seguintes abrem e fecham. O raio por cima aumenta o ícone (hover, em
+  src/ui/hover-scale-system.ts). Gerado por tools/generate-apriltag-stickers.py.
+  Os tags imprimíveis de verdade estão em docs/apriltag-markers.md.
 -->
-{STYLES}<Panel class="sticker-root">
+{STYLES}<div id="sticker-scan-button" class="icon-root">
+  <div class="icon-tile">
 {grid_markup}
-  <div id="txt-sticker-sub" class="sticker-sub">AprilTag tag36h11 • id {tag_id}</div>
-  <Button id="sticker-scan-button" class="scan-button">
-    <ButtonLabel id="sticker-scan-label" class="scan-label">{label_en}</ButtonLabel>
-  </Button>
-</Panel>
+  </div>
+  <div id="sticker-scan-label" class="icon-label">{label_en}</div>
+</div>
 """
 
 

@@ -1,67 +1,419 @@
 <!--
-  Settings panel.
-  Elements with an id are wired by AuraLocalizationSystem:
-  txt-settings-title, txt-settings-language, lang-en, lang-pt.
-  The active language button gets the accent background; the other one
-  stays neutral. They are plain divs (not Horizon <Button>) so the runtime
-  background color is not overridden by the kit's button states. Language names are shown in their own language.
+  Settings window (Horizon OS window style): section menu on the left,
+  the active section on the right, and below the window the bar with the
+  title, Quit and the X. Opened and closed by the gear button.
+  Wired by AuraSettingsPanelSystem (src/ui/settings-panel-system.ts); every
+  visible string is replaced at runtime from src/locales/*.json, so the text
+  here is only the English default for the editor preview.
+  Interactive elements are plain divs (not Horizon <Button>) so their colors
+  can be set at runtime. Units: the scene node uses scale 0.075.
 -->
 <style>
-  .settings-root {
+  .window-root {
     flex-direction: column;
-    width: 420px;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
-    gap: 12px;
-    background-color: #101418;
-    border-radius: 20px;
+    align-items: center;
+    width: 660px;
+    gap: 10px;
   }
 
-  .settings-title {
+  .window {
+    flex-direction: row;
+    align-self: stretch;
+    height: 420px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    gap: 18px;
+    background-color: #26282c;
+    border-radius: 28px;
+  }
+
+  .nav {
+    flex-direction: column;
+    width: 180px;
+    gap: 6px;
+  }
+
+  .nav-item {
+    height: 50px;
+    padding-left: 14px;
+    padding-right: 10px;
+    background-color: #26282c;
+    border-radius: 16px;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .nav-label {
     color: #ffffff;
-    font-size: 26px;
+    font-size: 15px;
     font-weight: 700;
   }
 
-  .settings-label {
-    color: #8a94a6;
+  .content {
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .section {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .row-label {
+    color: #ffffff;
     font-size: 16px;
     font-weight: 700;
-    letter-spacing: 1.4px;
   }
 
-  .lang-row {
-    flex-direction: row;
-    gap: 12px;
+  .note {
+    color: #9aa0aa;
+    font-size: 13px;
   }
 
-  .lang-button {
-    flex-grow: 1;
-    height: 56px;
-    background-color: #2c3440;
-    border-radius: 12px;
+  .feedback {
+    color: #9fe0b5;
+    font-size: 13px;
+  }
+
+  .toggle {
+    width: 96px;
+    height: 38px;
+    background-color: #3d4046;
+    border-radius: 19px;
     justify-content: center;
     align-items: center;
     cursor: pointer;
   }
 
-  .lang-label {
+  .toggle-label {
     color: #ffffff;
-    font-size: 20px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .stepper {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-btn {
+    width: 38px;
+    height: 38px;
+    background-color: #3d4046;
+    border-radius: 19px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .step-label {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .step-value {
+    width: 150px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .seg {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .seg-btn {
+    height: 38px;
+    padding-left: 16px;
+    padding-right: 16px;
+    background-color: #3d4046;
+    border-radius: 19px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .seg-label {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .dev-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dev-name {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .dev-meta {
+    color: #9aa0aa;
+    font-size: 13px;
+  }
+
+  .btn-row {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .btn-sm {
+    height: 32px;
+    padding-left: 12px;
+    padding-right: 12px;
+    background-color: #3d4046;
+    border-radius: 16px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .btn-sm-label {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .btn-wide {
+    height: 42px;
+    padding-left: 16px;
+    padding-right: 16px;
+    background-color: #3d4046;
+    border-radius: 21px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .btn-wide-label {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .danger-label {
+    color: #ff8a80;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .bar {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    height: 44px;
+    padding-left: 18px;
+    padding-right: 7px;
+    background-color: #26282c;
+    border-radius: 22px;
+  }
+
+  .bar-title {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .bar-pill {
+    height: 30px;
+    padding-left: 12px;
+    padding-right: 12px;
+    background-color: #3d4046;
+    border-radius: 15px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .bar-close {
+    width: 30px;
+    height: 30px;
+    background-color: #3d4046;
+    border-radius: 15px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .bar-close-label {
+    color: #ffffff;
+    font-size: 18px;
     font-weight: 700;
   }
 </style>
-<Panel class="settings-root">
-  <div id="txt-settings-title" class="settings-title">Settings</div>
-  <div id="txt-settings-language" class="settings-label">Language</div>
-  <div class="lang-row">
-    <div id="lang-en" class="lang-button">
-      <div class="lang-label">English</div>
+<div class="window-root">
+  <div class="window">
+    <div class="nav">
+      <div id="nav-devices" class="nav-item"><div id="nav-devices-label" class="nav-label">Devices and Anchors</div></div>
+      <div id="nav-interaction" class="nav-item"><div id="nav-interaction-label" class="nav-label">Interaction</div></div>
+      <div id="nav-hud" class="nav-item"><div id="nav-hud-label" class="nav-label">HUD and Visual</div></div>
+      <div id="nav-audio" class="nav-item"><div id="nav-audio-label" class="nav-label">Audio and Feedback</div></div>
+      <div id="nav-comfort" class="nav-item"><div id="nav-comfort-label" class="nav-label">Comfort and Access</div></div>
+      <div id="nav-privacy" class="nav-item"><div id="nav-privacy-label" class="nav-label">Privacy and Data</div></div>
     </div>
-    <div id="lang-pt" class="lang-button">
-      <div class="lang-label">Português (BR)</div>
+
+    <div class="content">
+      <div id="sec-devices" class="section">
+        <div class="dev-row">
+          <div class="row">
+            <div id="dev-lamp-name" class="dev-name">Living room lamp</div>
+            <div id="dev-lamp-meta" class="dev-meta">AprilTag id 1</div>
+          </div>
+          <div class="btn-row">
+            <div id="dev-lamp-test" class="btn-sm"><div id="dev-lamp-test-label" class="btn-sm-label">Test</div></div>
+            <div id="dev-lamp-rename" class="btn-sm"><div id="dev-lamp-rename-label" class="btn-sm-label">Rename</div></div>
+            <div id="dev-lamp-recal" class="btn-sm"><div id="dev-lamp-recal-label" class="btn-sm-label">Recalibrate</div></div>
+            <div id="dev-lamp-remove" class="btn-sm"><div id="dev-lamp-remove-label" class="btn-sm-label">Remove</div></div>
+          </div>
+        </div>
+        <div class="dev-row">
+          <div class="row">
+            <div id="dev-ac-name" class="dev-name">Living room AC</div>
+            <div id="dev-ac-meta" class="dev-meta">AprilTag id 2</div>
+          </div>
+          <div class="btn-row">
+            <div id="dev-ac-test" class="btn-sm"><div id="dev-ac-test-label" class="btn-sm-label">Test</div></div>
+            <div id="dev-ac-rename" class="btn-sm"><div id="dev-ac-rename-label" class="btn-sm-label">Rename</div></div>
+            <div id="dev-ac-recal" class="btn-sm"><div id="dev-ac-recal-label" class="btn-sm-label">Recalibrate</div></div>
+            <div id="dev-ac-remove" class="btn-sm"><div id="dev-ac-remove-label" class="btn-sm-label">Remove</div></div>
+          </div>
+        </div>
+        <div class="dev-row">
+          <div class="row">
+            <div id="dev-lock-name" class="dev-name">Front door lock</div>
+            <div id="dev-lock-meta" class="dev-meta">AprilTag id 3</div>
+          </div>
+          <div class="btn-row">
+            <div id="dev-lock-test" class="btn-sm"><div id="dev-lock-test-label" class="btn-sm-label">Test</div></div>
+            <div id="dev-lock-rename" class="btn-sm"><div id="dev-lock-rename-label" class="btn-sm-label">Rename</div></div>
+            <div id="dev-lock-recal" class="btn-sm"><div id="dev-lock-recal-label" class="btn-sm-label">Recalibrate</div></div>
+            <div id="dev-lock-remove" class="btn-sm"><div id="dev-lock-remove-label" class="btn-sm-label">Remove</div></div>
+          </div>
+        </div>
+        <div id="dev-clear" class="btn-wide"><div id="dev-clear-label" class="danger-label">Clear all anchors</div></div>
+        <div id="dev-feedback" class="feedback"> </div>
+      </div>
+
+      <div id="sec-interaction" class="section">
+        <div class="row">
+          <div id="lbl-int-pinch" class="row-label">Pinch sensitivity</div>
+          <div class="stepper">
+            <div id="int-pinch-minus" class="step-btn"><div class="step-label">-</div></div>
+            <div id="int-pinch-value" class="step-value">Light</div>
+            <div id="int-pinch-plus" class="step-btn"><div class="step-label">+</div></div>
+          </div>
+        </div>
+        <div id="int-pinch-note" class="note">Light: fires as the pinch starts.</div>
+        <div class="row">
+          <div id="lbl-int-snap" class="row-label">Magnetic snap</div>
+          <div class="stepper">
+            <div id="int-snap-minus" class="step-btn"><div class="step-label">-</div></div>
+            <div id="int-snap-value" class="step-value">50%</div>
+            <div id="int-snap-plus" class="step-btn"><div class="step-label">+</div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div id="lbl-int-range" class="row-label">Activation range</div>
+          <div class="stepper">
+            <div id="int-range-minus" class="step-btn"><div class="step-label">-</div></div>
+            <div id="int-range-value" class="step-value">60°</div>
+            <div id="int-range-plus" class="step-btn"><div class="step-label">+</div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div id="lbl-int-nod" class="row-label">Head nod</div>
+          <div id="int-nod" class="toggle"><div id="int-nod-label" class="toggle-label">Off</div></div>
+        </div>
+        <div id="int-nod-note" class="note">Reserved for a future version.</div>
+      </div>
+
+      <div id="sec-hud" class="section">
+        <div class="row">
+          <div id="lbl-hud-follow" class="row-label">Follow my view</div>
+          <div id="hud-follow" class="toggle"><div id="hud-follow-label" class="toggle-label">On</div></div>
+        </div>
+        <div class="row">
+          <div id="lbl-hud-opacity" class="row-label">Overlay opacity</div>
+          <div class="stepper">
+            <div id="hud-op-minus" class="step-btn"><div class="step-label">-</div></div>
+            <div id="hud-op-value" class="step-value">100%</div>
+            <div id="hud-op-plus" class="step-btn"><div class="step-label">+</div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div id="lbl-hud-size" class="row-label">Card size</div>
+          <div class="seg">
+            <div id="hud-size-S" class="seg-btn"><div id="hud-size-S-label" class="seg-label">S</div></div>
+            <div id="hud-size-M" class="seg-btn"><div id="hud-size-M-label" class="seg-label">M</div></div>
+            <div id="hud-size-L" class="seg-btn"><div id="hud-size-L-label" class="seg-label">L</div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div id="lbl-hud-telemetry" class="row-label">Telemetry</div>
+          <div id="hud-tele" class="toggle"><div id="hud-tele-label" class="toggle-label">Off</div></div>
+        </div>
+        <div id="hud-more" class="note">More soon.</div>
+      </div>
+
+      <div id="sec-audio" class="section">
+        <div class="row">
+          <div id="lbl-aud-confirm" class="row-label">Confirmation sound</div>
+          <div class="stepper">
+            <div id="aud-minus" class="step-btn"><div class="step-label">-</div></div>
+            <div id="aud-value" class="step-value">60%</div>
+            <div id="aud-plus" class="step-btn"><div class="step-label">+</div></div>
+          </div>
+        </div>
+        <div id="aud-more" class="note">More soon.</div>
+      </div>
+
+      <div id="sec-comfort" class="section">
+        <div class="row">
+          <div id="lbl-cmf-language" class="row-label">Language</div>
+          <div class="stepper">
+            <div id="cmf-lang-prev" class="step-btn"><div id="cmf-lang-prev-label" class="step-label">-</div></div>
+            <div id="cmf-lang-value" class="step-value">English</div>
+            <div id="cmf-lang-next" class="step-btn"><div id="cmf-lang-next-label" class="step-label">+</div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div id="lbl-cmf-height" class="row-label">Interface height</div>
+          <div class="seg">
+            <div id="cmf-standing" class="seg-btn"><div id="cmf-standing-label" class="seg-label">Standing</div></div>
+            <div id="cmf-seated" class="seg-btn"><div id="cmf-seated-label" class="seg-label">Seated</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="sec-privacy" class="section">
+        <div id="priv-local" class="note">Local-first.</div>
+        <div id="priv-export" class="btn-wide"><div id="priv-export-label" class="btn-wide-label">Export room (JSON)</div></div>
+        <div id="priv-erase" class="btn-wide"><div id="priv-erase-label" class="danger-label">Erase calibration data</div></div>
+        <div id="priv-feedback" class="feedback"> </div>
+      </div>
     </div>
   </div>
-</Panel>
+  <div class="bar">
+    <div id="txt-settings-title" class="bar-title">Settings</div>
+    <div id="quit-button" class="bar-pill"><div id="quit-label" class="danger-label">Quit</div></div>
+    <div id="window-close" class="bar-close">
+      <div class="bar-close-label">×</div>
+    </div>
+  </div>
+</div>

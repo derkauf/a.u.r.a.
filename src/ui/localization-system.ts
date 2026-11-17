@@ -1,75 +1,68 @@
 /**
  * A.U.R.A. v1 — Localization system.
  *
- * Gives every UIKitML panel the full-Latin Inter font (see aura-font.ts),
- * applies the current locale to the static copy of every panel
- * (titles, hints, button labels) and wires the Settings panel's language
- * buttons. Dynamic copy (device status, toggle labels, anchor line) is
- * owned by AuraPanelSystem, which re-renders on the same locale signal.
+ * - Gives every UIKitML panel the full-Latin Inter font (see aura-font.ts).
+ * - Applies the current locale to the static copy of the tag icons, device
+ *   windows and door camera (titles, window-bar titles, button labels).
+ *   Device names follow the name chosen in Settings › Devices (Rename).
+ *
+ * Dynamic copy (device status, toggle labels, anchor line) is owned by
+ * AuraPanelSystem, and the Settings window by AuraSettingsPanelSystem;
+ * both re-render on the same locale and settings signals.
  *
  * UIKitML files carry English text as the authored default so the editor
  * preview reads in English; this system overwrites it at runtime.
  */
 import { createSystem, UIKitMLAsset } from '@iwsdk/core';
-import { getLocale, setLocale, subscribeLocale, t, type Locale, type MessageKey } from '../i18n/i18n.js';
-import { APRILTAG_IDS } from '../markers/apriltag-handshake.js';
+import { subscribeLocale, t, type MessageKey } from '../i18n/i18n.js';
+import { deviceDisplayName } from '../devices/device-names.js';
+import type { DeviceId } from '../markers/apriltag-handshake.js';
+import { subscribeSettings } from '../settings/settings-store.js';
 import { AURA_FONT_FAMILIES } from './aura-font.js';
 
-/** [element id, message key, optional {value}] per scene node. */
-type TextBinding = readonly [elementId: string, key: MessageKey, value?: string | number];
+/** An element's text: a message key, or a device's display name. */
+type TextSource = { key: MessageKey } | { device: DeviceId };
+type TextBinding = readonly [elementId: string, source: TextSource];
 
 const STATIC_TEXT: Record<string, readonly TextBinding[]> = {
   'panel-lamp': [
-    ['txt-eyebrow', 'common.eyebrow'],
-    ['txt-title', 'device.lamp.title'],
-    ['txt-hint', 'common.hint'],
+    ['txt-title', { device: 'lamp-sala-01' }],
+    ['txt-bar-title', { device: 'lamp-sala-01' }],
   ],
   'panel-ac': [
-    ['txt-eyebrow', 'common.eyebrow'],
-    ['txt-title', 'device.ac.title'],
-    ['txt-hint', 'common.hint'],
+    ['txt-title', { device: 'ac-sala-01' }],
+    ['txt-bar-title', { device: 'ac-sala-01' }],
   ],
   'panel-lock': [
-    ['txt-eyebrow', 'common.eyebrow'],
-    ['txt-title', 'device.lock.title'],
-    ['txt-hint', 'common.hint'],
-    ['control-cam-label', 'action.viewCamera'],
+    ['txt-title', { device: 'lock-porta-01' }],
+    ['txt-bar-title', { device: 'lock-porta-01' }],
+    ['control-cam-label', { key: 'action.viewCamera' }],
   ],
-  'sticker-lamp': [
-    ['txt-sticker-sub', 'sticker.sub', APRILTAG_IDS['lamp-sala-01']],
-    ['sticker-scan-label', 'device.lamp.title'],
-  ],
-  'sticker-ac': [
-    ['txt-sticker-sub', 'sticker.sub', APRILTAG_IDS['ac-sala-01']],
-    ['sticker-scan-label', 'device.ac.title'],
-  ],
-  'sticker-lock': [
-    ['txt-sticker-sub', 'sticker.sub', APRILTAG_IDS['lock-porta-01']],
-    ['sticker-scan-label', 'device.lock.title'],
-  ],
+  'sticker-lamp': [['sticker-scan-label', { device: 'lamp-sala-01' }]],
+  'sticker-ac': [['sticker-scan-label', { device: 'ac-sala-01' }]],
+  'sticker-lock': [['sticker-scan-label', { device: 'lock-porta-01' }]],
   'camera-placeholder': [
-    ['txt-camera-eyebrow', 'camera.eyebrow'],
-    ['txt-camera-text', 'camera.text'],
-    ['txt-camera-sub', 'camera.sub'],
-    ['camera-close-label', 'camera.close'],
+    ['txt-camera-eyebrow', { key: 'camera.eyebrow' }],
+    ['txt-camera-text', { key: 'camera.text' }],
+    ['txt-camera-sub', { key: 'camera.sub' }],
   ],
-  settings: [
-    ['txt-settings-title', 'settings.title'],
-    ['txt-settings-language', 'settings.language'],
-  ],
+  // Font only; their text is owned by other systems.
+  settings: [],
+  telemetry: [],
 };
 
-const SETTINGS_NODE_ID = 'settings';
-const LANGUAGE_BUTTONS: Record<Locale, string> = { en: 'lang-en', 'pt-BR': 'lang-pt' };
-const ACTIVE_BG = '#2a9d8f';
-const INACTIVE_BG = '#2c3440';
 const NODE_IDS = Object.keys(STATIC_TEXT);
+
+function resolve(source: TextSource): string {
+  return 'key' in source ? t(source.key) : deviceDisplayName(source.device);
+}
 
 export class AuraLocalizationSystem extends createSystem() {
   private bound = new Map<string, UIKitMLAsset>();
 
   init(): void {
     this.cleanupFuncs.push(subscribeLocale(() => this.applyAll()));
+    this.cleanupFuncs.push(subscribeSettings(() => this.applyAll()));
   }
 
   update(): void {
@@ -84,18 +77,7 @@ export class AuraLocalizationSystem extends createSystem() {
       if (!asset) continue;
       this.bound.set(nodeId, asset);
       asset.document.rootElement.setProperties({ fontFamilies: AURA_FONT_FAMILIES });
-      if (nodeId === SETTINGS_NODE_ID) this.wireSettings(asset);
       this.applyTo(nodeId, asset);
-    }
-  }
-
-  private wireSettings(settings: UIKitMLAsset): void {
-    for (const locale of Object.keys(LANGUAGE_BUTTONS) as Locale[]) {
-      const button = settings.getElementById(LANGUAGE_BUTTONS[locale]);
-      if (!button) continue;
-      const select = (): void => setLocale(locale);
-      button.addEventListener('click', select);
-      this.cleanupFuncs.push(() => button.removeEventListener('click', select));
     }
   }
 
@@ -104,16 +86,8 @@ export class AuraLocalizationSystem extends createSystem() {
   }
 
   private applyTo(nodeId: string, asset: UIKitMLAsset): void {
-    for (const [elementId, key, value] of STATIC_TEXT[nodeId] ?? []) {
-      asset.getElementById(elementId)?.setProperties({ text: t(key, value) });
-    }
-    if (nodeId === SETTINGS_NODE_ID) {
-      const current = getLocale();
-      for (const locale of Object.keys(LANGUAGE_BUTTONS) as Locale[]) {
-        asset
-          .getElementById(LANGUAGE_BUTTONS[locale])
-          ?.setProperties({ backgroundColor: locale === current ? ACTIVE_BG : INACTIVE_BG });
-      }
+    for (const [elementId, source] of STATIC_TEXT[nodeId] ?? []) {
+      asset.getElementById(elementId)?.setProperties({ text: resolve(source) });
     }
   }
 }

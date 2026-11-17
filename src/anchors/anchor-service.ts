@@ -87,9 +87,21 @@ export class AuraAnchorSystem extends createSystem({
   }
 
   private tryBindAll(): void {
+    // Vínculo removido nas Configurações (remover / recalibrar / limpar):
+    // solta o painel da âncora; uma nova leitura do tag ancora de novo.
+    for (const deviceId of [...this.bound]) {
+      if (!deviceRegistry.isBound(deviceId)) this.releasePanel(deviceId);
+    }
     for (const deviceId of deviceRegistry.boundDeviceIds) {
       if (!this.bound.has(deviceId)) this.tryBindPanel(deviceId);
     }
+  }
+
+  private releasePanel(deviceId: DeviceId): void {
+    const entity = this.world.getSceneEntity(PANEL_NODE_IDS[deviceId]);
+    if (entity?.hasComponent(XRAnchor)) entity.removeComponent(XRAnchor);
+    this.bound.delete(deviceId);
+    appendAnchorTestLog(`panel-released: ${deviceId} (vínculo removido nas Configurações)`);
   }
 
   private tryBindPanel(deviceId: DeviceId): void {

@@ -9,3 +9,4 @@ dist/
 .cursor/mcp.json
 .vscode/mcp.json
 .codex/config.toml
+.vercel-dev/

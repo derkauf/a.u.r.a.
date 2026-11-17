@@ -1,0 +1,25 @@
+<!--
+  Telemetry line under the gear: frame rate, frame time and anchor status.
+  Hidden unless Settings › HUD & Visual › Telemetry is on. The text is set
+  by AuraAppearanceSystem (src/ui/appearance-system.ts) twice per second.
+-->
+<style>
+  .telemetry {
+    height: 30px;
+    padding-left: 14px;
+    padding-right: 14px;
+    background-color: #26282c;
+    border-radius: 15px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .telemetry-text {
+    color: #9fe0b5;
+    font-size: 13px;
+    font-weight: 700;
+  }
+</style>
+<div id="telemetry-root" class="telemetry">
+  <div id="telemetry-text" class="telemetry-text">72 fps · 13.9 ms</div>
+</div>

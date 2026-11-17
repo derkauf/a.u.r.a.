@@ -1,90 +1,152 @@
 <!--
-  Painel da fechadura (lock-porta-01).
-  Elementos com id são ligados pelo AuraPanelSystem: device-status,
-  control-power (+ control-power-label), control-cam, anchor-status.
-  Não há linha de faixa: a fechadura tem trava/destrava + câmera.
-  A câmera é SIMULADA (painel placeholder, sem feed real).
+  Janela do dispositivo lock-porta-01, no estilo das janelas do Horizon OS:
+  a janela com os controles e, embaixo, a barra com o nome e o X.
+  Elementos com id ligados pelo AuraPanelSystem: device-status,
+  control-power (+ control-power-label), control-range-minus/-value/-plus
+  ou control-cam, anchor-status e window-close. Textos fixos (txt-title,
+  txt-bar-title, control-cam-label) são traduzidos pelo
+  AuraLocalizationSystem. Unidades: escala 0.1 no nó de cena, 1 unidade = 1 mm.
 -->
 <style>
-  .panel-root {
+  .window-root {
     flex-direction: column;
-    width: 460px;
-    padding-top: 24px;
-    padding-bottom: 24px;
-    padding-left: 24px;
-    padding-right: 24px;
-    gap: 14px;
-    background-color: #101418;
-    border-radius: 24px;
+    align-items: center;
+    width: 360px;
+    gap: 10px;
   }
 
-  .eyebrow {
-    color: #8a94a6;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 1.4px;
+  .window {
+    flex-direction: column;
+    align-self: stretch;
+    padding-top: 22px;
+    padding-bottom: 22px;
+    padding-left: 22px;
+    padding-right: 22px;
+    gap: 14px;
+    background-color: #26282c;
+    border-radius: 28px;
   }
 
   .title {
     color: #ffffff;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 700;
-    line-height: 1.15;
   }
 
   .status {
-    color: #7cfc9a;
-    font-size: 24px;
+    color: #9fe0b5;
+    font-size: 18px;
   }
 
-  .power-button {
-    height: 72px;
-    background-color: #2a9d8f;
-    border-radius: 16px;
+  .pill-primary {
+    height: 52px;
+    background-color: #e9eaee;
+    border-radius: 26px;
     justify-content: center;
     align-items: center;
   }
 
-  .power-label {
-    color: #ffffff;
-    font-size: 26px;
+  .pill-primary-label {
+    color: #111316;
+    font-size: 18px;
     font-weight: 700;
   }
 
-  .cam-button {
-    height: 72px;
-    background-color: #2c3440;
-    border-radius: 16px;
+  .pill-secondary {
+    height: 52px;
+    background-color: #3d4046;
+    border-radius: 26px;
     justify-content: center;
     align-items: center;
   }
 
-  .cam-label {
+  .pill-secondary-label {
     color: #ffffff;
-    font-size: 26px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .range-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .round-button {
+    width: 52px;
+    height: 52px;
+    background-color: #3d4046;
+    border-radius: 26px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .round-button-label {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .range-value {
+    color: #ffffff;
+    font-size: 32px;
     font-weight: 700;
   }
 
   .anchor {
-    color: #8a94a6;
-    font-size: 16px;
+    color: #9aa0aa;
+    font-size: 13px;
   }
 
-  .hint {
-    color: #5a6472;
-    font-size: 16px;
+  .bar {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    height: 44px;
+    padding-left: 18px;
+    padding-right: 7px;
+    background-color: #26282c;
+    border-radius: 22px;
+  }
+
+  .bar-title {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .bar-close {
+    width: 30px;
+    height: 30px;
+    background-color: #3d4046;
+    border-radius: 15px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .bar-close-label {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
   }
 </style>
-<Panel class="panel-root">
-  <div id="txt-eyebrow" class="eyebrow">A.U.R.A. — LIVING ROOM</div>
-  <div id="txt-title" class="title">Front door lock</div>
-  <div id="device-status" class="status">Locked</div>
-  <Button id="control-power" class="power-button">
-    <ButtonLabel id="control-power-label" class="power-label">Unlock</ButtonLabel>
-  </Button>
-  <Button id="control-cam" class="cam-button">
-    <ButtonLabel id="control-cam-label" class="cam-label">View camera</ButtonLabel>
-  </Button>
-  <div id="anchor-status" class="anchor">Anchor: waiting for XR session…</div>
-  <div id="txt-hint" class="hint">Point with your hand and pinch to select.</div>
-</Panel>
+<div class="window-root">
+  <div class="window">
+    <div id="txt-title" class="title">Front door lock</div>
+    <div id="device-status" class="status">Locked</div>
+    <Button id="control-power" class="pill-primary">
+      <ButtonLabel id="control-power-label" class="pill-primary-label">Unlock</ButtonLabel>
+    </Button>
+    <Button id="control-cam" class="pill-secondary">
+      <ButtonLabel id="control-cam-label" class="pill-secondary-label">View camera</ButtonLabel>
+    </Button>
+    <div id="anchor-status" class="anchor">Anchor: waiting for XR session…</div>
+  </div>
+  <div class="bar">
+    <div id="txt-bar-title" class="bar-title">Front door lock</div>
+    <div id="window-close" class="bar-close">
+      <div class="bar-close-label">×</div>
+    </div>
+  </div>
+</div>

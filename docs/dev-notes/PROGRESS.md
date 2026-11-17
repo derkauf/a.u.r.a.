@@ -17,15 +17,18 @@ Uma segunda implementação da v1 do A.U.R.A. (Ambient User Responsive Automatio
 | **Fonte com acentos** | Feito e verificado no emulador: Inter com charset latino gerada em código ([`src/ui/aura-font.ts`](../../src/ui/aura-font.ts)); 0 avisos `Missing glyph`. |
 | **Interface em inglês + seletor pt-BR** | Feito e verificado no emulador: painel Settings acima dos stickers; troca nos dois sentidos com o raio do controle; a escolha persiste no reload. Só os textos da interface; comentários e docs seguem em português (decisão em aberto). |
 | **Acesso pelo Quest e celular na Wi-Fi** | Funciona, com certificado próprio para a LAN (`npm run cert:lan`). A sessão XR no Quest abre (o round-trip abaixo rodou nela). |
-| **Publicado em https://aura.sixvectors.app/** | Vercel, projeto `aura-v1-lola` (escopo `derkaufs-projects`); certificado Let's Encrypt válido; página e bundle respondem 200; sem o emulador IWER no build. **Não testado no Quest pelo link público ainda.** Redeploy: `npm run deploy` (faz o deploy de uma cópia sem `.git`: dentro do repositório, a Vercel recusa o deploy porque o autor do commit não corresponde a uma conta Vercel no plano Hobby). |
+| **Publicado em https://aura.sixvectors.app/** | Vercel, projeto `aura-v1-lola` (escopo `derkaufs-projects`); certificado Let's Encrypt válido; página e bundle respondem 200; sem o emulador IWER no build. **Não testado no Quest pelo link público ainda.** Sem ligação com o GitHub (desligada em 17/nov: pushes não publicam). Redeploy: `npm run deploy` (faz o deploy de uma cópia sem `.git`: dentro do repositório, a Vercel recusa o deploy porque o autor do commit não corresponde a uma conta Vercel no plano Hobby). |
+| **Configurações completas: núcleo publicado no aura-dev (17/nov)** | i18n multi-idioma por arquivo (`src/locales/`: en, pt-BR, es, fr, de; fallback inglês), armazenamento local (`aura_settings_v1`), janela em 6 seções. Feito: cliques confiáveis, **verificados no Quest pelo usuário em 17/11** (o cursor mostra o ponto real do raio; sensibilidade do pinch Leve/Média/Firme, padrão Leve = ativa no início do pinch, contornando o limite de 300 ms do clique da biblioteca de ponteiros), snap magnético ajustável, alcance de ativação pelo olhar; dispositivos (estado, testar, renomear por sugestões, recalibrar, remover, limpar tudo), head nod (reservado), HUD (seguir a visão, opacidade, tamanho S/M/L, telemetria), som de confirmação, idioma, altura sentado/em pé, exportar JSON, apagar calibração. **Etapa 2 (pendente):** Deeper Mode (holograma ciano), modo escuro, paleta daltônica, alto contraste, áudio espacial, intensidade do brilho, importar JSON, fechar com pinch fora da janela. |
+| **Ambiente de teste: https://aura-dev.sixvectors.app/** | Projeto Vercel separado (`aura-v1-lola-dev`, vínculo em `.vercel-dev/`), para testar no Quest sem cabo e sem mexer no oficial. Publicar: `npm run deploy:dev`. |
 | **Round-trip da âncora: critério de pronto da v1** | **Passou no Quest e no PC (emulador)**, relatado pelo usuário em 17/11: depois de refresh e de fechar e reabrir o app, os painéis voltaram no mesmo lugar com "Âncora: ativa (restaurada)", e os valores alterados persistiram. |
 
 ## Próximos (em ordem)
 
 1. **Preparar a submissão do Meta VR Start** (prazo: quarta, 18/nov/2026, 12:00 PT; ver `../CONTEXT.md`): link público para os juízes, vídeo demo de menos de 3 min e a página do Devpost. **Decidido em 17/nov:** a comparação com `derkauf/a.u.r.a.` saiu do plano por falta de tempo; o trabalho segue neste repositório, e o oficial fica como fonte de ideias.
 2. **Item não verificado do build inicial:** o `display: none` do painel com raycast. (O clique fora do botão deixou de existir em 17/nov: só o botão com o nome do dispositivo responde.)
-3. **Decidir se comentários e docs também vão para o inglês.**
-4. **Atualizar o README e o guia em PDF** (idioma, Settings, `cert:lan`, e o round-trip como passado); veja a seção 6 do log de 17/11.
+3. **Atalho do A.U.R.A. no quick menu do Quest** (pedido em 17/nov; referência: `docs/ux/quest-reference/29223598017272509.jpg`). Até lá, as configurações abrem pela engrenagem abaixo dos ícones.
+4. **Decidir se comentários e docs também vão para o inglês.**
+5. **Atualizar o README e o guia em PDF** (idioma, Settings, `cert:lan`, e o round-trip como passado); veja a seção 6 do log de 17/11.
 
 ## Esperando
 

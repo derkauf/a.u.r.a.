@@ -1,97 +1,49 @@
 /**
- * A.U.R.A. v1 — Localization.
+ * A.U.R.A. v1 — Localization (locale files + English fallback).
  *
- * English is the default locale; Brazilian Portuguese (pt-BR) is selectable
- * from the Settings panel. The choice persists in localStorage. Systems
- * subscribe to locale changes and re-apply text to their UIKitML elements.
+ * Every file in src/locales/ is one language: `en.json`, `pt-BR.json`,
+ * `es.json`... The file name is the locale code and `_meta.name` is the
+ * language's own name, shown in the language selector. Adding a language
+ * is dropping a new file there; the selector lists whatever files exist.
+ *
+ * English (`en.json`) is the default and the fallback: a key missing from
+ * another locale shows the English text. The message keys are typed from
+ * en.json, so a typo in a key is a type error.
+ *
+ * The choice persists in localStorage. Systems subscribe to locale
+ * changes and re-apply text to their UIKitML elements.
  */
+import en from '../locales/en.json';
 
-export type Locale = 'en' | 'pt-BR';
+export type Locale = string;
+export type MessageKey = Exclude<keyof typeof en, '_meta.name'>;
+type Messages = Partial<Record<string, string>>;
 
-export const LOCALES: readonly Locale[] = ['en', 'pt-BR'];
 export const DEFAULT_LOCALE: Locale = 'en';
 export const LOCALE_STORAGE_KEY = 'aura_locale';
 
-const en = {
-  'common.eyebrow': 'A.U.R.A. — LIVING ROOM',
-  'common.hint': 'Point with your hand and pinch to select.',
+/** All locale files, keyed by code (from the file name). */
+const MESSAGES: Record<Locale, Messages> = Object.fromEntries(
+  Object.entries(import.meta.glob<Messages>('../locales/*.json', { eager: true, import: 'default' })).map(
+    ([file, messages]) => [file.replace(/^.*\/(.+)\.json$/u, '$1'), messages],
+  ),
+);
+const FALLBACK: Messages = en as Messages;
 
-  'device.lamp.title': 'Living room lamp',
-  'device.ac.title': 'Living room AC',
-  'device.lock.title': 'Front door lock',
+/** The language's own name (e.g. "Deutsch"), from its file's `_meta.name`. */
+export function getLocaleName(locale: Locale): string {
+  return MESSAGES[locale]?.['_meta.name'] ?? locale;
+}
 
-  'status.lamp.on': 'On • {value}%',
-  'status.lamp.off': 'Off',
-  'status.ac.on': 'On • {value}°C',
-  'status.ac.off': 'Off',
-  'status.lock.locked': 'Locked',
-  'status.lock.unlocked': 'Unlocked',
-
-  'action.turnOn': 'Turn on',
-  'action.turnOff': 'Turn off',
-  'action.lock': 'Lock',
-  'action.unlock': 'Unlock',
-  'action.viewCamera': 'View camera',
-
-  'anchor.waiting': 'Anchor: waiting for XR session…',
-  'anchor.waitingRestore': 'Anchor: waiting for XR session (restore)',
-  'anchor.active': 'Anchor: active',
-  'anchor.activeRestored': 'Anchor: active (restored)',
-
-  'sticker.sub': 'AprilTag tag36h11 • id {value}',
-
-  'camera.eyebrow': 'DOOR CAMERA — SIMULATED',
-  'camera.text': 'No live feed (v1)',
-  'camera.sub': 'The camera is a placeholder. The live feed comes in a future version.',
-  'camera.close': 'Close camera',
-
-  'settings.title': 'Settings',
-  'settings.language': 'Language',
-} as const;
-
-export type MessageKey = keyof typeof en;
-
-const ptBR: Record<MessageKey, string> = {
-  'common.eyebrow': 'A.U.R.A. — SALA',
-  'common.hint': 'Aponte com a mão e faça pinch para selecionar.',
-
-  'device.lamp.title': 'Lâmpada da sala',
-  'device.ac.title': 'Ar-condicionado da sala',
-  'device.lock.title': 'Fechadura da porta',
-
-  'status.lamp.on': 'Ligada • {value}%',
-  'status.lamp.off': 'Desligada',
-  'status.ac.on': 'Ligado • {value}°C',
-  'status.ac.off': 'Desligado',
-  'status.lock.locked': 'Trancada',
-  'status.lock.unlocked': 'Destrancada',
-
-  'action.turnOn': 'Ligar',
-  'action.turnOff': 'Desligar',
-  'action.lock': 'Trancar',
-  'action.unlock': 'Destrancar',
-  'action.viewCamera': 'Ver câmera',
-
-  'anchor.waiting': 'Âncora: aguardando sessão XR…',
-  'anchor.waitingRestore': 'Âncora: aguardando sessão XR (restaurar)',
-  'anchor.active': 'Âncora: ativa',
-  'anchor.activeRestored': 'Âncora: ativa (restaurada)',
-
-  'sticker.sub': 'AprilTag tag36h11 • id {value}',
-
-  'camera.eyebrow': 'CÂMERA DA PORTA — SIMULADA',
-  'camera.text': 'Sem feed real (v1)',
-  'camera.sub': 'A câmera é um placeholder. O feed real entra numa versão futura.',
-  'camera.close': 'Fechar câmera',
-
-  'settings.title': 'Configurações',
-  'settings.language': 'Idioma',
-};
-
-const MESSAGES: Record<Locale, Record<MessageKey, string>> = { en, 'pt-BR': ptBR };
+/** Available locales: English first, then the others by their own name. */
+export const LOCALES: readonly Locale[] = Object.keys(MESSAGES).sort((a, b) => {
+  if (a === DEFAULT_LOCALE) return -1;
+  if (b === DEFAULT_LOCALE) return 1;
+  return getLocaleName(a).localeCompare(getLocaleName(b));
+});
 
 function isLocale(value: unknown): value is Locale {
-  return value === 'en' || value === 'pt-BR';
+  return typeof value === 'string' && value in MESSAGES;
 }
 
 function readStoredLocale(): Locale {
@@ -112,7 +64,7 @@ export function getLocale(): Locale {
 }
 
 export function setLocale(locale: Locale): void {
-  if (locale === currentLocale) return;
+  if (locale === currentLocale || !isLocale(locale)) return;
   currentLocale = locale;
   try {
     if (typeof localStorage !== 'undefined') localStorage.setItem(LOCALE_STORAGE_KEY, locale);
@@ -122,6 +74,12 @@ export function setLocale(locale: Locale): void {
   listeners.forEach((fn) => fn(locale));
 }
 
+/** Step to the next (+1) or previous (-1) available locale, wrapping around. */
+export function cycleLocale(step: 1 | -1): void {
+  const index = Math.max(0, LOCALES.indexOf(currentLocale));
+  setLocale(LOCALES[(index + step + LOCALES.length) % LOCALES.length]);
+}
+
 export function subscribeLocale(fn: (locale: Locale) => void): () => void {
   listeners.add(fn);
   return () => {
@@ -129,8 +87,8 @@ export function subscribeLocale(fn: (locale: Locale) => void): () => void {
   };
 }
 
-/** Translate a key in the current locale; `{value}` is replaced when given. */
+/** Translate a key in the current locale (English fallback); `{value}` is replaced when given. */
 export function t(key: MessageKey, value?: string | number): string {
-  const template = MESSAGES[currentLocale][key];
+  const template = MESSAGES[currentLocale]?.[key] ?? FALLBACK[key] ?? key;
   return value === undefined ? template : template.replace('{value}', String(value));
 }

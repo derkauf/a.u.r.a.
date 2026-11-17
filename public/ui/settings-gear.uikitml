@@ -1,0 +1,26 @@
+<!--
+  Gear button: a small round button in the style of the Horizon OS quick
+  settings. Pinch opens and closes the Settings window (settings.uikitml).
+  The whole element is the button (id gear-button); the ray over it scales
+  it up (src/ui/hover-scale-system.ts).
+-->
+<style>
+  .gear {
+    width: 48px;
+    height: 48px;
+    background-color: #3d4046;
+    border-radius: 24px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .gear-icon {
+    width: 24px;
+    height: 24px;
+    color: #ffffff;
+  }
+</style>
+<div id="gear-button" class="gear">
+  <Settings class="gear-icon" />
+</div>

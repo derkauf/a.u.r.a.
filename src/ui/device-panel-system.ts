@@ -4,25 +4,29 @@
  * Liga os 3 stickers AprilTag e os 3 painéis de dispositivo (UIKitML) ao
  * DeviceRegistry, guiado pelo schema de controles de cada dispositivo:
  *
- * - sticker → o botão mostra o nome do dispositivo. O primeiro pinch é a
- *   leitura SIMULADA do AprilTag (a câmera leria o tag; em v1 o pinch é o
- *   gatilho) → registra o dispositivo, marca como vinculado e abre o
- *   painel. Os pinches seguintes abrem e fecham o painel;
+ * - ícone do tag (o tag com o nome do dispositivo embaixo) → o primeiro
+ *   pinch é a leitura SIMULADA do AprilTag (a câmera leria o tag; em v1 o
+ *   pinch é o gatilho) → registra o dispositivo, marca como vinculado e
+ *   abre a janela. Os pinches seguintes abrem e fecham a janela;
+ * - janela → o X da barra embaixo da janela também fecha;
  * - painel → botões de toggle (liga/desliga, tranca/destranca) e de
  *   faixa (−/+ para temperatura e brilho), tudo pelo caminho único de
  *   update do registro; a câmera da fechadura abre o painel simulado.
  *
- * Painéis de dispositivos ainda não vinculados começam escondidos
- * (display: none) e só aparecem depois da leitura do tag — ou de
- * imediato, quando o vínculo veio de uma sessão anterior (restaurado).
- * Um painel fechado pelo usuário continua fechado até ele abrir de novo.
+ * Estado inicial minimalista: só os ícones dos tags. Todas as janelas
+ * começam fechadas (display: none), inclusive as de dispositivos cujo
+ * vínculo veio de uma sessão anterior; a janela abre pelo ícone.
+ * Uma janela só abre ou fecha por ação do usuário.
  * O texto dos elementos é atualizado via setProperties({ text }) no
  * elemento-pai: o Text filho do UIKitML lê a propriedade `text` do pai.
  */
 import { createSystem, UIKitMLAsset } from '@iwsdk/core';
 import { deviceRegistry, type DeviceEntry, type DeviceId } from '../devices/device-registry.js';
 import { anchorStatus, anchorStatusText, subscribeAnchorStatus } from '../anchors/anchor-status.js';
-import { subscribeLocale, t } from '../i18n/i18n.js';
+import { subscribeLocale } from '../i18n/i18n.js';
+import { deviceStatusText, deviceToggleLabel } from '../devices/device-text.js';
+import { playConfirm } from './feedback-sound.js';
+import { onActivate } from './activation.js';
 
 const DEVICE_IDS: DeviceId[] = ['lamp-sala-01', 'ac-sala-01', 'lock-porta-01'];
 
@@ -50,6 +54,7 @@ const EL = {
   camButton: 'control-cam',
   anchorLine: 'anchor-status',
   stickerScanButton: 'sticker-scan-button',
+  windowClose: 'window-close',
   cameraClose: 'camera-close',
 } as const;
 
@@ -57,8 +62,8 @@ export class AuraPanelSystem extends createSystem() {
   private panels = new Map<DeviceId, UIKitMLAsset>();
   private stickers = new Map<DeviceId, UIKitMLAsset>();
   private cameraPanel: UIKitMLAsset | null = null;
-  /** Painéis vinculados que o usuário fechou pelo botão do sticker. */
-  private closedByUser = new Set<DeviceId>();
+  /** Janelas de dispositivo abertas agora. */
+  private openPanels = new Set<DeviceId>();
 
   init(): void {
     this.cleanupFuncs.push(deviceRegistry.subscribe(() => this.refreshAll()));
@@ -100,34 +105,36 @@ export class AuraPanelSystem extends createSystem() {
     this.refreshAll();
   }
 
+  /** Wire a control through onActivate (pinch sensitivity) with cleanup. */
+  private activate(asset: UIKitMLAsset, elementId: string, handler: () => void): void {
+    const element = asset.getElementById(elementId);
+    if (!element) return;
+    this.cleanupFuncs.push(onActivate(element, asset.document.rootElement, handler));
+  }
+
   private wireSticker(deviceId: DeviceId, sticker: UIKitMLAsset): void {
-    // Só o botão com o nome do dispositivo responde (um listener no sticker
-    // inteiro também receberia o clique do botão e fecharia o que abriu).
-    sticker.getElementById(EL.stickerScanButton)?.addEventListener('click', () => this.onStickerButton(deviceId));
+    // O ícone inteiro (id sticker-scan-button, a raiz do documento) é o botão.
+    this.activate(sticker, EL.stickerScanButton, () => this.onStickerButton(deviceId));
   }
 
   /**
    * Primeiro pinch: leitura SIMULADA do AprilTag ("a câmera leu o tag") →
-   * registra e abre o painel. Depois disso, o mesmo botão abre e fecha.
+   * registra e abre a janela. Depois disso, o mesmo ícone abre e fecha.
    */
   private onStickerButton(deviceId: DeviceId): void {
+    playConfirm();
     if (!deviceRegistry.isBound(deviceId)) {
-      this.closedByUser.delete(deviceId);
       deviceRegistry.scanAndRegister(deviceId);
       this.showPanel(deviceId);
       return;
     }
-    if (this.closedByUser.has(deviceId)) {
-      this.closedByUser.delete(deviceId);
-      this.showPanel(deviceId);
-    } else {
-      this.closedByUser.add(deviceId);
-      this.hidePanel(deviceId);
-    }
+    if (this.openPanels.has(deviceId)) this.hidePanel(deviceId);
+    else this.showPanel(deviceId);
   }
 
   private wirePanel(deviceId: DeviceId, panel: UIKitMLAsset): void {
-    panel.getElementById(EL.powerButton)?.addEventListener('click', () => {
+    this.activate(panel, EL.powerButton, () => {
+      playConfirm();
       const entry = deviceRegistry.get(deviceId);
       if (!entry) return;
       if (deviceId === 'lock-porta-01') {
@@ -136,22 +143,25 @@ export class AuraPanelSystem extends createSystem() {
         deviceRegistry.setPower(deviceId, !entry.state.power);
       }
     });
-    panel.getElementById(EL.rangeMinus)?.addEventListener('click', () => this.bumpRange(deviceId, -1));
-    panel.getElementById(EL.rangePlus)?.addEventListener('click', () => this.bumpRange(deviceId, 1));
+    this.activate(panel, EL.rangeMinus, () => this.bumpRange(deviceId, -1));
+    this.activate(panel, EL.rangePlus, () => this.bumpRange(deviceId, 1));
     // Fechadura: abre a câmera SIMULADA (painel placeholder, sem feed real).
-    panel.getElementById(EL.camButton)?.addEventListener('click', () => this.setCameraOpen(true));
+    this.activate(panel, EL.camButton, () => this.setCameraOpen(true));
 
-    // Visibilidade inicial: mostra só se o tag já foi lido (restaurado).
-    if (deviceRegistry.isBound(deviceId)) this.showPanel(deviceId);
-    else this.hidePanel(deviceId);
+    // O X na barra embaixo da janela fecha.
+    this.activate(panel, EL.windowClose, () => this.hidePanel(deviceId));
+
+    // Estado inicial: só os ícones; toda janela começa fechada.
+    this.hidePanel(deviceId);
   }
 
   private wireCamera(cam: UIKitMLAsset): void {
-    cam.getElementById(EL.cameraClose)?.addEventListener('click', () => this.setCameraOpen(false));
+    this.activate(cam, EL.cameraClose, () => this.setCameraOpen(false));
     this.setCameraOpen(false);
   }
 
   private bumpRange(deviceId: DeviceId, dir: 1 | -1): void {
+    playConfirm();
     const entry = deviceRegistry.get(deviceId);
     if (!entry) return;
     if (deviceId === 'ac-sala-01') {
@@ -169,11 +179,12 @@ export class AuraPanelSystem extends createSystem() {
     for (const [deviceId, panel] of this.panels) {
       const entry = deviceRegistry.get(deviceId);
       if (!entry) continue;
-      panel.getElementById(EL.status)?.setProperties({ text: this.statusText(entry) });
-      panel.getElementById(EL.powerLabel)?.setProperties({ text: this.toggleLabel(entry) });
+      // A device unbound from Settings (remove / recalibrate) closes its window.
+      if (!deviceRegistry.isBound(deviceId) && this.openPanels.has(deviceId)) this.hidePanel(deviceId);
+      panel.getElementById(EL.status)?.setProperties({ text: deviceStatusText(entry) });
+      panel.getElementById(EL.powerLabel)?.setProperties({ text: deviceToggleLabel(entry) });
       const range = panel.getElementById(EL.rangeValue);
       if (range) range.setProperties({ text: this.rangeText(entry) });
-      if (deviceRegistry.isBound(deviceId) && !this.closedByUser.has(deviceId)) this.showPanel(deviceId);
     }
     this.refreshAnchorLines();
   }
@@ -185,23 +196,6 @@ export class AuraPanelSystem extends createSystem() {
     }
   }
 
-  private statusText(entry: DeviceEntry): string {
-    switch (entry.deviceId) {
-      case 'lamp-sala-01':
-        return entry.state.power ? t('status.lamp.on', entry.state.brightness ?? 80) : t('status.lamp.off');
-      case 'ac-sala-01':
-        return entry.state.power ? t('status.ac.on', entry.state.setpoint_c ?? 22) : t('status.ac.off');
-      case 'lock-porta-01':
-        return entry.state.locked ? t('status.lock.locked') : t('status.lock.unlocked');
-    }
-  }
-
-  private toggleLabel(entry: DeviceEntry): string {
-    if (entry.deviceId === 'lock-porta-01') {
-      return entry.state.locked ? t('action.unlock') : t('action.lock');
-    }
-    return entry.state.power ? t('action.turnOff') : t('action.turnOn');
-  }
 
   private rangeText(entry: DeviceEntry): string {
     if (entry.deviceId === 'ac-sala-01') return `${entry.state.setpoint_c ?? 22}°C`;
@@ -210,10 +204,12 @@ export class AuraPanelSystem extends createSystem() {
   }
 
   private showPanel(deviceId: DeviceId): void {
+    this.openPanels.add(deviceId);
     this.setPanelDisplay(deviceId, 'flex');
   }
 
   private hidePanel(deviceId: DeviceId): void {
+    this.openPanels.delete(deviceId);
     this.setPanelDisplay(deviceId, 'none');
   }
 

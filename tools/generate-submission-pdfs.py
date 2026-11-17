@@ -314,7 +314,22 @@ def build_devpost_draft() -> Path:
         "there every time you come back. A room that remembers."
     )
 
+    pdf.h1("Vision")
+    pdf.p(
+        "A.U.R.A. — Ambient User Responsive Automation — is the invisible layer that surrounds a person "
+        "and activates the space within their reach. Through a VR headset, it adds a digital interaction "
+        "layer to the room: a holographic HUD overlay with persistent anchors that brings each smart "
+        "device back to its place, ready to control and configure. It removes the friction of 2D screens "
+        "and apps, remote controls, physical keys and key fobs, and countertop smart displays."
+    )
+
     pdf.h1("What it does")
+    pdf.p(
+        "This is an MVP, not a full build: it is designed to show the vision end to end. To keep the "
+        "demo simple and focused, AprilTags stand in for the smart devices: each tag simulates the "
+        "device's connection to A.U.R.A., so the whole experience can be shown without wiring up real "
+        "hardware or going deep into device integrations."
+    )
     pdf.bullet("Each smart device in the room is represented by a printed AprilTag (tag36h11). Reading a tag identifies the device and anchors a control at that spot with a persistent spatial anchor; the control shows the device's name.")
     pdf.bullet("Pinching the device name opens its control panel next to it. Every command goes through a device interface designed to reach the real device through its API.")
     pdf.bullet("Hands only: point with your hand and pinch to turn the lamp on and set its brightness, set the AC temperature, or lock and unlock the door, with a simulated door camera.")
@@ -348,12 +363,24 @@ def build_devpost_draft() -> Path:
     pdf.h1("What we learned")
     pdf.bullet("Scoping to one room and one mechanic, and finishing it, beats a wider prototype.")
     pdf.bullet("Persistence has to be proven on the device early; the emulator alone is not enough.")
+    pdf.p(
+        "To adapt the project's core vision, I chose to change the stack and pipeline originally adopted "
+        "to implement the proposed technology — initially the Meta Spatial SDK (Native Android), with "
+        "Unreal Engine as a prototype path. Given the conditions and constraints I was working with, "
+        "WebXR/IWSDK hosted on Vercel was the best option: it kept the project viable within the given "
+        "timeline while preserving the central idea. Phase 1 is live at https://aura.sixvectors.app/"
+    )
 
     pdf.h1("What's next for A.U.R.A.")
     pdf.bullet("Real AprilTag detection with the headset camera.")
     pdf.bullet("Real devices over Matter, using the same device descriptors.")
     pdf.bullet("An assistant behind a provider interface that is already in the code base, with Llama as a target.")
-    pdf.bullet("More rooms, then glasses-class devices.")
+    pdf.bullet("More rooms.")
+    pdf.bullet(
+        "Builds designed for Meta's glasses-class devices, where future versions will use gaze interaction "
+        "plus prediction and pattern recognition to activate anchors by proximity and intent — the room "
+        "responds to where you are and what you look at."
+    )
 
     pdf.h1("Built with")
     pdf.p("iwsdk · webxr · three.js · typescript · vite · uikitml · meta-quest-browser · apriltag")

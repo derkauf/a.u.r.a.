@@ -1,34 +1,34 @@
 <!--
-  Câmera da porta — SIMULADA (placeholder, sem feed real).
-  Abre pelo botão "Ver câmera" do painel da fechadura e fecha pelo botão
-  abaixo. Começa escondida (o AuraPanelSystem controla o display).
-  Nenhuma imagem de câmera é capturada ou exibida no v1.
+  Door camera — SIMULATED (placeholder, no live feed), in the Horizon OS
+  window style. Opened by "View camera" in the lock window, closed by the
+  X in the bar (id camera-close). Starts hidden (AuraPanelSystem controls
+  the display). No camera image is captured or shown in v1.
+  Static texts are translated by AuraLocalizationSystem.
 -->
 <style>
-  .camera-root {
+  .window-root {
     flex-direction: column;
-    width: 460px;
-    padding-top: 24px;
-    padding-bottom: 24px;
-    padding-left: 24px;
-    padding-right: 24px;
-    gap: 14px;
-    background-color: #101418;
-    border-radius: 24px;
+    align-items: center;
+    width: 400px;
+    gap: 10px;
   }
 
-  .camera-eyebrow {
-    color: #f5d90a;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 1.4px;
+  .window {
+    flex-direction: column;
+    align-self: stretch;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    background-color: #26282c;
+    border-radius: 28px;
   }
 
   .camera-view {
     flex-direction: column;
-    height: 220px;
+    height: 200px;
     background-color: #000000;
-    border-radius: 16px;
+    border-radius: 18px;
     justify-content: center;
     align-items: center;
     gap: 10px;
@@ -40,38 +40,61 @@
 
   .camera-text {
     color: #ffffff;
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 700;
     text-align: center;
   }
 
   .camera-sub {
-    color: #8a94a6;
-    font-size: 18px;
+    color: #9aa0aa;
+    font-size: 15px;
     text-align: center;
   }
 
-  .camera-close-button {
-    height: 72px;
-    background-color: #2c3440;
-    border-radius: 16px;
-    justify-content: center;
+  .bar {
+    flex-direction: row;
     align-items: center;
+    gap: 14px;
+    height: 44px;
+    padding-left: 18px;
+    padding-right: 7px;
+    background-color: #26282c;
+    border-radius: 22px;
   }
 
-  .camera-close-label {
+  .bar-title {
     color: #ffffff;
-    font-size: 26px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .bar-close {
+    width: 30px;
+    height: 30px;
+    background-color: #3d4046;
+    border-radius: 15px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .bar-close-label {
+    color: #ffffff;
+    font-size: 18px;
     font-weight: 700;
   }
 </style>
-<Panel class="camera-root">
-  <div id="txt-camera-eyebrow" class="camera-eyebrow">DOOR CAMERA — SIMULATED</div>
-  <div class="camera-view">
-    <div id="txt-camera-text" class="camera-text">No live feed (v1)</div>
-    <div id="txt-camera-sub" class="camera-sub">The camera is a placeholder. The live feed comes in a future version.</div>
+<div class="window-root">
+  <div class="window">
+    <div class="camera-view">
+      <div id="txt-camera-text" class="camera-text">No live feed (v1)</div>
+      <div id="txt-camera-sub" class="camera-sub">The camera is a placeholder. The live feed comes in a future version.</div>
+    </div>
   </div>
-  <Button id="camera-close" class="camera-close-button">
-    <ButtonLabel id="camera-close-label" class="camera-close-label">Close camera</ButtonLabel>
-  </Button>
-</Panel>
+  <div class="bar">
+    <div id="txt-camera-eyebrow" class="bar-title">Door camera — simulated</div>
+    <div id="camera-close" class="bar-close">
+      <div class="bar-close-label">×</div>
+    </div>
+  </div>
+</div>

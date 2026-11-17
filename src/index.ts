@@ -11,6 +11,10 @@ import { AuraAnchorSystem } from './anchors/anchor-service.js';
 import { AuraCursorSystem } from './input/hand-ray-cursor.js';
 import { AuraPanelSystem } from './ui/device-panel-system.js';
 import { AuraLocalizationSystem } from './ui/localization-system.js';
+import { AuraHoverScaleSystem } from './ui/hover-scale-system.js';
+import { AuraHudFollowSystem } from './ui/hud-follow-system.js';
+import { AuraSettingsPanelSystem } from './ui/settings-panel-system.js';
+import { AuraAppearanceSystem } from './ui/appearance-system.js';
 
 World.create(
   document.getElementById('scene-container') as HTMLDivElement,
@@ -19,5 +23,9 @@ World.create(
   world.registerSystem(AuraAnchorSystem);
   world.registerSystem(AuraPanelSystem);
   world.registerSystem(AuraLocalizationSystem);
+  world.registerSystem(AuraHoverScaleSystem);
+  world.registerSystem(AuraHudFollowSystem);
+  world.registerSystem(AuraSettingsPanelSystem);
+  world.registerSystem(AuraAppearanceSystem);
   world.registerSystem(AuraCursorSystem);
 });
