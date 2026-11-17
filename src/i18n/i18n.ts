@@ -39,7 +39,6 @@ const en = {
   'anchor.activeRestored': 'Anchor: active (restored)',
 
   'sticker.sub': 'AprilTag tag36h11 • id {value}',
-  'sticker.scan': 'Scan tag',
 
   'camera.eyebrow': 'DOOR CAMERA — SIMULATED',
   'camera.text': 'No live feed (v1)',
@@ -79,7 +78,6 @@ const ptBR: Record<MessageKey, string> = {
   'anchor.activeRestored': 'Âncora: ativa (restaurada)',
 
   'sticker.sub': 'AprilTag tag36h11 • id {value}',
-  'sticker.scan': 'Ler tag',
 
   'camera.eyebrow': 'CÂMERA DA PORTA — SIMULADA',
   'camera.text': 'Sem feed real (v1)',

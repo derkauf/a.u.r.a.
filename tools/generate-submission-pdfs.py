@@ -160,20 +160,40 @@ def build_video_script() -> Path:
     )
     pdf.bullet("Só as mãos (hands-first) e sentado (o \"airplane seat test\", painéis a ~60 cm).")
     pdf.box(
-        "Honestidade: na v1, a leitura do AprilTag é simulada (o pinch em \"Scan tag\" "
+        "Honestidade: na v1, a leitura do AprilTag é simulada (o primeiro pinch no botão com o nome do dispositivo "
         "representa a câmera lendo o tag). A narração diz isso. Não afirmar detecção "
         "real por câmera nem afiliação com a Meta.",
         fill=WARN_BG,
     )
 
-    pdf.h1("2. Estrutura em tomadas")
+    pdf.h1("2. A visão que o vídeo precisa passar")
+    pdf.p(
+        "O A.U.R.A. é uma ponte entre o Quest e os dispositivos inteligentes da casa (IoT). "
+        "Cada tag impresso na parede é a representação física de um dispositivo: a lâmpada, "
+        "o ar-condicionado, a fechadura. O fluxo do produto:"
+    )
+    pdf.bullet("A câmera do Quest lê o tag e identifica qual dispositivo ele representa.")
+    pdf.bullet("O A.U.R.A. cria uma âncora espacial naquele ponto da sala e mostra um botão com o nome do dispositivo.")
+    pdf.bullet("Tocar no botão abre o painel de controle ao lado.")
+    pdf.bullet(
+        "Cada comando do painel vai para o dispositivo real por API. Hoje, na v1, os "
+        "dispositivos são simulados (sim://lamp-sala-01); o próximo passo é falar com "
+        "dispositivos reais pelo padrão Matter (matter://<node-id>), sem mudar os painéis."
+    )
+    pdf.box(
+        "Na v1 a leitura pela câmera ainda é simulada: o primeiro toque no botão faz o papel "
+        "da câmera lendo o tag. A narração diz isso com clareza.",
+        fill=WARN_BG,
+    )
+
+    pdf.h1("3. Estrutura em tomadas")
     pdf.p(
         "O primeiro uso e o retorno exigem estados diferentes do app, então grave em "
         "tomadas separadas e monte na edição:"
     )
     pdf.bullet(
-        "Tomada A — primeiro uso: dados do site limpos. Ler os 3 tags, controlar os "
-        "dispositivos, trocar o idioma, voltar para English."
+        "Tomada A — primeiro uso: dados do site limpos. Tocar no botão de cada um dos 3 "
+        "dispositivos, controlar, trocar o idioma, voltar para English."
     )
     pdf.bullet(
         "Tomada B — retorno: sair do app e abrir de novo, sem tocar nos stickers. Os "
@@ -181,7 +201,7 @@ def build_video_script() -> Path:
     )
     pdf.p("Na edição, um trecho curto da Tomada B abre o vídeo (cena 1), e a Tomada B completa entra na cena 5.")
 
-    pdf.h1("3. Roteiro cena a cena")
+    pdf.h1("4. Roteiro cena a cena")
     pdf.scene(
         "0:00–0:20", "Abertura: a sala lembra",
         "Passthrough da sala; os 3 painéis já flutuando nos lugares (trecho da Tomada B).",
@@ -190,28 +210,30 @@ def build_video_script() -> Path:
         "and my home controls are exactly where I left them. The room remembers.",
     )
     pdf.scene(
-        "0:20–0:40", "O problema",
-        "Visão geral da sala em passthrough; os stickers na parede.",
-        "Nenhuma ação; deixar a câmera parada, ou um movimento lento.",
+        "0:20–0:45", "A visão: a ponte com a casa",
+        "Visão geral da sala em passthrough; os tags na parede, perto de cada aparelho.",
+        "Nenhuma ação; um movimento lento passando pelos 3 tags.",
         "Smart home controls usually live in phone menus, far from the things they control. "
-        "A.U.R.A. puts each control right where the device is, and keeps it there.",
+        "A.U.R.A. is a bridge between your headset and your smart devices. Each tag on the "
+        "wall stands for a real device, and A.U.R.A. talks to that device through its API.",
     )
     pdf.scene(
-        "0:40–1:15", "Ler o tag (Tomada A)",
-        "Sticker da lâmpada em primeiro plano; a mão entra no quadro.",
-        "Apontar com a mão e fazer pinch em \"Scan tag\" na lâmpada; o painel aparece. "
+        "0:45–1:15", "O tag vira o dispositivo (Tomada A)",
+        "Tag da lâmpada em primeiro plano; a mão entra no quadro.",
+        "Apontar com a mão e fazer pinch no botão \"Living room lamp\"; o painel abre ao lado. "
         "Repetir rápido no ar-condicionado e na fechadura.",
-        "Each device has an AprilTag. In this build, a pinch stands in for the camera "
-        "reading the tag. The tag resolves to the device, and A.U.R.A. anchors its panel "
-        "right there, with a persistent spatial anchor.",
+        "Each tag resolves to its device, and A.U.R.A. anchors a control right there, with a "
+        "persistent spatial anchor. The camera reads the tag; in this build, my first pinch "
+        "stands in for that scan. One more pinch on the device name opens its panel.",
     )
     pdf.scene(
         "1:15–1:50", "Controlar só com as mãos (Tomada A)",
         "Painéis em close, um de cada vez.",
         "Lâmpada: Turn on, depois + no brilho. Ar: Turn on, + na temperatura. "
         "Fechadura: Unlock, depois View camera e Close camera.",
-        "Hands only. Point, pinch, done. Lights, temperature and the door lock, "
-        "all simulated in v1, all driven by one device registry.",
+        "Hands only. Point, pinch, done. Lights, temperature and the door lock. "
+        "In v1 the devices are simulated, behind the same device interface that real "
+        "devices will use.",
     )
     pdf.scene(
         "1:50–2:25", "Sair e voltar: a prova (Tomada B)",
@@ -232,11 +254,11 @@ def build_video_script() -> Path:
         "2:40–2:55", "O que vem depois e encerramento",
         "Sala inteira com os painéis; card final com o nome e o link.",
         "Nenhuma ação; card final por 3–4 s.",
-        "Next: real tag detection with the camera, real devices over Matter, "
-        "and an on-device assistant. A.U.R.A. Your home, remembered.",
+        "Next: the camera reads the tags for real, and A.U.R.A. controls real devices over "
+        "Matter, through the same panels. A.U.R.A. Your home, remembered.",
     )
 
-    pdf.h1("4. Checklist antes de gravar")
+    pdf.h1("5. Checklist antes de gravar")
     pdf.h2("Headset e ambiente")
     pdf.check("Bateria acima de 70%; lentes limpas; sala bem iluminada (o passthrough fica melhor).")
     pdf.check("Controles largados longe do corpo, para o Quest usar o hand tracking.")
@@ -287,25 +309,28 @@ def build_devpost_draft() -> Path:
     pdf.p(
         "Smart home apps put every light, thermostat and lock behind phone menus, far from "
         "the things they control. On a Quest with passthrough, the room itself can be the "
-        "interface. We wanted controls that live next to each device and are still there "
-        "every time you come back: a room that remembers."
+        "interface. We wanted a bridge between the headset and the smart devices in a home: "
+        "controls that live next to each device, talk to it through its API, and are still "
+        "there every time you come back. A room that remembers."
     )
 
     pdf.h1("What it does")
-    pdf.bullet("Each device in the room has an AprilTag (tag36h11). Scanning a tag binds the device and anchors its control panel at that spot with a persistent spatial anchor.")
+    pdf.bullet("Each smart device in the room is represented by a printed AprilTag (tag36h11). Reading a tag identifies the device and anchors a control at that spot with a persistent spatial anchor; the control shows the device's name.")
+    pdf.bullet("Pinching the device name opens its control panel next to it. Every command goes through a device interface designed to reach the real device through its API.")
     pdf.bullet("Hands only: point with your hand and pinch to turn the lamp on and set its brightness, set the AC temperature, or lock and unlock the door, with a simulated door camera.")
     pdf.bullet("Leave and come back: the panels reappear in the same place, marked \"Anchor: active (restored)\", and every value persists.")
     pdf.bullet("The interface switches between English and Brazilian Portuguese from a Settings panel and remembers the choice.")
     pdf.p(
-        "Scope of v1: one room and three simulated devices. Tag reading is simulated in this "
-        "build (a pinch stands in for the camera reading the tag); the anchor, panels and "
-        "persistence are real.",
+        "Scope of v1: one room and three simulated devices (sim://...). Tag reading is "
+        "simulated in this build (the first pinch stands in for the camera reading the tag); "
+        "the anchor, panels and persistence are real.",
         size=10,
     )
 
     pdf.h1("How we built it")
     pdf.bullet("Immersive Web SDK (IWSDK) 1.1.0 on WebXR, running in the Quest Browser: judges open a link, nothing to install.")
     pdf.bullet("An entity-component-system architecture: a device registry is the single source of truth, and systems bind it to UIKitML panels.")
+    pdf.bullet("Each tag resolves to a device descriptor with a control schema and a control target. In v1 the target is simulated (sim://lamp-sala-01); a real device becomes matter://<node-id> without changing the panels.")
     pdf.bullet("Persistent anchors through the WebXR anchors feature: the anchor handle is stored and restored on the next session, and every panel is attached to it.")
     pdf.bullet("UIKitML panels in the Horizon UI kit, a hand-ray cursor, and a localization layer (English and pt-BR).")
     pdf.bullet("Built with an AI-assisted workflow (Claude Code) and tested first in the IWSDK emulator (Quest 3 profile), then on a Meta Quest 3S.")
@@ -337,7 +362,7 @@ def build_devpost_draft() -> Path:
     pdf.bullet(f"Link: {APP_URL}")
     pdf.bullet("On a Meta Quest, open the link in the Quest Browser and tap Enter XR. Allow the permissions it asks for.")
     pdf.bullet("Put the controllers down to use hand tracking. Sit; the scene is about 60 cm in front of you.")
-    pdf.bullet("Point and pinch \"Scan tag\" on each sticker. A control panel appears for each device.")
+    pdf.bullet("Point and pinch the device name on each tag card (\"Living room lamp\", \"Living room AC\", \"Front door lock\"). The control panel opens next to it; pinch the name again to close it.")
     pdf.bullet("Change some values, exit, and open the link again. The panels return in place, marked \"Anchor: active (restored)\", with the same values.")
     pdf.bullet("Optional: switch the language in the Settings panel.")
 

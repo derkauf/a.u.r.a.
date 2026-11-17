@@ -36,19 +36,16 @@ const STATIC_TEXT: Record<string, readonly TextBinding[]> = {
     ['control-cam-label', 'action.viewCamera'],
   ],
   'sticker-lamp': [
-    ['txt-sticker-label', 'device.lamp.title'],
     ['txt-sticker-sub', 'sticker.sub', APRILTAG_IDS['lamp-sala-01']],
-    ['sticker-scan-label', 'sticker.scan'],
+    ['sticker-scan-label', 'device.lamp.title'],
   ],
   'sticker-ac': [
-    ['txt-sticker-label', 'device.ac.title'],
     ['txt-sticker-sub', 'sticker.sub', APRILTAG_IDS['ac-sala-01']],
-    ['sticker-scan-label', 'sticker.scan'],
+    ['sticker-scan-label', 'device.ac.title'],
   ],
   'sticker-lock': [
-    ['txt-sticker-label', 'device.lock.title'],
     ['txt-sticker-sub', 'sticker.sub', APRILTAG_IDS['lock-porta-01']],
-    ['sticker-scan-label', 'sticker.scan'],
+    ['sticker-scan-label', 'device.lock.title'],
   ],
   'camera-placeholder': [
     ['txt-camera-eyebrow', 'camera.eyebrow'],

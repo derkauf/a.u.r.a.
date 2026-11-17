@@ -15,7 +15,7 @@ Este arquivo lista só **ações**. O **estado** (o que está pronto, travado ou
 | # | Arquivo / ação | Antes | O que faz |
 |---|---|---|---|
 | 1 | Comparar com `derkauf/a.u.r.a.` | Acesso ao repo oficial (`gh repo view derkauf/a.u.r.a.`) | Lista as diferenças entre as duas implementações da v1 (o próximo marco) |
-| 2 | Os itens não verificados (PROGRESS › Próximos 2) | `npm run dev`; sessão XR no emulador | `display: none` com raycast; clique no sticker fora do "Scan tag" |
+| 2 | Os itens não verificados (PROGRESS › Próximos 2) | `npm run dev`; sessão XR no emulador | `display: none` com raycast |
 | 3 | Perguntar se comentários e docs vão para o inglês | — | Fecha a decisão em aberto sobre o escopo da tradução |
 | 4 | `README.md` e `tools/generate-guia-pdf.py` | A decisão da ação 3 | Atualiza o idioma, o painel Settings, o `cert:lan`, o `https://` e o round-trip como passado (veja a seção 6 das Partes 2 e 3 do log de 17/11) |
 | 5 | Skill `iwsdk-native-xr-test` com `adb reverse` (opcional) | Cabo USB-C de dados; "Permitir depuração USB" no headset. O `adb` está em `%LOCALAPPDATA%\Android\Sdk\platform-tools\` | Controle do Quest pelo CLI (recarregar, poses, estado do ECS) |

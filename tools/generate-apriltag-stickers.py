@@ -92,13 +92,6 @@ STYLES = """<style>
     background-color: #ffffff;
   }
 
-  .sticker-label {
-    color: #1c1d20;
-    font-size: 22px;
-    font-weight: 700;
-    text-align: center;
-  }
-
   .sticker-sub {
     color: #5a6472;
     font-size: 16px;
@@ -106,7 +99,11 @@ STYLES = """<style>
   }
 
   .scan-button {
-    height: 56px;
+    min-height: 56px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
     background-color: #2a9d8f;
     border-radius: 12px;
     justify-content: center;
@@ -116,8 +113,9 @@ STYLES = """<style>
 
   .scan-label {
     color: #ffffff;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
+    text-align: center;
   }
 </style>
 """
@@ -137,17 +135,17 @@ def render_sticker(slug: str, device_id: str, tag_id: int, label: str, label_en:
   Sticker AprilTag — {label} ({device_id}).
   Representação SIMPLIFICADA no estilo tag36h11 (id {tag_id}): a grade
   6x6 é ilustrativa e NÃO é um codeword válido — este sticker na tela
-  não é escaneável de verdade. A leitura é simulada pelo botão abaixo
-  (pinch = "a câmera leu o tag"). Gerado por
+  não é escaneável de verdade. O botão mostra o nome do dispositivo: o
+  primeiro pinch simula a leitura ("a câmera leu o tag") e abre o painel;
+  os seguintes abrem e fecham o painel. Gerado por
   tools/generate-apriltag-stickers.py. Os tags imprimíveis de verdade
   estão em docs/apriltag-markers.md.
 -->
 {STYLES}<Panel class="sticker-root">
 {grid_markup}
-  <div id="txt-sticker-label" class="sticker-label">{label_en}</div>
   <div id="txt-sticker-sub" class="sticker-sub">AprilTag tag36h11 • id {tag_id}</div>
   <Button id="sticker-scan-button" class="scan-button">
-    <ButtonLabel id="sticker-scan-label" class="scan-label">Scan tag</ButtonLabel>
+    <ButtonLabel id="sticker-scan-label" class="scan-label">{label_en}</ButtonLabel>
   </Button>
 </Panel>
 """

@@ -4,9 +4,10 @@
  * Liga os 3 stickers AprilTag e os 3 painéis de dispositivo (UIKitML) ao
  * DeviceRegistry, guiado pelo schema de controles de cada dispositivo:
  *
- * - sticker → pinch no botão "Ler tag" = leitura SIMULADA do AprilTag
- *   (a câmera leria o tag; em v1 o pinch é o gatilho) → registra o
- *   dispositivo, marca como vinculado e mostra o painel;
+ * - sticker → o botão mostra o nome do dispositivo. O primeiro pinch é a
+ *   leitura SIMULADA do AprilTag (a câmera leria o tag; em v1 o pinch é o
+ *   gatilho) → registra o dispositivo, marca como vinculado e abre o
+ *   painel. Os pinches seguintes abrem e fecham o painel;
  * - painel → botões de toggle (liga/desliga, tranca/destranca) e de
  *   faixa (−/+ para temperatura e brilho), tudo pelo caminho único de
  *   update do registro; a câmera da fechadura abre o painel simulado.
@@ -14,6 +15,7 @@
  * Painéis de dispositivos ainda não vinculados começam escondidos
  * (display: none) e só aparecem depois da leitura do tag — ou de
  * imediato, quando o vínculo veio de uma sessão anterior (restaurado).
+ * Um painel fechado pelo usuário continua fechado até ele abrir de novo.
  * O texto dos elementos é atualizado via setProperties({ text }) no
  * elemento-pai: o Text filho do UIKitML lê a propriedade `text` do pai.
  */
@@ -55,6 +57,8 @@ export class AuraPanelSystem extends createSystem() {
   private panels = new Map<DeviceId, UIKitMLAsset>();
   private stickers = new Map<DeviceId, UIKitMLAsset>();
   private cameraPanel: UIKitMLAsset | null = null;
+  /** Painéis vinculados que o usuário fechou pelo botão do sticker. */
+  private closedByUser = new Set<DeviceId>();
 
   init(): void {
     this.cleanupFuncs.push(deviceRegistry.subscribe(() => this.refreshAll()));
@@ -97,14 +101,29 @@ export class AuraPanelSystem extends createSystem() {
   }
 
   private wireSticker(deviceId: DeviceId, sticker: UIKitMLAsset): void {
-    // Leitura SIMULADA do AprilTag: o pinch no sticker representa
-    // "a câmera leu o tag". Idempotente — re-ler não duplica nada.
-    const scan = (): void => {
+    // Só o botão com o nome do dispositivo responde (um listener no sticker
+    // inteiro também receberia o clique do botão e fecharia o que abriu).
+    sticker.getElementById(EL.stickerScanButton)?.addEventListener('click', () => this.onStickerButton(deviceId));
+  }
+
+  /**
+   * Primeiro pinch: leitura SIMULADA do AprilTag ("a câmera leu o tag") →
+   * registra e abre o painel. Depois disso, o mesmo botão abre e fecha.
+   */
+  private onStickerButton(deviceId: DeviceId): void {
+    if (!deviceRegistry.isBound(deviceId)) {
+      this.closedByUser.delete(deviceId);
       deviceRegistry.scanAndRegister(deviceId);
       this.showPanel(deviceId);
-    };
-    sticker.getElementById(EL.stickerScanButton)?.addEventListener('click', scan);
-    sticker.addEventListener('click', scan);
+      return;
+    }
+    if (this.closedByUser.has(deviceId)) {
+      this.closedByUser.delete(deviceId);
+      this.showPanel(deviceId);
+    } else {
+      this.closedByUser.add(deviceId);
+      this.hidePanel(deviceId);
+    }
   }
 
   private wirePanel(deviceId: DeviceId, panel: UIKitMLAsset): void {
@@ -154,7 +173,7 @@ export class AuraPanelSystem extends createSystem() {
       panel.getElementById(EL.powerLabel)?.setProperties({ text: this.toggleLabel(entry) });
       const range = panel.getElementById(EL.rangeValue);
       if (range) range.setProperties({ text: this.rangeText(entry) });
-      if (deviceRegistry.isBound(deviceId)) this.showPanel(deviceId);
+      if (deviceRegistry.isBound(deviceId) && !this.closedByUser.has(deviceId)) this.showPanel(deviceId);
     }
     this.refreshAnchorLines();
   }
