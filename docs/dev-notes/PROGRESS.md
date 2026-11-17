@@ -16,26 +16,23 @@ Uma segunda implementação da v1 do A.U.R.A. (Ambient User Responsive Automatio
 | **Primeira execução nesta máquina (16–17/11)** | Feito e verificado no emulador. Os 7 arquivos de UI vieram do Drive como `*.uikitml.html` e foram renomeados. Typecheck, 12 de 12 testes e build passam em 17/11. |
 | **Fonte com acentos** | Feito e verificado no emulador: Inter com charset latino gerada em código ([`src/ui/aura-font.ts`](../../src/ui/aura-font.ts)); 0 avisos `Missing glyph`. |
 | **Interface em inglês + seletor pt-BR** | Feito e verificado no emulador: painel Settings acima dos stickers; troca nos dois sentidos com o raio do controle; a escolha persiste no reload. Só os textos da interface; comentários e docs seguem em português (decisão em aberto). |
-| **Acesso pelo Quest e celular na Wi-Fi** | A página abre (confirmado pelo usuário), com certificado próprio para a LAN (`npm run cert:lan`). **Não verificado:** passthrough depois de **Enter XR**; o usuário relatou cena estática. |
-| **Round-trip da âncora** | Não verificado: a sessão XR no emulador e no Quest ainda não rodou para esse teste. |
+| **Acesso pelo Quest e celular na Wi-Fi** | Funciona, com certificado próprio para a LAN (`npm run cert:lan`). A sessão XR no Quest abre (o round-trip abaixo rodou nela). |
+| **Round-trip da âncora: critério de pronto da v1** | **Passou no Quest e no PC (emulador)**, relatado pelo usuário em 17/11: depois de refresh e de fechar e reabrir o app, os painéis voltaram no mesmo lugar com "Âncora: ativa (restaurada)", e os valores alterados persistiram. |
 
 ## Próximos (em ordem)
 
-1. **Passthrough no Quest:** abrir `https://192.168.1.218:8081/`, tocar em **Enter XR** e confirmar a sessão AR.
-2. **Rodar o round-trip da âncora** no emulador (IWER, perfil Quest 3), seguindo `tests/anchor-roundtrip.md`.
-3. **Itens não verificados do build inicial:**
+1. **Comparar com `derkauf/a.u.r.a.`** e anotar as diferenças (o próximo marco, agora que a v1 passou).
+2. **Itens não verificados do build inicial:**
    - o `display: none` do painel com raycast;
    - o clique no sticker fora do botão "Scan tag".
-4. **O mesmo teste no Meta Quest 3S.**
-5. **Decidir se comentários e docs também vão para o inglês.**
-6. **Atualizar o README e o guia em PDF** (idioma, Settings, `cert:lan`); veja a seção 6 do log de 17/11.
-7. **Comparar com `derkauf/a.u.r.a.`** e anotar as diferenças.
+3. **Decidir se comentários e docs também vão para o inglês.**
+4. **Atualizar o README e o guia em PDF** (idioma, Settings, `cert:lan`, e o round-trip como passado); veja a seção 6 do log de 17/11.
 
 ## Esperando
 
 | Item | Esperando |
 |---|---|
-| Teste no Quest pelo cabo (`adb reverse`, skill `iwsdk-native-xr-test`) | Cabo USB-C de dados novo (o atual está quebrado) |
+| Controle do Quest pelo CLI (`adb reverse`, skill `iwsdk-native-xr-test`); opcional, o teste manual pela Wi-Fi já funciona | Cabo USB-C de dados novo (o atual está quebrado) |
 
 ## Mudanças recentes
 
@@ -43,6 +40,7 @@ Da mais nova para a mais antiga, no máximo umas 10 linhas. As mais antigas vão
 
 | Data | Mudança | Detalhes |
 |---|---|---|
+| 2026-11-17 | **Round-trip da âncora passou no Quest e no PC: critério de pronto da v1 cumprido.** Repo criado em `derkauf/aura-v1-lola` (privado) | [chat-logs/2026-11-17-instalacao-dev-notes.md](chat-logs/2026-11-17-instalacao-dev-notes.md) (Parte 3) |
 | 2026-11-17 | **Primeira execução, fonte com acentos, inglês + pt-BR, certificado LAN.** UI renomeada de `*.uikitml.html`; Inter via `TTFLoader`; painel Settings; `npm run cert:lan` | [chat-logs/2026-11-17-instalacao-dev-notes.md](chat-logs/2026-11-17-instalacao-dev-notes.md) (Parte 2) |
 | 2026-11-17 | **Metodologia de sessão instalada.** `docs/dev-notes/` (PROGRESS, RESUME, chat-logs, changelog, template), e as regras de sessão no `CLAUDE.md` | [chat-logs/2026-11-17-instalacao-dev-notes.md](chat-logs/2026-11-17-instalacao-dev-notes.md) |
 | 2026-11-14 | **Build inicial da v1 paralela:** scaffold IWSDK 1.1.0, 3 dispositivos, 3 sistemas, 12 testes unitários | [`memory.md`](../../memory.md) |

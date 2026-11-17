@@ -6,20 +6,19 @@ Este arquivo lista só **ações**. O **estado** (o que está pronto, travado ou
 
 ## 0. Primeira checagem
 
-- **Esperando:** veja PROGRESS › Esperando. Pergunte ao usuário se o item listado lá já chegou; se sim, a ação 2 abaixo fica liberada.
-- **Passthrough:** pergunte ao usuário se ele tocou em **Enter XR** no Quest e o que aconteceu (veja PROGRESS › Agora, linha do acesso pelo Quest).
+- **Git:** rode `git status`. As dev notes atualizadas em 17/11 (Parte 3 do log) podem ainda não ter sido commitadas; pergunte ao usuário antes de commitar.
+- **Esperando:** veja PROGRESS › Esperando e pergunte ao usuário se o item listado lá já chegou.
 - **IP do PC:** rode `ipconfig` (ou `npx @iwsdk/cli dev status` e veja `runtimeUrls.network`). Se o IP mudou de `192.168.1.218`, rode `npm run cert:lan` antes de qualquer teste na Wi-Fi.
 
 ## 1. Ações pendentes, em ordem
 
 | # | Arquivo / ação | Antes | O que faz |
 |---|---|---|---|
-| 1 | No Quest: `https://<ip-do-pc>:8081/` → **Advanced → Proceed** → **Enter XR** | `npm run dev`; `npm run cert:lan` se o IP mudou | Confirma a sessão AR com passthrough no headset |
-| 2 | Skill `iwsdk-native-xr-test` com `adb reverse` | Cabo USB-C de dados; modo desenvolvedor; "Permitir depuração USB" no headset. O `adb` está em `%LOCALAPPDATA%\Android\Sdk\platform-tools\` | Controle do Quest pelo CLI (recarregar, poses, estado do ECS) |
-| 3 | `npm run dev`, e depois `tests/anchor-roundtrip.md` | Perfil Quest 3 no IWER (já configurado) | O round-trip da âncora no emulador |
-| 4 | Os itens não verificados (PROGRESS › Próximos 3) | Sessão XR aberta | `display: none` com raycast; clique fora do "Scan tag" |
-| 5 | Perguntar se comentários e docs vão para o inglês | — | Fecha a decisão em aberto sobre o escopo da tradução |
-| 6 | `README.md` e `tools/generate-guia-pdf.py` | A decisão da ação 5 | Atualiza o idioma, o painel Settings, o `cert:lan` e o `https://` (veja a seção 6 do log de 17/11, Parte 2) |
+| 1 | Comparar com `derkauf/a.u.r.a.` | Acesso ao repo oficial (`gh repo view derkauf/a.u.r.a.`) | Lista as diferenças entre as duas implementações da v1 (o próximo marco) |
+| 2 | Os itens não verificados (PROGRESS › Próximos 2) | `npm run dev`; sessão XR no emulador | `display: none` com raycast; clique no sticker fora do "Scan tag" |
+| 3 | Perguntar se comentários e docs vão para o inglês | — | Fecha a decisão em aberto sobre o escopo da tradução |
+| 4 | `README.md` e `tools/generate-guia-pdf.py` | A decisão da ação 3 | Atualiza o idioma, o painel Settings, o `cert:lan`, o `https://` e o round-trip como passado (veja a seção 6 das Partes 2 e 3 do log de 17/11) |
+| 5 | Skill `iwsdk-native-xr-test` com `adb reverse` (opcional) | Cabo USB-C de dados; "Permitir depuração USB" no headset. O `adb` está em `%LOCALAPPDATA%\Android\Sdk\platform-tools\` | Controle do Quest pelo CLI (recarregar, poses, estado do ECS) |
 
 ## 2. Como verificar
 
@@ -31,15 +30,13 @@ Este arquivo lista só **ações**. O **estado** (o que está pronto, travado ou
 
 ## 3. O que testar
 
-- **Sessão 1:** leia os 3 tags ("Scan tag" em cada sticker). Os 3 painéis aparecem, cada um com "Anchor: active".
-- **Sessão 2:** entre de novo sem tocar nos stickers. Os painéis estão no mesmo lugar, com "Anchor: active (restored)".
-- **Valores:** a temperatura e o brilho persistem entre as sessões.
+- **Regressão do round-trip** (se mexer em âncora, painéis ou registro): leia os 3 tags, altere valores, feche e reabra. Os painéis voltam no mesmo lugar com "Anchor: active (restored)" e os valores persistem.
 - **Idioma:** troque para Português (BR) e recarregue; tudo continua em português.
 - **Log:** os eventos da âncora ficam em `localStorage`, na chave `aura_anchor_test_log`.
 
 ## 4. Próximo marco
 
-- Depois do round-trip passar no emulador e no Quest, comparar com `derkauf/a.u.r.a.`.
+- A comparação com `derkauf/a.u.r.a.` (ação 1).
 
 ## 5. Esperando outros
 
@@ -54,7 +51,8 @@ Este arquivo lista só **ações**. O **estado** (o que está pronto, travado ou
 ## Arquivos de referência
 
 - Estado: [PROGRESS.md](PROGRESS.md)
-- Última sessão: [chat-logs/2026-11-17-instalacao-dev-notes.md](chat-logs/2026-11-17-instalacao-dev-notes.md) (Parte 2)
+- Última sessão: [chat-logs/2026-11-17-instalacao-dev-notes.md](chat-logs/2026-11-17-instalacao-dev-notes.md) (Partes 2 e 3)
+- Repositório: https://github.com/derkauf/aura-v1-lola (privado)
 - Textos da interface: [`src/i18n/i18n.ts`](../../src/i18n/i18n.ts)
 - Fonte dos painéis: [`src/ui/aura-font.ts`](../../src/ui/aura-font.ts)
 - Certificado da LAN: [`tools/generate-lan-cert.mjs`](../../tools/generate-lan-cert.mjs)

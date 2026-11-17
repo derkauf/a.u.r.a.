@@ -193,3 +193,70 @@ Fora do repositório (git-ignorado): `.iwsdk/https-lan/key.pem` e `cert.pem`.
   - A seção de acesso pelo Quest (linhas ~74–76) diz para aceitar o aviso de certificado, sem `npm run cert:lan` e sem avisar que é preciso digitar `https://`.
   - A pendência "glifos `°C`, `ã`, `ç`" (linha ~165) está resolvida.
 - **`a.u.r.a.-by-lola-guia-inicial.pdf`** (gerado por `tools/generate-guia-pdf.py`): os mesmos pontos ("Ler tag", certificado, a pendência dos glifos na linha 221 do gerador).
+
+---
+---
+
+# Parte 3: Repositório no GitHub e round-trip da âncora
+
+**Data:** 2026-11-17
+**Branch / versão:** `main`, commit inicial `dd91fcc`
+**Objetivo:** publicar o projeto num repositório próprio e registrar o primeiro teste do guia.
+
+---
+
+## 1. Perguntas e contexto
+
+- **P1:** Criar um repositório no GitHub do usuário com o nome `aura-v1-lola`.
+  - **Contexto:** a pasta não era um repositório git (veio de um export do Google Drive).
+- **P2:** O usuário seguiu o item 4 do `a.u.r.a.-by-lola-guia-inicial.pdf` (round-trip da âncora, `tests/anchor-roundtrip.md`) e relatou o resultado.
+
+---
+
+## 2. Decisões
+
+| Decisão | Alternativas consideradas | Por quê |
+| :--- | :--- | :--- |
+| **Repositório privado** (`derkauf/aura-v1-lola`) | Público | O usuário não especificou; privado é reversível e não expõe nada. |
+| **Um commit inicial com tudo**, menos o que o `.gitignore` exclui | Vários commits por tema | Não havia histórico para preservar. |
+
+### Notas de implementação
+
+- **Verificado:** antes do commit, os 145 arquivos foram revisados: sem `.pem`, `.env`, `node_modules`, `dist` ou `.iwsdk/`; uma busca por padrões de token e senha não achou nada. O repositório foi confirmado como `PRIVATE`, com `main` acompanhando `origin/main`.
+- **Relatado pelo usuário (não observado pelo agente):** o round-trip da âncora **passou no Quest (Wi-Fi, sessão XR real) e no PC (emulador)**. Depois de refresh e de fechar e reabrir o app, os painéis voltaram **no mesmo lugar**, com "Âncora: ativa (restaurada)", e os valores alterados persistiram. É o critério de pronto da v1 definido no PROGRESS.
+- **Consequência:** a pendência da Parte 2 sobre o passthrough no Quest fica resolvida na prática: o teste rodou numa sessão XR do headset.
+
+---
+
+## 3. Arquivos adicionados, alterados ou removidos
+
+```text
+[A] .git/                                   (repositório inicializado; remoto origin)
+[M] docs/dev-notes/PROGRESS.md
+[M] docs/dev-notes/RESUME.md
+[M] docs/dev-notes/chat-logs/2026-11-17-instalacao-dev-notes.md
+```
+
+**Commits:** `dd91fcc` Initial commit: A.U.R.A. v1 (parallel build by Lola). As atualizações das dev notes desta parte ainda não foram commitadas.
+
+---
+
+## 4. Relatos e tickets externos
+
+| Id | Assunto | Estado |
+|---|---|---|
+| — | — | — |
+
+---
+
+## 5. Próximos passos
+
+1. Comparar com `derkauf/a.u.r.a.` e anotar as diferenças.
+2. Os dois itens não verificados do build inicial (PROGRESS › Próximos).
+3. Decidir o escopo da tradução e atualizar o README e o guia em PDF.
+
+---
+
+## 6. Documentos derivados (só relato)
+
+- **`README.md` e o guia em PDF:** além dos pontos da Parte 2, a seção "7. O que eu não consegui baixar ou verificar" do guia (linha ~219 do gerador) diz que o round-trip não rodou. Agora ele passou no Quest e no PC.
