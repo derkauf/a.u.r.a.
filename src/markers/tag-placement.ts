@@ -152,6 +152,11 @@ export function clearPlacement(deviceId: DeviceId): void {
   placements.delete(deviceId);
 }
 
+/** Every virtual tag back to the HUD row (Settings › Devices › Return tags to HUD). */
+export function clearAllPlacements(): void {
+  placements.clear();
+}
+
 /** Scene node of each device window (public/scenes/main.iwsdk.scene.json). */
 export const PANEL_NODE_BY_DEVICE: Record<DeviceId, string> = {
   'lamp-sala-01': 'panel-lamp',

@@ -98,5 +98,9 @@
   "phase.here": "Sie sind hier",
   "phase.next": "Als Nächstes",
   "phase.planned": "Geplant",
-  "phase.released": "Eingefroren am {value}"
+  "phase.released": "Eingefroren am {value}",
+  "dev.tagsHome": "Tags zurück ins HUD",
+  "dev.restart": "App neu starten",
+  "dev.restartConfirm": "Erneut tippen zum Neustart",
+  "dev.feedback.tagsHome": "Die virtuellen Tags sind wieder im HUD."
 }

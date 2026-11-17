@@ -98,5 +98,9 @@
   "phase.here": "Vous êtes ici",
   "phase.next": "Suivante",
   "phase.planned": "Prévue",
-  "phase.released": "Figée le {value}"
+  "phase.released": "Figée le {value}",
+  "dev.tagsHome": "Tags vers le HUD",
+  "dev.restart": "Redémarrer l’app",
+  "dev.restartConfirm": "Touchez encore pour redémarrer",
+  "dev.feedback.tagsHome": "Les tags virtuels sont revenus dans le HUD."
 }

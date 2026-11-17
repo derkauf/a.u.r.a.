@@ -7,7 +7,9 @@
  *
  * - Devices & Anchors: name, AprilTag id and state of each device; Test
  *   (toggles the device and back), Rename (cycles suggestions), Recalibrate
- *   and Remove (unbind: the tag must be scanned again), Clear all anchors.
+ *   and Remove (unbind: the tag must be scanned again), Clear all anchors,
+ *   Return tags to HUD (virtual tags leave the paper tags) and Restart app
+ *   (two taps: back to the first-run state without leaving XR).
  * - Interaction: pinch sensitivity (Light / Medium / Firm, see
  *   ui/activation.ts), magnetic snap strength, activation range, head nod
  *   (reserved, always off).
@@ -22,6 +24,8 @@
  * Destructive actions ask for a second tap. Every visible string comes from
  * the i18n system; every setting persists on the device.
  */
+import { clearAllPlacements } from '../markers/tag-placement.js';
+import { emitAppReset } from '../app-reset.js';
 import { createSystem, UIKitMLAsset } from '@iwsdk/core';
 import { cycleLocale, getLocale, getLocaleName, subscribeLocale, t, type MessageKey } from '../i18n/i18n.js';
 import { deviceRegistry, type DeviceId } from '../devices/device-registry.js';
@@ -112,7 +116,7 @@ export class AuraSettingsPanelSystem extends createSystem() {
   private open = false;
   private section: SectionId = 'devices';
   /** Destructive action waiting for its second tap, and when it expires. */
-  private pendingConfirm: { action: 'clear' | 'erase'; until: number } | null = null;
+  private pendingConfirm: { action: 'clear' | 'erase' | 'restart'; until: number } | null = null;
   private deviceFeedback = '';
   private privacyFeedback = '';
 
@@ -190,6 +194,15 @@ export class AuraSettingsPanelSystem extends createSystem() {
         this.render();
       });
     }
+    this.on(panel, 'dev-tags-home', () => {
+      clearAllPlacements();
+      this.deviceFeedback = t('dev.feedback.tagsHome');
+      this.render();
+    });
+    this.on(panel, 'dev-restart', () => {
+      if (!this.confirm('restart')) return;
+      this.restartApp();
+    });
     this.on(panel, 'dev-clear', () => {
       if (!this.confirm('clear')) return;
       this.clearCalibration();
@@ -257,7 +270,7 @@ export class AuraSettingsPanelSystem extends createSystem() {
   }
 
   /** First tap arms the action; a second tap within the window confirms it. */
-  private confirm(action: 'clear' | 'erase'): boolean {
+  private confirm(action: 'clear' | 'erase' | 'restart'): boolean {
     if (this.pendingConfirm?.action === action && performance.now() <= this.pendingConfirm.until) {
       this.pendingConfirm = null;
       return true;
@@ -265,6 +278,19 @@ export class AuraSettingsPanelSystem extends createSystem() {
     this.pendingConfirm = { action, until: performance.now() + CONFIRM_WINDOW_MS };
     this.render();
     return false;
+  }
+
+  /**
+   * Restart app: back to the first-run state without leaving XR. Devices
+   * unbound and reset, virtual tags back to the HUD row, every window and
+   * the scanner closed, Settings closed. Preferences are kept.
+   */
+  private restartApp(): void {
+    deviceRegistry.resetAll();
+    clearAllPlacements();
+    emitAppReset();
+    this.deviceFeedback = '';
+    this.setOpen(false);
   }
 
   /** Unbind every device and drop the stored room anchor (a new one is made next session). */
@@ -364,6 +390,9 @@ export class AuraSettingsPanelSystem extends createSystem() {
     }
     const clearArmed = this.pendingConfirm?.action === 'clear';
     this.text('dev-clear-label', t(clearArmed ? 'dev.clearAllConfirm' : 'dev.clearAll'));
+    this.text('dev-tags-home-label', t('dev.tagsHome'));
+    const restartArmed = this.pendingConfirm?.action === 'restart';
+    this.text('dev-restart-label', t(restartArmed ? 'dev.restartConfirm' : 'dev.restart'));
     this.text('dev-feedback', this.deviceFeedback || ' ');
 
     // Interaction

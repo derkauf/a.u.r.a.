@@ -98,5 +98,9 @@
   "phase.here": "Estás aquí",
   "phase.next": "Siguiente",
   "phase.planned": "Planificada",
-  "phase.released": "Congelada el {value}"
+  "phase.released": "Congelada el {value}",
+  "dev.tagsHome": "Tags de vuelta al HUD",
+  "dev.restart": "Reiniciar app",
+  "dev.restartConfirm": "Toca otra vez para reiniciar",
+  "dev.feedback.tagsHome": "Los tags virtuales volvieron al HUD."
 }

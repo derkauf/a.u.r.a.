@@ -119,5 +119,9 @@
   "name.tv.2": "TV do escritório",
   "name.tv.3": "Projetor",
   "status.tv.on": "Ligada • Volume {value}",
-  "status.tv.off": "Desligada"
+  "status.tv.off": "Desligada",
+  "dev.tagsHome": "Tags de volta ao HUD",
+  "dev.restart": "Reiniciar app",
+  "dev.restartConfirm": "Toque de novo para reiniciar",
+  "dev.feedback.tagsHome": "Os tags virtuais voltaram para o HUD."
 }

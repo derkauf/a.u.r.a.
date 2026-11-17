@@ -25,9 +25,11 @@ import { deviceRegistry, type DeviceEntry, type DeviceId } from '../devices/devi
 import { anchorStatus, anchorStatusText, subscribeAnchorStatus } from '../anchors/anchor-status.js';
 import { subscribeLocale } from '../i18n/i18n.js';
 import { deviceStatusText, deviceToggleLabel } from '../devices/device-text.js';
+import { deviceStateVisual } from '../devices/device-convention.js';
 import { playConfirm } from './feedback-sound.js';
 import { onActivate } from './activation.js';
 import { subscribeTagScanned } from '../markers/scan-bus.js';
+import { subscribeAppReset } from '../app-reset.js';
 
 const DEVICE_IDS: DeviceId[] = ['lamp-sala-01', 'ac-sala-01', 'lock-porta-01', 'tv-sala-01'];
 
@@ -75,6 +77,13 @@ export class AuraPanelSystem extends createSystem() {
     this.cleanupFuncs.push(subscribeLocale(() => this.refreshAll()));
     // Phase 3: a registered tag read by the camera loads its device.
     this.cleanupFuncs.push(subscribeTagScanned((deviceId) => this.onTagScanned(deviceId)));
+    // Restart app: close every window.
+    this.cleanupFuncs.push(
+      subscribeAppReset(() => {
+        for (const deviceId of DEVICE_IDS) this.hidePanel(deviceId);
+        this.setCameraOpen(false);
+      }),
+    );
   }
 
   private onTagScanned(deviceId: DeviceId): void {
@@ -204,7 +213,15 @@ export class AuraPanelSystem extends createSystem() {
       if (!entry) continue;
       // A device unbound from Settings (remove / recalibrate) closes its window.
       if (!deviceRegistry.isBound(deviceId) && this.openPanels.has(deviceId)) this.hidePanel(deviceId);
-      panel.getElementById(EL.status)?.setProperties({ text: deviceStatusText(entry) });
+      // Status icon + color from the device convention (docs/ux/DEVICE_CONVENTION.md).
+      const visual = deviceStateVisual(entry);
+      panel.getElementById(EL.status)?.setProperties({ text: deviceStatusText(entry), color: visual.color });
+      panel
+        .getElementById('state-icon-a')
+        ?.setProperties({ display: visual.slot === 'a' ? 'flex' : 'none', color: visual.color });
+      panel
+        .getElementById('state-icon-b')
+        ?.setProperties({ display: visual.slot === 'b' ? 'flex' : 'none', color: visual.color });
       panel.getElementById(EL.powerLabel)?.setProperties({ text: deviceToggleLabel(entry) });
       const range = panel.getElementById(EL.rangeValue);
       if (range) range.setProperties({ text: this.rangeText(entry) });

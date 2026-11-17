@@ -1,5 +1,5 @@
 /**
- * A.U.R.A. v1 — Ray cursor with an adjustable magnetic snap.
+ * A.U.R.A. v1 — Ray cursor with an adjustable magnetic snap and a trail.
  *
  * A ring + center dot that shows where the ray actually hits the UI:
  * - over a panel: at the exact hit point (from the UI's pointer events), so
@@ -10,17 +10,28 @@
  *   and turns amber — the press will land there;
  * - away from the UI: rests on the right index fingertip.
  *
- * Earlier versions snapped to the center of the whole panel node, which
- * showed the cursor far from the button actually under the ray.
+ * Motion (polished 17/11 after the Quest test: "the snap circle traveling
+ * from the hand to the tag is great, it needs more fluid motion and a
+ * gradient trail to guide the eye"):
+ * - the cursor always eases toward its target, in both directions (it used
+ *   to jump back to the fingertip): slower on long trips (TRAVEL_PER_SECOND)
+ *   so the eye can follow, fast when tracking near the target;
+ * - size and color blend between resting (cyan) and snapped (amber);
+ * - a ribbon trail follows it: TRAIL_POINTS recent positions, tapering and
+ *   fading out, colored like the cursor. When the cursor is still the
+ *   ribbon collapses onto it and disappears by itself.
  *
  * The hit is tracked by state (enter/move/leave per panel), not by a
  * timeout: pointermove only arrives while the ray moves, so a still hand
- * keeps its hit. The cursor eases toward its target to remove jitter.
+ * keeps its hit.
  *
- * No allocation per frame: vectors are class fields; pointer events copy
- * into them.
+ * No allocation per frame: vectors, colors and the trail buffers are class
+ * fields; pointer events copy into them.
  */
 import {
+  BufferAttribute,
+  BufferGeometry,
+  Color,
   createSystem,
   DoubleSide,
   Group,
@@ -38,19 +49,34 @@ import { getSettings } from '../settings/settings-store.js';
 const CURSOR_REST_COLOR = 0x62e2ef; // cyan = resting (docs/ux/VISUAL_ID.md)
 const CURSOR_SNAP_COLOR = 0xffb850; // amber = active
 const SURFACE_OFFSET_M = 0.006; // toward the user, avoids z-fighting
-/** Fraction of the remaining distance covered per second (smoothing). */
-const FOLLOW_PER_SECOND = 30;
+/** Easing rate (per second) when the target is near: tight tracking. */
+const TRACK_PER_SECOND = 28;
+/** Easing rate on long trips (hand ↔ UI): slow enough to read the motion. */
+const TRAVEL_PER_SECOND = 9;
+/** A target farther than this is a "trip". */
+const TRAVEL_DISTANCE_M = 0.06;
+/** How fast size and color blend between resting and snapped. */
+const STATE_PER_SECOND = 14;
+const SNAP_SCALE = 1.4;
+/** Trail: number of recent positions and the ribbon's width at the head. */
+const TRAIL_POINTS = 18;
+const TRAIL_WIDTH_M = 0.012;
+const TRAIL_HEAD_ALPHA = 0.75;
 
 /** Panels whose pointer events drive the cursor (scene node ids). */
 const CURSOR_NODE_IDS = [
   'sticker-lamp',
   'sticker-ac',
   'sticker-lock',
+  'sticker-tv',
   'settings-gear',
+  'scan-button',
   'settings',
+  'tag-scanner',
   'panel-lamp',
   'panel-ac',
   'panel-lock',
+  'panel-tv',
   'camera-placeholder',
 ] as const;
 
@@ -62,6 +88,7 @@ interface PointerLikeEvent {
 export class AuraCursorSystem extends createSystem() {
   private cursorGroup: Group | null = null;
   private ringMaterial: MeshBasicMaterial | null = null;
+  private dotMaterial: MeshBasicMaterial | null = null;
   private bound = new Set<string>();
 
   // Latest UI hit (from pointer events) — copied, never allocated per frame.
@@ -70,11 +97,24 @@ export class AuraCursorSystem extends createSystem() {
   private hitRoot: Object3D | null = null;
   private hitControl: Object3D | null = null;
   private hasPosition = false;
+  /** 0 = resting (cyan, small), 1 = snapped (amber, large). */
+  private snap = 0;
 
   private tmpPos = new Vector3();
   private tmpHead = new Vector3();
   private tmpDir = new Vector3();
   private tmpCenter = new Vector3();
+  private tmpSide = new Vector3();
+  private restColor = new Color(CURSOR_REST_COLOR);
+  private snapColor = new Color(CURSOR_SNAP_COLOR);
+  private color = new Color(CURSOR_REST_COLOR);
+
+  // Trail ribbon: TRAIL_POINTS positions → 2 vertices each.
+  private trail: Vector3[] = [];
+  private trailPositions = new Float32Array(TRAIL_POINTS * 2 * 3);
+  private trailColors = new Float32Array(TRAIL_POINTS * 2 * 4);
+  private trailGeometry: BufferGeometry | null = null;
+  private trailMesh: Mesh | null = null;
 
   init(): void {
     const ring = new Mesh(
@@ -83,12 +123,34 @@ export class AuraCursorSystem extends createSystem() {
     );
     this.ringMaterial = ring.material as MeshBasicMaterial;
     const dot = new Mesh(new SphereGeometry(0.004, 16, 12), new MeshBasicMaterial({ color: CURSOR_REST_COLOR }));
+    this.dotMaterial = dot.material as MeshBasicMaterial;
     const group = new Group();
     group.add(ring);
     group.add(dot);
     group.visible = false;
     this.cursorGroup = group;
     this.world.createTransformEntity(group);
+
+    // Trail ribbon (world space, rebuilt in place every frame).
+    for (let i = 0; i < TRAIL_POINTS; i++) this.trail.push(new Vector3());
+    const geometry = new BufferGeometry();
+    geometry.setAttribute('position', new BufferAttribute(this.trailPositions, 3));
+    geometry.setAttribute('color', new BufferAttribute(this.trailColors, 4));
+    const index: number[] = [];
+    for (let i = 0; i < TRAIL_POINTS - 1; i++) {
+      const a = i * 2;
+      index.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+    }
+    geometry.setIndex(index);
+    this.trailGeometry = geometry;
+    const trail = new Mesh(
+      geometry,
+      new MeshBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false, side: DoubleSide }),
+    );
+    trail.frustumCulled = false;
+    trail.visible = false;
+    this.trailMesh = trail;
+    this.world.createTransformEntity(trail);
   }
 
   update(delta: number): void {
@@ -98,6 +160,8 @@ export class AuraCursorSystem extends createSystem() {
     // No XR session, no hand ray: cursor hidden.
     if (this.world.xrSession === undefined) {
       cursor.visible = false;
+      if (this.trailMesh) this.trailMesh.visible = false;
+      this.hasPosition = false;
       return;
     }
     cursor.visible = true;
@@ -120,15 +184,74 @@ export class AuraCursorSystem extends createSystem() {
       // Rest: right index fingertip.
       this.player.indexTipSpaces.right.getWorldPosition(this.tmpPos);
     }
-    if (this.hasPosition && onUi) {
-      cursor.position.lerp(this.tmpPos, 1 - Math.exp(-FOLLOW_PER_SECOND * delta));
-    } else {
+
+    if (!this.hasPosition) {
       cursor.position.copy(this.tmpPos);
+      for (const p of this.trail) p.copy(this.tmpPos);
       this.hasPosition = true;
+    } else {
+      // Ease in both directions; slower on long trips so the eye can follow.
+      const far = cursor.position.distanceTo(this.tmpPos) > TRAVEL_DISTANCE_M;
+      const rate = far ? TRAVEL_PER_SECOND : onUi ? TRACK_PER_SECOND : TRAVEL_PER_SECOND * 1.6;
+      cursor.position.lerp(this.tmpPos, 1 - Math.exp(-rate * delta));
     }
     cursor.lookAt(this.tmpHead); // billboard toward the user
-    cursor.scale.setScalar(control ? 1.4 : 1);
-    this.ringMaterial?.color.set(control ? CURSOR_SNAP_COLOR : CURSOR_REST_COLOR);
+
+    // Size and color blend between resting and snapped.
+    const targetSnap = control ? 1 : 0;
+    this.snap += (targetSnap - this.snap) * (1 - Math.exp(-STATE_PER_SECOND * delta));
+    cursor.scale.setScalar(1 + (SNAP_SCALE - 1) * this.snap);
+    this.color.copy(this.restColor).lerp(this.snapColor, this.snap);
+    this.ringMaterial?.color.copy(this.color);
+    this.dotMaterial?.color.copy(this.color);
+
+    this.updateTrail(cursor.position);
+  }
+
+  /** Shift the trail, then rebuild the ribbon facing the user. */
+  private updateTrail(head: Vector3): void {
+    const mesh = this.trailMesh;
+    const geometry = this.trailGeometry;
+    if (!mesh || !geometry) return;
+    // Recycle the oldest point as the new head (no allocation).
+    const recycled = this.trail.pop()!;
+    recycled.copy(head);
+    this.trail.unshift(recycled);
+
+    let length = 0;
+    for (let i = 0; i < TRAIL_POINTS; i++) {
+      const p = this.trail[i]!;
+      const next = this.trail[Math.min(i + 1, TRAIL_POINTS - 1)]!;
+      const prev = this.trail[Math.max(i - 1, 0)]!;
+      if (i > 0) length += p.distanceTo(prev);
+      // Ribbon side = segment direction × view direction.
+      this.tmpDir.copy(prev).sub(next);
+      this.tmpCenter.copy(this.tmpHead).sub(p);
+      this.tmpSide.crossVectors(this.tmpDir, this.tmpCenter);
+      if (this.tmpSide.lengthSq() < 1e-12) this.tmpSide.set(0, 0, 0);
+      else this.tmpSide.normalize();
+      const t = i / (TRAIL_POINTS - 1); // 0 at the head, 1 at the tail
+      const half = (TRAIL_WIDTH_M * (1 - t)) / 2;
+      const v = i * 6;
+      this.trailPositions[v] = p.x + this.tmpSide.x * half;
+      this.trailPositions[v + 1] = p.y + this.tmpSide.y * half;
+      this.trailPositions[v + 2] = p.z + this.tmpSide.z * half;
+      this.trailPositions[v + 3] = p.x - this.tmpSide.x * half;
+      this.trailPositions[v + 4] = p.y - this.tmpSide.y * half;
+      this.trailPositions[v + 5] = p.z - this.tmpSide.z * half;
+      const alpha = TRAIL_HEAD_ALPHA * (1 - t) * (1 - t);
+      const c = i * 8;
+      for (let k = 0; k < 2; k++) {
+        this.trailColors[c + k * 4] = this.color.r;
+        this.trailColors[c + k * 4 + 1] = this.color.g;
+        this.trailColors[c + k * 4 + 2] = this.color.b;
+        this.trailColors[c + k * 4 + 3] = alpha;
+      }
+    }
+    // A still cursor has no trail.
+    mesh.visible = length > 0.01;
+    geometry.attributes.position!.needsUpdate = true;
+    geometry.attributes.color!.needsUpdate = true;
   }
 
   private tryBind(): void {

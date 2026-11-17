@@ -206,6 +206,10 @@
     font-weight: 700;
   }
 
+  .grow {
+    flex-grow: 1;
+  }
+
   .btn-wide {
     height: 42px;
     padding-left: 16px;
@@ -324,6 +328,10 @@
             <div id="dev-lock-recal" class="btn-sm"><div id="dev-lock-recal-label" class="btn-sm-label">Recalibrate</div></div>
             <div id="dev-lock-remove" class="btn-sm"><div id="dev-lock-remove-label" class="btn-sm-label">Remove</div></div>
           </div>
+        </div>
+        <div class="btn-row">
+          <div id="dev-tags-home" class="btn-wide grow"><div id="dev-tags-home-label" class="btn-sm-label">Return tags to HUD</div></div>
+          <div id="dev-restart" class="btn-wide grow"><div id="dev-restart-label" class="danger-label">Restart app</div></div>
         </div>
         <div id="dev-clear" class="btn-wide"><div id="dev-clear-label" class="danger-label">Clear all anchors</div></div>
         <div id="dev-feedback" class="feedback">.</div>

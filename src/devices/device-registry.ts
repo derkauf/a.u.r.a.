@@ -155,6 +155,19 @@ export class DeviceRegistry {
     for (const deviceId of [...this.bound]) this.unbind(deviceId);
   }
 
+  /**
+   * Back to the first-run state: every device unbound and its state back to
+   * the defaults (Settings › Devices › Restart app).
+   */
+  resetAll(): void {
+    this.unbindAll();
+    for (const entry of this.devices.values()) {
+      entry.state = defaultStateFor({ controls: entry.controls } as DeviceDescriptor);
+      this.notify(entry);
+    }
+    this.persist();
+  }
+
   /** Retrato serializável dos vínculos e do estado (exportar a sala). */
   exportSnapshot(): { bound: DeviceId[]; state: Partial<Record<DeviceId, DeviceState>> } {
     const state: Partial<Record<DeviceId, DeviceState>> = {};

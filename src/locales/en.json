@@ -119,5 +119,9 @@
   "name.tv.2": "Office TV",
   "name.tv.3": "Projector",
   "status.tv.on": "On • Volume {value}",
-  "status.tv.off": "Off"
+  "status.tv.off": "Off",
+  "dev.tagsHome": "Return tags to HUD",
+  "dev.restart": "Restart app",
+  "dev.restartConfirm": "Tap again to restart",
+  "dev.feedback.tagsHome": "Virtual tags are back in the HUD."
 }

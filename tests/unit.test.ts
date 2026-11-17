@@ -20,6 +20,7 @@ import { clampToStep } from '../src/core/rules.js';
 import { AprilTagDetector, PRINTED_TAG_CODES } from '../src/markers/apriltag-detector.js';
 import { CAMERA_PITCH_DOWN_DEG, FOCAL_RATIO, TAG_SIZE_M, WINDOW_GAP_M, tagWorldPosition, windowPoseInFront } from '../src/markers/tag-placement.js';
 import { Quaternion, Vector3 } from 'three';
+import { CONVENTION_COLORS, deviceStateVisual } from '../src/devices/device-convention.js';
 import { DeviceRegistry } from '../src/devices/device-registry.js';
 import { pinchMode } from '../src/ui/activation.js';
 import { createProvider, LocalRulesProvider } from '../src/ai/providers/provider-interface.js';
@@ -283,5 +284,31 @@ describe('Tag placement (window in front of the printed tag)', () => {
     assert.ok(Math.abs(pos.z - (-1.5 + WINDOW_GAP_M)) < 1e-6);
     const facing = new Vector3(0, 0, 1).applyQuaternion(quat);
     assert.ok(facing.z > 0.999, 'panel +Z should point at the head');
+  });
+});
+
+describe('Restart app (DeviceRegistry.resetAll)', () => {
+  it('unbinds every device and restores the default state', () => {
+    const registry = new DeviceRegistry();
+    registry.scanAndRegister('lamp-sala-01');
+    registry.setPower('lamp-sala-01', true);
+    registry.setBrightness('lamp-sala-01', 40);
+    registry.resetAll();
+    assert.equal(registry.isBound('lamp-sala-01'), false);
+    assert.equal(registry.get('lamp-sala-01')?.state.power, false);
+    assert.equal(registry.get('lamp-sala-01')?.state.brightness, 80);
+  });
+});
+
+describe('Device convention (status icon + color)', () => {
+  it('door: locked = Lock red, unlocked = LockOpen green; AC on = blue', () => {
+    const registry = new DeviceRegistry();
+    const lock = registry.scanAndRegister('lock-porta-01');
+    assert.deepEqual(deviceStateVisual(lock), { slot: 'a', color: CONVENTION_COLORS.red });
+    registry.setLocked('lock-porta-01', false);
+    assert.deepEqual(deviceStateVisual(registry.get('lock-porta-01')!), { slot: 'b', color: CONVENTION_COLORS.green });
+    registry.scanAndRegister('ac-sala-01');
+    registry.setPower('ac-sala-01', true);
+    assert.equal(deviceStateVisual(registry.get('ac-sala-01')!).color, CONVENTION_COLORS.blue);
   });
 });

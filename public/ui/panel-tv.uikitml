@@ -35,6 +35,18 @@
     font-weight: 700;
   }
 
+  .status-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .state-icon {
+    width: 20px;
+    height: 20px;
+    color: #62e2ef;
+  }
+
   .status {
     color: #62e2ef;
     font-size: 18px;
@@ -138,7 +150,10 @@
 <div class="window-root">
   <div class="window">
     <div id="txt-title" class="title">Living room TV</div>
-    <div id="device-status" class="status">Off</div>
+    <div class="status-row">
+      <TvMinimal id="state-icon-a" class="state-icon" />
+      <div id="device-status" class="status">Off</div>
+    </div>
     <Button id="control-power" class="pill-primary">
       <ButtonLabel id="control-power-label" class="pill-primary-label">Turn on</ButtonLabel>
     </Button>

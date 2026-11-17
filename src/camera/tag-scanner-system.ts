@@ -25,6 +25,7 @@ import { AprilTagDetector } from '../markers/apriltag-detector.js';
 import { APRILTAG_FAMILY, resolveTag } from '../markers/apriltag-handshake.js';
 import { deviceDisplayName } from '../devices/device-names.js';
 import { emitTagScanned } from '../markers/scan-bus.js';
+import { subscribeAppReset } from '../app-reset.js';
 import { setPlacement, tagWorldPosition } from '../markers/tag-placement.js';
 import { onActivate } from '../ui/activation.js';
 import { playConfirm } from '../ui/feedback-sound.js';
@@ -60,6 +61,11 @@ export class AuraTagScannerSystem extends createSystem({
   private readonly headPos = new Vector3();
   private readonly headQuat = new Quaternion();
   private readonly tagPos = new Vector3();
+
+  init(): void {
+    // Restart app: close the scanner (stops the camera).
+    this.cleanupFuncs.push(subscribeAppReset(() => this.open && this.setOpen(false)));
+  }
 
   update(): void {
     if (!this.panel || !this.button) this.tryBind();
