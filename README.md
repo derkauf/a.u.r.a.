@@ -116,7 +116,7 @@ Each milestone is frozen at a git tag and served unchanged at its own address, a
 
 ## License
 
-Copyright (c) 2026 Diogo Chaboudet Kauf. All rights reserved. You may view this repository, but no part of it may be used, copied, modified or distributed without prior written permission. See [LICENSE](LICENSE). Third-party dependencies keep their own licenses (for example, js-aruco2 is MIT).
+Copyright (c) 2026 Diogo Chaboudet Kauf. All rights reserved. You may view this repository, but no part of it may be used, copied, modified or distributed without prior written permission. See [LICENSE](LICENSE). Third-party materials (reference images, IWSDK tooling files and dependencies such as js-aruco2, MIT) keep their own owners and licenses.
 
 ---
 
