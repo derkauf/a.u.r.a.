@@ -114,6 +114,10 @@ Each milestone is frozen at a git tag and served unchanged at its own address, a
 - **AprilTag:** a black-and-white marker a camera identifies by its id, created by the APRIL Robotics Lab at the University of Michigan.
 - **Pinch:** thumb and index finger together, the select gesture with hand tracking.
 
+## License
+
+Copyright (c) 2026 Diogo Chaboudet Kauf. All rights reserved. You may view this repository, but no part of it may be used, copied, modified or distributed without prior written permission. See [LICENSE](LICENSE). Third-party dependencies keep their own licenses (for example, js-aruco2 is MIT).
+
 ---
 
 By Diogo Kauf ([sixvectors](https://aura-home.sixvectors.app/)), with Lola.
