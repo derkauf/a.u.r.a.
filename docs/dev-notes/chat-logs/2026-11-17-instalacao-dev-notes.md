@@ -459,6 +459,11 @@ Pedido do usuário: começar a Phase 3, antes alinhando a interface à nova iden
 
 **Cursor do snap mais fluido, com rastro (17/11).** O usuário achou o círculo que sai da mão e vai até o tag "sensacional", mas pediu mais fluidez e um rastro em degradê para guiar o olhar. Agora: movimento suave nos dois sentidos (antes pulava de volta para o dedo), mais lento em viagens longas (9/s) e rápido no rastreamento perto do alvo (28/s); tamanho e cor em transição (ciano → âmbar); rastro em fita de 18 pontos que afina e some, na cor do cursor. O cursor também passou a reagir aos elementos novos (scanner, TV, tags virtuais), que estavam fora da lista dele. Não verificado no Quest.
 
+**Phase 3 na produção; guia do usuário e página de entrada (17/11).** A Phase 3 (`6768fea`) foi publicada em https://aura.sixvectors.app/ a pedido do usuário. Depois ele pediu um guia para quem acessar o site, base para um vídeo tutorial em motion design, seguindo as referências novas de `docs/ux/ux-illustrated-guide/` (ilustração plana estilo Meta: fundo `#F0F2F5`, azul `#0082FB`, cards brancos de borda azul; 3 ilustrações e os prompts para gerar mais), e sugeriu uma página antes do app com o aviso da câmera.
+- **Guia em PDF** (`tools/generate-user-guide.py` → `docs/guide/aura-user-guide.pdf`, copiado para `public/guide/`): 15 páginas 16:9 (uma etapa por página, para servir de roteiro do vídeo), em inglês (público dos juízes): capa, o que precisa, abrir o site, liberar a câmera (Headset cameras), entrar no AR, o HUD, apontar e fazer pinch, testar sem tags, imprimir e colar os tags, escanear, os controles (cores da convenção), âncoras que ficam, Configurações, solução de problemas, próximos passos. Cenas no estilo das referências; a interface do app desenhada nas cores reais (vidro escuro, ciano, âmbar), com os tags desenhados com os bits reais.
+- **Página de entrada** (`index.html`, HTML puro, aparece antes do app carregar): explica o app, pede a câmera **fora do AR** (botão "Allow camera" com `getUserMedia`; avisa se só a câmera virtual foi liberada), links para os tags imprimíveis e o guia, "Continue to the app" e "Don't show this again" (`aura_welcome_seen`); inglês e português. Verificada no navegador do emulador; publicada só no aura-dev, esperando o usuário para ir à produção.
+- Pasta `docs/ux/ux-illustrated-guide` entrou no `refs:check`.
+
 ## 2. Decisões
 
 | Decisão | Alternativas | Por quê |
@@ -474,6 +479,13 @@ Pedido do usuário: começar a Phase 3, antes alinhando a interface à nova iden
 | Tudo que está preso a tag fica de frente para o usuário (só no eixo vertical) e não sofre frustum culling | Orientação fixa do momento da leitura | Painéis UIKit têm um lado só; a esfera de culling ficava na posição antiga do HUD |
 | Correção de 4° para baixo na câmera | Manter a câmera como os olhos | Calibrado pela foto do Quest: tags virtuais ~10 cm acima do papel a ~1,5 m |
 | Limpar o histórico: amend de `fa344f7` → `3055c97` e force push (com lease) | Deixar os 91 MB no histórico | Autorizado pelo usuário; ninguém mais usa o repo e a Vercel está desligada dele |
+| Restart app sem sair do AR (registro volta ao estado de fábrica; preferências ficam) | Recarregar a página | Recarregar sai da sessão imersiva; o usuário pediu reiniciar "estando dentro do app" |
+| Convenção de estados numa tabela única em código (`device-convention.ts`), da qual saem o documento e a planilha | Cores espalhadas pelos painéis | Uma fonte só; a planilha acompanha o que falta |
+| Planilha no tipo Sheets, ícone como emoji + nome Lucide | Imagem do ícone na célula; .xlsx local | O Sheets não aceita imagem em célula; o emoji aparece de verdade e o nome liga ao app |
+| Phase 3 publicada na produção (`6768fea`) | Manter a Phase 1 | Pedido do usuário antes do prazo |
+| Guia em PDF 16:9, uma etapa por página, em inglês | A4 retrato; português | Serve de roteiro para o vídeo em motion design; o público do site são os juízes |
+| Página de entrada em HTML puro que pede a câmera fora do AR | Pedir a câmera só dentro do app | Dentro do AR o pedido pode ficar escondido; a página aparece antes do app carregar |
+| Página de entrada só no aura-dev até o usuário confirmar | Publicar direto na produção | Muda o primeiro contato dos juízes com o app |
 
 ## 3. Arquivos adicionados, alterados ou removidos
 
@@ -492,15 +504,26 @@ Pedido do usuário: começar a Phase 3, antes alinhando a interface à nova iden
 - [M] `iwsdk.config.json` (`features.camera`), `vite.config.ts` (`js-aruco2` pré-empacotado), `package.json` (`js-aruco2`).
 - [M] `src/locales/en.json`, `src/locales/pt-BR.json`: scanner, TV.
 - [M] `tests/unit.test.ts`: 20 testes (detector, tabela de tags com a TV, pose do tag).
-- [M] `docs/REFERENCES.md`, `docs/references.json` (55 arquivos), `.gitignore` (`artifacts/`, `*.crdownload`, vídeos de `quest-reference`).
+- [M] `docs/REFERENCES.md`, `docs/references.json` (60 arquivos), `.gitignore` (`artifacts/`, `*.crdownload`, vídeos de `quest-reference`), `tools/check-refs.mjs` (pasta `docs/ux/ux-illustrated-guide`).
+- [A] `src/app-reset.ts`; [M] `src/devices/device-registry.ts` (`resetAll`), `src/markers/tag-placement.ts` (`clearAllPlacements`), `src/ui/settings-panel-system.ts`, `public/ui/settings.uikitml`: Return tags to HUD e Restart app.
+- [A] `src/devices/device-convention.ts`, `docs/ux/DEVICE_CONVENTION.md`; [M] `public/ui/panel-*.uikitml`: ícone e cor de estado.
+- [M] `src/input/hand-ray-cursor.ts`: cursor suave com rastro.
+- [M] `src/locales/*.json` (5 idiomas), `tests/unit.test.ts` (22 testes).
+- [A] `tools/generate-user-guide.py`, `docs/guide/aura-user-guide.pdf`, `public/guide/` (guia, tags imprimíveis, ilustração); [M] `index.html` (página de entrada).
 
 ## 4. Commits
 
 - `863f215` Phase 3 start: new visual identity (cyan rests, amber acts).
 - `3055c97` Phase 3: camera tag scanner, AprilTag detection, windows anchored at printed tags (era `fa344f7`, refeito sem o download de 91 MB e enviado com force push).
-- O commit desta parte (tag virtual, de frente para o usuário, culling, 4°, telemetria) fecha o `/devlog`.
+- `1aca043` Phase 3: virtual tags over the printed tags, facing the user; devlog.
+- `6768fea` Device state convention, cursor trail, Restart app and Return tags to HUD (publicado na produção).
+- Guia em PDF e página de entrada: ainda sem commit (esperando o usuário); só as notas deste `/devlog` vão num commit de documentação.
 
 ## 5. Verificado
+
+- **Página de entrada:** vista no navegador do emulador (layout, textos); o botão "Allow camera" ainda não foi testado no Quest.
+- **Guia em PDF:** as 15 páginas renderizadas e revisadas (corrigidos o texto pequeno das janelas e o corte das ilustrações).
+- **Produção:** https://aura.sixvectors.app/ responde com o build `6768fea` (detector, ícones de estado, Restart app); aura-phase1, aura-phase2 e aura-dev respondem 200.
 
 - **No Quest (usuário):** câmera do headset 1280x960, 3 câmeras, com "Headset cameras" liberado; tag 00a lido como 10; lâmpada, ar-condicionado e TV com a janela sobre o seu tag; posição fixa ao mexer a cabeça; tags virtuais virando para o usuário ao andar.
 - **No PC:** typecheck sem erros; 20 de 20 testes; o detector lê os 12 tags do PDF (distância 0) e os ícones renderizados da TV (10) e da lâmpada (1); build ok; aura-dev serve cada versão.
@@ -512,7 +535,8 @@ Pedido do usuário: começar a Phase 3, antes alinhando a interface à nova iden
 
 ## 7. Próximos passos
 
-1. **Prazo (18/11, 12:00 PT):** decidir o que vai para a produção dos juízes e publicar com `npm run deploy`.
+1. **Prazo (18/11, 12:00 PT):** testar a produção (Phase 3) no Quest e submeter no Devpost (a leitura pela câmera exige tags e permissão: dizer no texto e no vídeo).
+1. Decidir se a página de entrada e o guia vão para a produção; commit e push deles.
 2. Testar no Quest a correção de 4°, o culling e o toque no tag virtual.
 3. Profundidade pelo ambiente (hit-test na parede) para o tag virtual não "escorregar" quando visto de outro ângulo.
 4. Scanner contínuo, sem janela (como a câmera do celular).
@@ -522,6 +546,6 @@ Pedido do usuário: começar a Phase 3, antes alinhando a interface à nova iden
 
 ## 8. Documentos derivados (só relato)
 
-- `README.md` e o guia em PDF (`tools/generate-guia-pdf.py`) estão desatualizados: não falam do scanner, da TV, da leitura pela câmera nem da nova identidade visual.
+- `README.md` e o guia em PDF (`tools/generate-guia-pdf.py`, o guia inicial em português) estão desatualizados: não falam do scanner, da TV, da leitura pela câmera, da convenção de estados, do Restart app nem da página de entrada. O guia novo para quem acessa o site é `docs/guide/aura-user-guide.pdf`; o README pode apontar para ele.
 - `docs/STATUS_PARA_LOLA.md` precisa de uma versão nova: Phase 3 em andamento, câmera confirmada, tokens em `docs/ux/VISUAL_ID.md` para a landing page.
 - O rascunho do Devpost (`tools/generate-submission-pdfs.py`) pode citar a leitura real dos tags se a Phase 3 for para a produção.
