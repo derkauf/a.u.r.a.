@@ -4,7 +4,14 @@
  *
  *   npm run deploy                     → production, https://aura.sixvectors.app/
  *                                        (project aura-v1-lola, linked in .vercel/)
- *   npm run deploy:dev                 → test build, https://aura-dev.sixvectors.app/
+ *                                        FROZEN for the judges from 18/11/2026 12:00 PT:
+ *                                        refused after that (see FREEZE_AT below).
+ *                                        Before that, only a clean, committed tree,
+ *                                        and the same commit is pushed to the
+ *                                        official repo derkauf/a.u.r.a. (remote
+ *                                        "official"), the exact record of what is live.
+ *   npm run deploy:dev                 → test build, https://aura-next.sixvectors.app/
+ *                                        (also https://aura-dev.sixvectors.app/)
  *                                        (project aura-v1-lola-dev, linked in .vercel-dev/)
  *   npm run deploy:phase -- phase-N    → the frozen build of a project phase,
  *                                        https://aura-phaseN.sixvectors.app/
@@ -56,6 +63,28 @@ const mode = phase
     ? { label: 'DEV', linkDir: path.join(root, '.vercel-dev'), project: 'aura-v1-lola-dev', domain: undefined }
     : { label: 'PRODUCTION', linkDir: path.join(root, '.vercel'), project: undefined, domain: undefined };
 
+/**
+ * Judges' freeze: the Meta VR Start Developer Competition deadline,
+ * 18/11/2026 12:00 PT (20:00 UTC). After it, aura.sixvectors.app must not
+ * change until the results; this repo (aura-next) is development only.
+ */
+const FREEZE_AT = Date.parse('2026-11-18T20:00:00Z');
+const isProduction = !phase && !isDev;
+if (isProduction) {
+  if (Date.now() >= FREEZE_AT) {
+    console.error(
+      'Production (aura.sixvectors.app) is FROZEN for the judges since 18/11/2026 12:00 PT.\n' +
+        'Use npm run deploy:dev (aura-next.sixvectors.app). See CLAUDE.md, "Congelamento".',
+    );
+    process.exit(1);
+  }
+  const dirty = execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim();
+  if (dirty) {
+    console.error('Production deploys need a clean, committed tree, so the official repo records exactly what is live.\n' + dirty);
+    process.exit(1);
+  }
+}
+
 const linked = existsSync(path.join(mode.linkDir, 'project.json'));
 if (!phase && !isDev && !linked) {
   console.error('.vercel/project.json not found. Link the project first: npx vercel@latest link');
@@ -99,6 +128,15 @@ try {
   if (!linked && mode.project) deployArgs.push('--name', mode.project);
   const result = run('npx', deployArgs, work);
   process.exitCode = result.status ?? 1;
+
+  if (isProduction && result.status === 0) {
+    // The official repo always holds exactly the commit that is live.
+    const pushed = run('git', ['push', 'official', 'HEAD:main'], root);
+    if (pushed.status !== 0) {
+      console.error('DEPLOYED, but pushing HEAD to derkauf/a.u.r.a. (remote "official") failed. Push it by hand.');
+      process.exitCode = 1;
+    }
+  }
 
   if (!linked && mode.project && existsSync(path.join(work, '.vercel', 'project.json'))) {
     // Keep the new project's link and attach its domain (first deploy only).
