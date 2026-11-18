@@ -4,6 +4,10 @@ A.U.R.A. — Ambient User Responsive Automation, including all source code,
 documentation, design, and other materials in this repository, is the
 exclusive property of Diogo Chaboudet Kauf.
 
+Third-party materials in this repository (reference images, IWSDK tooling
+files, and dependencies) remain the property of their respective owners
+and are covered by their own licenses, not by this one.
+
 Permission is granted to view this repository. No permission is granted to
 use, copy, modify, merge, publish, distribute, sublicense, or sell any
 part of this repository or its contents, in whole or in part, without the
