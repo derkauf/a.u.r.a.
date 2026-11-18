@@ -21,7 +21,7 @@ As skills de usuário `/resume` (`/retomar`) e `/devlog` (`/encerrar`) seguem es
 - **Log do build inicial:** `memory.md`, na raiz (14/11/2026). Os logs novos vão para `docs/dev-notes/chat-logs/`.
 - **Repositórios (desde 18/11/2026):**
   - `derkauf/aura-next` (este repo; antes `aura-v1-lola`): o ambiente de desenvolvimento. Publica em https://aura-next.sixvectors.app/ com `npm run deploy:dev`.
-  - `derkauf/a.u.r.a.` (oficial, público, remote `official`): o registro exato do que está no ar para os juízes. Só recebe o commit que foi para a produção; nunca trabalho em andamento.
+  - `derkauf/a.u.r.a.` (oficial, público, remote `official`): o registro exato do que está no ar para os juízes. Só recebe o commit que foi para a produção; nunca trabalho em andamento. A exceção são commits só de documentação, que não mudam o app publicado (por exemplo, o README em inglês, `8b09e93`). Eles entram no `official/main` e depois são mesclados aqui, para o push do deploy continuar fast-forward. A tag `live-2026-11-18` (`6768fea`) marca o código exato que está no ar.
   - `derkauf/aura-landing` (pasta `../aura-landing`): a landing page, em https://aura-home.sixvectors.app/.
 - **CONGELAMENTO (SUPER IMPORTANTE):** o `aura.sixvectors.app` é publicado pelo CLI da Vercel, não pelo GitHub. Congelar é **não publicar mais nada nesse endereço** depois do prazo da competição, 18/11/2026 às 12:00 PT, até o resultado. Isso inclui não rodar `npm run deploy`, não fazer `vercel deploy --prod` no projeto `aura-v1-lola` e não mudar os domínios dele.
   - O `tools/deploy-vercel.mjs` recusa a produção depois do prazo.
