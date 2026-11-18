@@ -19,6 +19,7 @@
  * Every attempt is logged to the console ("[tag-scanner]") and kept in
  * localStorage (aura_camera_probe_log, last 20) so it survives a reload.
  */
+import { onScannerCameraActive, onScannerOpened } from '../audio/sound-design.js';
 import { CameraSource, CameraUtils, createSystem, Quaternion, Vector3, type Entity, type UIKitMLAsset } from '@iwsdk/core';
 import { t } from '../i18n/i18n.js';
 import { AprilTagDetector } from '../markers/apriltag-detector.js';
@@ -78,6 +79,7 @@ export class AuraTagScannerSystem extends createSystem({
       const size = video ? `${video.videoWidth}x${video.videoHeight}` : '?';
       this.record('active', `${size}, ${Math.round(performance.now() - this.startedAt)} ms`);
       this.render('active', size);
+      onScannerCameraActive();
       this.feed()?.setProperties({ src: texture as never, display: 'flex' });
     } else if (state === 'error' && this.lastState !== 'error') {
       this.record('error', 'CameraSource state=error (see console)');
@@ -178,7 +180,10 @@ export class AuraTagScannerSystem extends createSystem({
     this.button
       ?.getElementById('scan-button')
       ?.setProperties({ backgroundColor: open ? AMBER : '#2f4052' });
-    if (open) void this.startCamera();
+    if (open) {
+      onScannerOpened();
+      void this.startCamera();
+    }
     else this.stopCamera();
   }
 

@@ -17,6 +17,7 @@ import { AuraSettingsPanelSystem } from './ui/settings-panel-system.js';
 import { AuraAppearanceSystem } from './ui/appearance-system.js';
 import { AuraTagScannerSystem } from './camera/tag-scanner-system.js';
 import { AuraTelemetryHudSystem } from './ui/telemetry-hud-system.js';
+import { AuraSoundDesignSystem } from './audio/sound-design-system.js';
 
 World.create(
   document.getElementById('scene-container') as HTMLDivElement,
@@ -32,4 +33,5 @@ World.create(
   world.registerSystem(AuraCursorSystem);
   world.registerSystem(AuraTagScannerSystem);
   world.registerSystem(AuraTelemetryHudSystem);
+  world.registerSystem(AuraSoundDesignSystem);
 });

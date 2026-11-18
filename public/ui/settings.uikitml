@@ -407,6 +407,35 @@
             <div id="aud-plus" class="step-btn"><div class="step-label">+</div></div>
           </div>
         </div>
+        <div class="row">
+          <div id="lbl-aud-music" class="row-label">Music</div>
+          <div class="stepper">
+            <div id="aud-track-prev" class="step-btn"><div id="aud-track-prev-label" class="step-label">-</div></div>
+            <div id="aud-track-value" class="step-value">Ambient hologram</div>
+            <div id="aud-track-next" class="step-btn"><div id="aud-track-next-label" class="step-label">+</div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div id="lbl-aud-music-vol" class="row-label">Music volume</div>
+          <div class="stepper">
+            <div id="aud-music-minus" class="step-btn"><div class="step-label">-</div></div>
+            <div id="aud-music-value" class="step-value">30%</div>
+            <div id="aud-music-plus" class="step-btn"><div class="step-label">+</div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div id="lbl-aud-voice" class="row-label">Voice guide</div>
+          <div id="aud-voice" class="toggle"><div id="aud-voice-label" class="toggle-label">On</div></div>
+        </div>
+        <div class="row">
+          <div id="lbl-aud-voice-vol" class="row-label">Voice volume</div>
+          <div class="stepper">
+            <div id="aud-voice-minus" class="step-btn"><div class="step-label">-</div></div>
+            <div id="aud-voice-value" class="step-value">90%</div>
+            <div id="aud-voice-plus" class="step-btn"><div class="step-label">+</div></div>
+          </div>
+        </div>
+        <div id="aud-replay" class="btn-wide"><div id="aud-replay-label" class="btn-wide-label">Replay voice guide</div></div>
         <div id="aud-more" class="note">More soon.</div>
       </div>
 

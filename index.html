@@ -7,10 +7,252 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <link rel="icon" href="data:," />
-    <title>aura-v1-lola</title>
+    <title>A.U.R.A.</title>
+    <!--
+      Welcome gate (17/11): shown before the app on first visit. Plain HTML so
+      it appears at once, before the app bundle loads. It explains the camera
+      permission and asks for it here, OUTSIDE the immersive session, where
+      the browser prompt cannot hide behind the AR scene. "Continue" hides it;
+      "Don't show again" stores aura_welcome_seen. Style follows the
+      illustrated guide (docs/ux/ux-illustrated-guide: light, Meta blue).
+    -->
+    <style>
+      #aura-welcome {
+        --bg: #f0f2f5;
+        --card: #ffffff;
+        --ink: #1c1e21;
+        --muted: #606770;
+        --blue: #0082fb;
+        --line: #dfe3e8;
+        --ok: #1f9d55;
+        --warn: #c0392b;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        overflow-y: auto;
+        background: var(--bg);
+        color: var(--ink);
+        font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      #aura-welcome[hidden] { display: none; }
+      #aura-welcome .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding-block: 28px 40px;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+        display: grid;
+        gap: 18px;
+      }
+      #aura-welcome h1 { font-size: 30px; line-height: 1.15; margin: 0; letter-spacing: 0.01em; }
+      #aura-welcome .eyebrow { color: var(--blue); font-weight: 700; letter-spacing: 0.08em; font-size: 13px; text-transform: uppercase; }
+      #aura-welcome .hero {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        aspect-ratio: 16 / 9;
+        max-height: 28vh;
+        object-fit: cover;
+        border-radius: 18px;
+        display: block;
+      }
+      #aura-welcome .card {
+        background: var(--card);
+        border: 2px solid var(--line);
+        border-radius: 18px;
+        padding: 18px 20px;
+        display: grid;
+        gap: 10px;
+      }
+      #aura-welcome .card.camera { border-color: var(--blue); }
+      #aura-welcome h2 { font-size: 19px; margin: 0; }
+      #aura-welcome p, #aura-welcome li { margin: 0; color: var(--muted); }
+      #aura-welcome ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+      #aura-welcome b { color: var(--ink); }
+      #aura-welcome .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      #aura-welcome button, #aura-welcome a.btn {
+        font: inherit;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 12px 22px;
+        border: 2px solid var(--blue);
+        background: var(--card);
+        color: var(--blue);
+        cursor: pointer;
+        text-decoration: none;
+      }
+      #aura-welcome button.primary { background: var(--blue); color: #fff; }
+      #aura-welcome button:focus-visible, #aura-welcome a.btn:focus-visible { outline: 3px solid #9ccdff; outline-offset: 2px; }
+      #aura-welcome .status { font-weight: 600; }
+      #aura-welcome .status.ok { color: var(--ok); }
+      #aura-welcome .status.warn { color: var(--warn); }
+      #aura-welcome label { display: inline-flex; gap: 8px; align-items: center; color: var(--muted); }
+      /* Points at the browser's own "Start VR" button, top right, above the page. */
+      #aura-startvr {
+        position: fixed;
+        top: 8px;
+        right: max(96px, env(safe-area-inset-right, 0px));
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        pointer-events: none;
+        font: 700 15px/1.2 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      #aura-startvr .arrow {
+        width: 44px;
+        height: 44px;
+        margin-right: 18px;
+        color: #0082fb;
+        animation: aura-point 1.1s ease-in-out infinite;
+      }
+      #aura-startvr .pill {
+        background: #0082fb;
+        color: #fff;
+        border-radius: 999px;
+        padding: 9px 16px;
+        box-shadow: 0 4px 14px rgba(0, 130, 251, 0.35);
+        animation: aura-glow 1.1s ease-in-out infinite;
+      }
+      @keyframes aura-point { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+      @keyframes aura-glow { 0%, 100% { box-shadow: 0 4px 14px rgba(0, 130, 251, 0.35); } 50% { box-shadow: 0 4px 22px rgba(0, 130, 251, 0.75); } }
+      @media (prefers-reduced-motion: reduce) {
+        #aura-startvr .arrow, #aura-startvr .pill { animation: none; }
+      }
+      #aura-welcome .wrap { padding-top: 96px; }
+    </style>
   </head>
   <body style="margin: 0">
+    <div id="aura-welcome" hidden>
+      <div class="wrap">
+        <div class="eyebrow">A.U.R.A. · Spatial home control</div>
+        <h1 data-t="title">Before you start</h1>
+        <img class="hero" src="./guide/hero.webp" alt="" width="2048" height="1152" />
+        <p data-t="intro">A.U.R.A. puts the controls of your home devices in the room with you, in mixed reality on Meta Quest. Each device has a printed tag; look at it and its controls appear right there.</p>
+
+        <div class="card camera">
+          <h2 data-t="camTitle">1. Allow the headset camera</h2>
+          <p data-t="camBody">To read the printed tags, A.U.R.A. needs the headset camera. Allow it now, before entering AR. In the prompt, make sure <b>Headset cameras</b> is on (Virtual cameras alone only shows your avatar, and the image stays black).</p>
+          <p data-t="camHelp">Missed it? Settings › Privacy &amp; safety › Browser › Headset cameras, or the lock icon next to the address.</p>
+          <div class="row">
+            <button id="aw-camera" class="primary" type="button" data-t="camButton">Allow camera</button>
+            <span id="aw-camera-status" class="status" role="status"></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 data-t="tagsTitle">2. Tags (optional)</h2>
+          <p data-t="tagsBody">Print the tags and stick them next to your devices: 1 lamp, 2 air conditioner, 3 door lock, 10 TV. No tags? You can still try everything with the tag icons in the app.</p>
+          <div class="row">
+            <a class="btn" href="./guide/aura-apriltags-tag36h11.pdf" target="_blank" rel="noopener" data-t="tagsLink">Printable tags (PDF)</a>
+            <a class="btn" href="./guide/aura-user-guide.pdf" target="_blank" rel="noopener" data-t="guideLink">User guide (PDF)</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 data-t="howTitle">3. In the app</h2>
+          <ol>
+            <li data-t="how1">Enter AR when the browser offers it.</li>
+            <li data-t="how2">Pinch (or pull the trigger) on the scan button next to the gear, and look at a tag from about half a meter.</li>
+            <li data-t="how3">The device's controls appear above its tag. Pinch the tag to open or close them.</li>
+          </ol>
+        </div>
+
+        <div class="row">
+          <button id="aw-continue" class="primary" type="button" data-t="continue">Continue to the app</button>
+          <label><input id="aw-hide" type="checkbox" /> <span data-t="hide">Don't show this again</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div id="aura-startvr" aria-hidden="true">
+      <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V4"/><path d="M5 11l7-7 7 7"/></svg>
+      <div class="pill">Tap Start VR, up here</div>
+    </div>
     <div id="scene-container"></div>
+    <script>
+      (function () {
+        var T = {
+          en: {
+            lang: 'Português', title: 'Before you start',
+            intro: 'A.U.R.A. puts the controls of your home devices in the room with you, in mixed reality on Meta Quest. Each device has a printed tag; look at it and its controls appear right there.',
+            camTitle: '1. Allow the headset camera',
+            camBody: 'To read the printed tags, A.U.R.A. needs the headset camera. Allow it now, before entering AR. In the prompt, make sure <b>Headset cameras</b> is on (Virtual cameras alone only shows your avatar, and the image stays black).',
+            camHelp: 'Missed it? Settings › Privacy & safety › Browser › Headset cameras, or the lock icon next to the address.',
+            camButton: 'Allow camera', tagsTitle: '2. Tags (optional)',
+            tagsBody: 'Print the tags and stick them next to your devices: 1 lamp, 2 air conditioner, 3 door lock, 10 TV. No tags? You can still try everything with the tag icons in the app.',
+            tagsLink: 'Printable tags (PDF)', guideLink: 'User guide (PDF)', howTitle: '3. In the app',
+            how1: 'Enter AR when the browser offers it.',
+            how2: 'Pinch (or pull the trigger) on the scan button next to the gear, and look at a tag from about half a meter.',
+            how3: "The device's controls appear above its tag. Pinch the tag to open or close them.",
+            continue: 'Continue to the app', hide: "Don't show this again",
+            asking: 'Waiting for your answer…', ok: 'Headset camera allowed.',
+            virtualOnly: 'Only the avatar camera was allowed. Turn on Headset cameras (see above).',
+            denied: 'Camera not allowed. You can still use the app with the tag icons.',
+            unsupported: 'This browser has no camera access. The tag icons still work.'
+          },
+          'pt-BR': {
+            lang: 'English', title: 'Antes de começar',
+            intro: 'O A.U.R.A. coloca os controles dos aparelhos da sua casa no ambiente com você, em realidade mista no Meta Quest. Cada aparelho tem um tag impresso; olhe para ele e os controles aparecem ali.',
+            camTitle: '1. Libere a câmera do headset',
+            camBody: 'Para ler os tags impressos, o A.U.R.A. precisa da câmera do headset. Libere agora, antes de entrar no AR. No pedido, confira se <b>Headset cameras</b> está ligado (só Virtual cameras mostra o avatar, e a imagem fica preta).',
+            camHelp: 'Passou direto? Configurações › Privacidade e segurança › Navegador › Headset cameras, ou o cadeado ao lado do endereço.',
+            camButton: 'Liberar câmera', tagsTitle: '2. Tags (opcional)',
+            tagsBody: 'Imprima os tags e cole ao lado dos aparelhos: 1 lâmpada, 2 ar-condicionado, 3 fechadura, 10 TV. Sem tags? Dá para testar tudo com os ícones de tag no app.',
+            tagsLink: 'Tags para imprimir (PDF)', guideLink: 'Guia do usuário (PDF)', howTitle: '3. No app',
+            how1: 'Entre no AR quando o navegador oferecer.',
+            how2: 'Faça o pinch (ou aperte o gatilho) no botão de scan ao lado da engrenagem e olhe para um tag a uns 50 cm.',
+            how3: 'Os controles do aparelho aparecem acima do tag. Pinch no tag abre e fecha.',
+            continue: 'Ir para o app', hide: 'Não mostrar de novo',
+            asking: 'Esperando a sua resposta…', ok: 'Câmera do headset liberada.',
+            virtualOnly: 'Só a câmera do avatar foi liberada. Ligue Headset cameras (veja acima).',
+            denied: 'Câmera não liberada. O app funciona assim mesmo, com os ícones de tag.',
+            unsupported: 'Este navegador não dá acesso à câmera. Os ícones de tag funcionam.'
+          }
+        };
+        var gate = document.getElementById('aura-welcome');
+        function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+        function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+        if (get('aura_welcome_seen') === '1') return;
+        var lang = 'en'; // this page is English-only for now
+        var lastStatus = null;
+        function apply() {
+          var t = T[lang];
+          document.documentElement.lang = lang === 'pt-BR' ? 'pt-BR' : 'en';
+          gate.querySelectorAll('[data-t]').forEach(function (el) {
+            var v = t[el.getAttribute('data-t')];
+            if (v) el.innerHTML = v;
+          });
+          if (lastStatus) showStatus(lastStatus[0], lastStatus[1]);
+        }
+        function showStatus(key, cls) {
+          lastStatus = [key, cls];
+          var s = document.getElementById('aw-camera-status');
+          s.textContent = T[lang][key];
+          s.className = 'status ' + (cls || '');
+        }
+        document.getElementById('aw-camera').addEventListener('click', function () {
+          var md = navigator.mediaDevices;
+          if (!md || !md.getUserMedia) { showStatus('unsupported', 'warn'); return; }
+          showStatus('asking');
+          md.getUserMedia({ video: true }).then(function (stream) {
+            stream.getTracks().forEach(function (tr) { tr.stop(); });
+            return md.enumerateDevices();
+          }).then(function (devices) {
+            var cams = devices.filter(function (d) { return d.kind === 'videoinput'; });
+            var real = cams.filter(function (d) { return !/virtual|avatar/i.test(d.label || ''); });
+            showStatus(real.length ? 'ok' : 'virtualOnly', real.length ? 'ok' : 'warn');
+          }).catch(function () { showStatus('denied', 'warn'); });
+        });
+        document.getElementById('aw-continue').addEventListener('click', function () {
+          if (document.getElementById('aw-hide').checked) set('aura_welcome_seen', '1');
+          gate.hidden = true;
+        });
+        apply();
+        gate.hidden = false;
+      })();
+    </script>
     <script type="module" src="/src/index.ts"></script>
   </body>
 </html>

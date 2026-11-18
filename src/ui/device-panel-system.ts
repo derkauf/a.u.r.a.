@@ -20,6 +20,7 @@
  * O texto dos elementos é atualizado via setProperties({ text }) no
  * elemento-pai: o Text filho do UIKitML lê a propriedade `text` do pai.
  */
+import { onDeviceControlUsed } from '../audio/sound-design.js';
 import { createSystem, UIKitMLAsset } from '@iwsdk/core';
 import { deviceRegistry, type DeviceEntry, type DeviceId } from '../devices/device-registry.js';
 import { anchorStatus, anchorStatusText, subscribeAnchorStatus } from '../anchors/anchor-status.js';
@@ -170,6 +171,7 @@ export class AuraPanelSystem extends createSystem() {
       } else {
         deviceRegistry.setPower(deviceId, !entry.state.power);
       }
+      onDeviceControlUsed();
     });
     this.activate(panel, EL.rangeMinus, () => this.bumpRange(deviceId, -1));
     this.activate(panel, EL.rangePlus, () => this.bumpRange(deviceId, 1));
@@ -192,6 +194,7 @@ export class AuraPanelSystem extends createSystem() {
     playConfirm();
     const entry = deviceRegistry.get(deviceId);
     if (!entry) return;
+    onDeviceControlUsed();
     if (deviceId === 'ac-sala-01') {
       const control = entry.controls['setpoint_c'];
       if (control?.kind !== 'range') return;

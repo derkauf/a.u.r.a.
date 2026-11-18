@@ -42,6 +42,7 @@ import {
 } from '../settings/settings-store.js';
 import { isViewFollowOn, setViewFollow, subscribeViewFollow } from './view-follow.js';
 import { playConfirm } from './feedback-sound.js';
+import { MUSIC_OFF, MUSIC_TRACKS, replayVoiceGuide } from '../audio/sound-design.js';
 import { onActivate, pinchMode, type PinchMode } from './activation.js';
 import { exportRoomConfig } from '../settings/room-config.js';
 import { PROJECT_PHASES, phaseState } from '../phases/phases.js';
@@ -86,6 +87,11 @@ const LABELS: readonly (readonly [string, MessageKey])[] = [
   ['hud-more', 'hud.moreSoon'],
   ['lbl-aud-confirm', 'audio.confirm'],
   ['aud-more', 'audio.moreSoon'],
+  ['lbl-aud-music', 'audio.music'],
+  ['lbl-aud-music-vol', 'audio.musicVolume'],
+  ['lbl-aud-voice', 'audio.voice'],
+  ['lbl-aud-voice-vol', 'audio.voiceVolume'],
+  ['aud-replay-label', 'audio.replay'],
   ['lbl-cmf-language', 'comfort.language'],
   ['lbl-cmf-height', 'comfort.height'],
   ['cmf-standing-label', 'comfort.standing'],
@@ -230,6 +236,17 @@ export class AuraSettingsPanelSystem extends createSystem() {
     // Audio & Feedback
     this.on(panel, 'aud-minus', () => this.stepVolume(-10));
     this.on(panel, 'aud-plus', () => this.stepVolume(10));
+    this.on(panel, 'aud-track-prev', () => this.stepTrack(-1));
+    this.on(panel, 'aud-track-next', () => this.stepTrack(1));
+    this.on(panel, 'aud-music-minus', () => this.stepAudio('musicVolume', -10));
+    this.on(panel, 'aud-music-plus', () => this.stepAudio('musicVolume', 10));
+    this.on(panel, 'aud-voice', () => updateSettings('audio', { voiceGuide: !getSettings().audio.voiceGuide }));
+    this.on(panel, 'aud-voice-minus', () => this.stepAudio('voiceVolume', -10));
+    this.on(panel, 'aud-voice-plus', () => this.stepAudio('voiceVolume', 10));
+    this.on(panel, 'aud-replay', () => {
+      if (!getSettings().audio.voiceGuide) updateSettings('audio', { voiceGuide: true });
+      replayVoiceGuide();
+    });
 
     // Comfort & Access
     this.on(panel, 'cmf-lang-prev', () => cycleLocale(-1));
@@ -345,6 +362,18 @@ export class AuraSettingsPanelSystem extends createSystem() {
     playConfirm(); // preview at the new volume
   }
 
+  /** Music track selector: the three tracks, then "Off". */
+  private stepTrack(delta: number): void {
+    const count = MUSIC_OFF + 1;
+    const musicTrack = (getSettings().audio.musicTrack + delta + count) % count;
+    updateSettings('audio', { musicTrack });
+  }
+
+  private stepAudio(field: 'musicVolume' | 'voiceVolume', delta: number): void {
+    const value = Math.max(0, Math.min(100, getSettings().audio[field] + delta));
+    updateSettings('audio', { [field]: value });
+  }
+
   private text(elementId: string, text: string): void {
     this.panel?.getElementById(elementId)?.setProperties({ text });
   }
@@ -413,6 +442,13 @@ export class AuraSettingsPanelSystem extends createSystem() {
 
     // Audio & Feedback
     this.text('aud-value', `${settings.audio.confirmVolume}%`);
+    const track = MUSIC_TRACKS[settings.audio.musicTrack];
+    this.text('aud-track-value', t(track ? track.key : 'audio.track.off'));
+    this.text('aud-track-prev-label', '<');
+    this.text('aud-track-next-label', '>');
+    this.text('aud-music-value', `${settings.audio.musicVolume}%`);
+    this.toggle('aud-voice', settings.audio.voiceGuide);
+    this.text('aud-voice-value', `${settings.audio.voiceVolume}%`);
 
     // Comfort & Access
     this.text('cmf-lang-value', getLocaleName(getLocale()));

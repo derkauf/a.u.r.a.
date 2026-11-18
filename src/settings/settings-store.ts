@@ -48,6 +48,14 @@ export interface AuraSettings {
     confirmVolume: number;
     /** next: glow on a successful gesture. */
     feedbackIntensity: number;
+    /** Background music volume in percent (0 = off); see audio/sound-design.ts. */
+    musicVolume: number;
+    /** Background music: index into MUSIC_TRACKS, or MUSIC_TRACKS.length = off. */
+    musicTrack: number;
+    /** Voice guide volume in percent. */
+    voiceVolume: number;
+    /** Onboarding voice guide on/off. */
+    voiceGuide: boolean;
   };
   comfort: {
     posture: Posture;
@@ -63,7 +71,7 @@ export interface AuraSettings {
 export const DEFAULT_SETTINGS: AuraSettings = {
   interaction: { pinchSensitivity: 25, snapStrength: 50, activationRange: 60, headNod: false },
   hud: { opacity: 100, cardSize: 'M', mode: 'soft', telemetry: false, darkMode: true },
-  audio: { spatialVolume: 70, confirmVolume: 60, feedbackIntensity: 60 },
+  audio: { spatialVolume: 70, confirmVolume: 60, feedbackIntensity: 60, musicVolume: 30, musicTrack: 0, voiceVolume: 90, voiceGuide: true },
   comfort: { posture: 'standing', colorblind: false, highContrast: false },
   deviceNames: {},
 };
