@@ -11,6 +11,7 @@ Pastas onde o usuário deposita referências a qualquer momento. Elas não fazem
 | [`docs/ux/hud-reference/`](ux/hud-reference/) | Referências de HUD holográfico (ciano neon, linhas finas, brilho). A subpasta `archived/` tem as descartadas | Deeper Mode (tema holograma ciano, Phase 4) |
 | [`docs/ux/quest-reference/`](ux/quest-reference/) | Screenshots da interface do Horizon OS (ícones de app, janelas, quick settings) | Estilo base da interface (Phase 2) e atalho no quick menu |
 | [`docs/ux/sound-design/`](ux/sound-design/) | Efeitos sonoros de UI. `us-single-seam.mp3` é o som de confirmação atual (`public/audio/ui-select.mp3`) | Áudio e feedback; áudio espacial (Phase 4) |
+| [`docs/ux/ux-illustrated-guide/`](ux/ux-illustrated-guide/) | Ilustrações planas no estilo Meta (fundo claro `#F0F2F5`, azul `#0082FB`, cards brancos de borda azul) e os prompts para gerar mais no mesmo estilo | Guia do usuário em PDF, landing page, vídeo tutorial |
 
 ## Observações
 

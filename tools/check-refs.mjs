@@ -25,6 +25,7 @@ const REF_FOLDERS = [
   'docs/ux/hud-reference',
   'docs/ux/quest-reference',
   'docs/ux/sound-design',
+  'docs/ux/ux-illustrated-guide',
 ];
 
 function listFiles(folder) {

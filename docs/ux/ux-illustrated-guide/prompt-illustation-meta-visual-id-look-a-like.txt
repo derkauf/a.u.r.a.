@@ -1,0 +1,7 @@
+Flat vector illustration in the Meta / Facebook illustration style, clean and minimal, for a smart-home app landing page. Soft light background #F0F2F5, almost white. Palette limited to Meta blue #0082FB, soft greys (#E8EAED, #C9CDD3, #9AA0A6), white, and one warm skin tone for the person. Flat shapes, no gradients except a very soft blue glow on the floating UI cards, no photorealism, no 3D render look, no shadows except a soft flat floor shadow, no text except simple line icons inside the UI cards. Calm, friendly, spacious composition with lots of negative space. Wide 16:9 landscape format.
+
+[DESCRIÇÃO DA CENA AQUI]
+
+Floating UI: small white rounded-rectangle control cards with a thick Meta-blue #0082FB outline, floating just above each device they control, each with a single simple blue line icon inside (sun / slider for the lamp, snowflake / fan for the air conditioner, lock / door / bell for the front door). The cards are the only saturated blue elements in the scene.
+
+No photorealism, no 3D render, no Pixar style, no anime, no dark background, no neon, no extra colors, no text, no letters, no numbers, no logos, no watermark.

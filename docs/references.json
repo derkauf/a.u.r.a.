@@ -63,5 +63,12 @@
   "docs/ux/sound-design": [
     "sound-fx/ui/ui-ultra-clean-selection.mp3",
     "sound-fx/ui/us-single-seam.mp3"
+  ],
+  "docs/ux/ux-illustrated-guide": [
+    "01-sala-headset-controles-flutuantes.webp",
+    "02-sala-dia-e-noite-ancoras-persistentes.webp",
+    "03-oculos-inteligentes-corredor-porta.webp",
+    "prompt-gerar-ilustracoes-estilo-meta.md",
+    "prompt-illustation-meta-visual-id-look-a-like.txt"
   ]
 }
